@@ -1,0 +1,25 @@
+# OS X
+.DS_Store
+
+# IntelliJ
+/.idea
+*.iml
+
+# eclipse
+/kinetic-client/.settings
+/kinetic-simlator/.settings
+/kinetic-test/.settings
+
+# build products
+/*/doc
+/*/target
+/*/test-output
+/test-output
+/*/kinetic_log
+
+/tmp
+*.pid
+*.swp
+*.log
+*.result
+/target
