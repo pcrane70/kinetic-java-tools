@@ -165,7 +165,7 @@ public class KineticToolCLI {
 
         if (rootArg == null || !validateArgNames(rootArg, args)) {
             throw new Exception(
-                    "Wrong function arguments, please see usage...\n");
+                    "No supported command in the request, please see usage...\n");
         }
     }
 
