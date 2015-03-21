@@ -15,17 +15,24 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management;
+package com.seagate.kinetic.tools.management.cli;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import kinetic.client.KineticException;
+
+import com.seagate.kinetic.tools.management.cli.impl.DeviceDiscovery;
+import com.seagate.kinetic.tools.management.cli.impl.FirmwareDownloader;
+import com.seagate.kinetic.tools.management.cli.impl.FirmwareVersionChecker;
+import com.seagate.kinetic.tools.management.cli.impl.InstantErase;
+import com.seagate.kinetic.tools.management.cli.impl.SetClusterVersion;
+import com.seagate.kinetic.tools.management.cli.impl.SetErasePin;
+import com.seagate.kinetic.tools.management.cli.impl.SetSecurity;
+import com.seagate.kinetic.tools.management.cli.impl.SmokeTestRunner;
 
 /**
  *
@@ -34,13 +41,13 @@ import kinetic.client.KineticException;
  *
  *
  */
-public class KineticMgmtCLI {
+public class KineticToolCLI {
     private static final int OK = 0;
     private static final String DEFAULT_DISCOVER_TIME = "30";
-    private static final String DEFAULT_DRIVE_OUTPUT_FILE = "discoverdDrivesList";
+    private static final String DEFAULT_DRIVE_OUTPUT_FILE = "drives";
     private final Map<String, List<String>> legalArguments = new HashMap<String, List<String>>();
 
-    public KineticMgmtCLI() throws KineticException {
+    public KineticToolCLI() throws KineticException {
         String rootArg = "-help";
         List<String> subArgs = new ArrayList<String>();
         legalArguments.put(rootArg, subArgs);
@@ -98,16 +105,16 @@ public class KineticMgmtCLI {
 
     public static void printHelp() {
         StringBuffer sb = new StringBuffer();
-        sb.append("Usage: kineticMgmt <-discover|-firmwaredownload|-checkversion|-setclusterversion|-setsecurity|-seterasepin|-instanterase|-runsmoketest>\n");
-        sb.append("kineticMgmt -h|-help\n");
-        sb.append("kineticMgmt -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>]\n");
-        sb.append("kineticMgmt -firmwaredownload <fmFile> <-in <driveListInputFile>>\n");
-        sb.append("kineticMgmt -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>>\n");
-        sb.append("kineticMgmt -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>>\n");
-        sb.append("kineticMgmt -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>>\n");
-        sb.append("kineticMgmt -setclusterversion <-clversion <newClusterVersionInString>> <-in <driveListInputFile>>\n");
-        sb.append("kineticMgmt -setsecurity <securityFile> <-in <driveListInputFile>>\n");
-        sb.append("kineticMgmt -runsmoketest <-in <driveListInputFile>>\n");
+        sb.append("Usage: ktool <-discover|-firmwaredownload|-checkversion|-setclusterversion|-setsecurity|-seterasepin|-instanterase|-runsmoketest>\n");
+        sb.append("ktool -h|-help\n");
+        sb.append("ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>]\n");
+        sb.append("ktool -firmwaredownload <fmFile> <-in <driveListInputFile>>\n");
+        sb.append("ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>>\n");
+        sb.append("ktool -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>>\n");
+        sb.append("ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>>\n");
+        sb.append("ktool -setclusterversion <-clversion <newClusterVersionInString>> <-in <driveListInputFile>>\n");
+        sb.append("ktool -setsecurity <securityFile> <-in <driveListInputFile>>\n");
+        sb.append("ktool -runsmoketest <-in <driveListInputFile>>\n");
         System.out.println(sb.toString());
     }
 
@@ -157,7 +164,8 @@ public class KineticMgmtCLI {
         }
 
         if (rootArg == null || !validateArgNames(rootArg, args)) {
-            throw new Exception("wrong commands");
+            throw new Exception(
+                    "Wrong function arguments, please see usage...\n");
         }
     }
 
@@ -168,9 +176,9 @@ public class KineticMgmtCLI {
             System.exit(OK);
         }
 
-        KineticMgmtCLI kineticClusterMgmtCLI = null;
+        KineticToolCLI kineticClusterMgmtCLI = null;
         try {
-            kineticClusterMgmtCLI = new KineticMgmtCLI();
+            kineticClusterMgmtCLI = new KineticToolCLI();
             kineticClusterMgmtCLI.validateArgNames(args);
             if (args[0].equalsIgnoreCase("-help")
                     || args[0].equalsIgnoreCase("-h")) {
@@ -187,13 +195,12 @@ public class KineticMgmtCLI {
                 String driveListOutputFile = kineticClusterMgmtCLI.getArgValue(
                         "-out", args);
 
-                Date date = new Date();
-                Timestamp timeStamp = new Timestamp(date.getTime());
+                long time = System.currentTimeMillis();
+
                 String driveDefaultName = DEFAULT_DRIVE_OUTPUT_FILE + "_"
-                        + timeStamp;
+                        + String.valueOf(time);
 
                 driveListOutputFile = driveListOutputFile == null ? driveDefaultName
-                        + new Date()
                         : driveListOutputFile;
 
                 DeviceDiscovery deviceDiscovery = new DeviceDiscovery();
@@ -281,7 +288,7 @@ public class KineticMgmtCLI {
                 ke.printStackTrace();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             printHelp();
         }
 

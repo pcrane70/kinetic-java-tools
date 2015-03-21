@@ -1,4 +1,4 @@
-package com.seagate.kinetic.tools.management;
+package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;

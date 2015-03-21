@@ -27,5 +27,5 @@ done
 
 #echo "CLASSPATH=$CLASSPATH"
 
-exec "$JAVA" -classpath "$CLASSPATH" -Dkinetic.io.in=true -Dkinetic.io.out=true com.seagate.kinetic.tools.management.KineticMgmtCLI "$@"
+exec "$JAVA" -classpath "$CLASSPATH" -Dkinetic.io.in=true -Dkinetic.io.out=true com.seagate.kinetic.tools.management.cli.KineticToolCLI "$@"
 

@@ -1,6 +1,7 @@
-package com.seagate.kinetic.tools.management;
+package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -16,27 +17,33 @@ import kinetic.client.KineticException;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-public class SetClusterVersion extends DeviceLoader{
-    private long newClusterVersion;
+public class InstantErase extends DeviceLoader{
+    private byte[] erasePin;
     private List<KineticDevice> failed = new ArrayList<KineticDevice>();
     private List<KineticDevice> succeed = new ArrayList<KineticDevice>();
 
-    public SetClusterVersion(String clusterVersionInString,
-            String drivesInputFile) throws IOException {
-        this.newClusterVersion = Long.parseLong(clusterVersionInString);
+    public InstantErase(String erasePinInString, String drivesInputFile)
+            throws IOException {
+        this.erasePin = null;
+        parsePin(erasePinInString);
         loadDevices(drivesInputFile);
     }
 
-    public void setClusterVersion() throws InterruptedException,
-            KineticException, IOException {
+    private void parsePin(String erasePin) {
+        if (null != erasePin) {
+            this.erasePin = erasePin.getBytes(Charset.forName("UTF-8"));
+        }
+    }
+
+    public void instantErase() throws InterruptedException, KineticException,
+            IOException {
         CountDownLatch latch = new CountDownLatch(devices.size());
         ExecutorService pool = Executors.newCachedThreadPool();
 
-        System.out.println("Start set cluster version...");
+        System.out.println("Start instant erase...");
 
         for (KineticDevice device : devices) {
-            pool.execute(new setClusterVersionThread(device, newClusterVersion,
-                    latch));
+            pool.execute(new instantEraseThread(device, erasePin, latch));
         }
 
         // wait all threads finish
@@ -55,37 +62,37 @@ public class SetClusterVersion extends DeviceLoader{
                 + succeedDevices + "/" + failedDevices + ")");
 
         if (succeedDevices > 0) {
-            System.out.println("The following devices set cluster version succeed:");
+            System.out.println("The following devices instant erase succeed:");
             for (KineticDevice device : succeed) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
 
         if (failedDevices > 0) {
-            System.out.println("The following devices set cluster version failed:");
+            System.out.println("The following devices instant erase failed:");
             for (KineticDevice device : failed) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
     }
 
-    class setClusterVersionThread implements Runnable {
+    class instantEraseThread implements Runnable {
         private KineticDevice device = null;
         private KineticAdminClient adminClient = null;
         private AdminClientConfiguration adminClientConfig = null;
-        private long newClusterVersion = 0;
+        private byte[] erasePin = null;
         private CountDownLatch latch = null;
 
-        public setClusterVersionThread(KineticDevice device,
-                long newClusterVersion, CountDownLatch latch)
-                throws KineticException {
+        public instantEraseThread(KineticDevice device, byte[] erasePin,
+                CountDownLatch latch) throws KineticException {
             this.device = device;
-            this.newClusterVersion = newClusterVersion;
+            this.erasePin = erasePin;
             this.latch = latch;
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
             adminClientConfig.setUseSsl(true);
             adminClientConfig.setPort(device.getTlsPort());
+            adminClientConfig.setRequestTimeoutMillis(180000);
             adminClient = KineticAdminClientFactory
                     .createInstance(adminClientConfig);
         }
@@ -93,7 +100,7 @@ public class SetClusterVersion extends DeviceLoader{
         @Override
         public void run() {
             try {
-                adminClient.setClusterVersion(newClusterVersion);
+                adminClient.instantErase(erasePin);
                 latch.countDown();
 
                 synchronized (this) {
