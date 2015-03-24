@@ -26,18 +26,29 @@ import com.seagate.kinetic.admin.impl.JsonUtil;
 import com.seagate.kinetic.proto.Kinetic.Command.Security;
 import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
 
-public class SetSecurity extends DeviceLoader{
+public class SetSecurity extends DeviceLoader {
     private String security;
     private byte[] securityContent;
+    private boolean useSsl;
+    private long clusterVersion;
+    private long identity;
+    private String key;
+    private long requestTimeout;
     private List<ACL> aclList;
     private List<KineticDevice> failed = new ArrayList<KineticDevice>();
     private List<KineticDevice> succeed = new ArrayList<KineticDevice>();
 
-    public SetSecurity(String security, String drivesInputFile)
+    public SetSecurity(String security, String drivesInputFile, boolean useSsl,
+            long clusterVersion, long identity, String key, long requestTimeout)
             throws IOException {
         this.security = security;
         loadSecurity();
         loadDevices(drivesInputFile);
+        this.useSsl = useSsl;
+        this.clusterVersion = clusterVersion;
+        this.identity = identity;
+        this.key = key;
+        this.requestTimeout = requestTimeout;
     }
 
     private void loadSecurity() throws IOException {
@@ -93,7 +104,8 @@ public class SetSecurity extends DeviceLoader{
         System.out.println("Start set security...");
 
         for (KineticDevice device : devices) {
-            pool.execute(new SetSecurityThread(device, aclList, latch));
+            pool.execute(new SetSecurityThread(device, aclList, latch, useSsl,
+                    clusterVersion, identity, key, requestTimeout));
         }
 
         // wait all threads finish
@@ -134,14 +146,26 @@ public class SetSecurity extends DeviceLoader{
         private CountDownLatch latch = null;
 
         public SetSecurityThread(KineticDevice device, List<ACL> aclList,
-                CountDownLatch latch) throws KineticException {
+                CountDownLatch latch, boolean useSsl, long clusterVersion,
+                long identity, String key, long requestTimeout)
+                throws KineticException {
             this.device = device;
             this.aclList = aclList;
             this.latch = latch;
+
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
-            adminClientConfig.setUseSsl(true);
-            adminClientConfig.setPort(device.getTlsPort());
+            adminClientConfig.setUseSsl(useSsl);
+            if (useSsl) {
+                adminClientConfig.setPort(device.getTlsPort());
+            } else {
+                adminClientConfig.setPort(device.getPort());
+            }
+            adminClientConfig.setClusterVersion(clusterVersion);
+            adminClientConfig.setUserId(identity);
+            adminClientConfig.setKey(key);
+            adminClientConfig.setRequestTimeoutMillis(requestTimeout);
+
             adminClient = KineticAdminClientFactory
                     .createInstance(adminClientConfig);
         }

@@ -17,16 +17,27 @@ import kinetic.client.KineticException;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-public class InstantErase extends DeviceLoader{
+public class InstantErase extends DeviceLoader {
     private byte[] erasePin;
+    private boolean useSsl;
+    private long clusterVersion;
+    private long identity;
+    private String key;
+    private long requestTimeout;
     private List<KineticDevice> failed = new ArrayList<KineticDevice>();
     private List<KineticDevice> succeed = new ArrayList<KineticDevice>();
 
-    public InstantErase(String erasePinInString, String drivesInputFile)
-            throws IOException {
+    public InstantErase(String erasePinInString, String drivesInputFile,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
         this.erasePin = null;
         parsePin(erasePinInString);
         loadDevices(drivesInputFile);
+        this.useSsl = useSsl;
+        this.clusterVersion = clusterVersion;
+        this.identity = identity;
+        this.key = key;
+        this.requestTimeout = requestTimeout;
     }
 
     private void parsePin(String erasePin) {
@@ -43,7 +54,8 @@ public class InstantErase extends DeviceLoader{
         System.out.println("Start instant erase...");
 
         for (KineticDevice device : devices) {
-            pool.execute(new instantEraseThread(device, erasePin, latch));
+            pool.execute(new instantEraseThread(device, erasePin, latch,
+                    useSsl, clusterVersion, identity, key, requestTimeout));
         }
 
         // wait all threads finish
@@ -84,15 +96,26 @@ public class InstantErase extends DeviceLoader{
         private CountDownLatch latch = null;
 
         public instantEraseThread(KineticDevice device, byte[] erasePin,
-                CountDownLatch latch) throws KineticException {
+                CountDownLatch latch, boolean useSsl, long clusterVersion,
+                long identity, String key, long requestTimeout)
+                throws KineticException {
             this.device = device;
             this.erasePin = erasePin;
             this.latch = latch;
+
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
-            adminClientConfig.setUseSsl(true);
-            adminClientConfig.setPort(device.getTlsPort());
-            adminClientConfig.setRequestTimeoutMillis(180000);
+            adminClientConfig.setUseSsl(useSsl);
+            if (useSsl) {
+                adminClientConfig.setPort(device.getTlsPort());
+            } else {
+                adminClientConfig.setPort(device.getPort());
+            }
+            adminClientConfig.setClusterVersion(clusterVersion);
+            adminClientConfig.setUserId(identity);
+            adminClientConfig.setKey(key);
+            adminClientConfig.setRequestTimeoutMillis(requestTimeout);
+
             adminClient = KineticAdminClientFactory
                     .createInstance(adminClientConfig);
         }

@@ -18,13 +18,24 @@ import org.codehaus.jackson.map.JsonMappingException;
 
 public class FirmwareVersionChecker extends DeviceLoader {
     private String expectedFirewareVersion;
+    private boolean useSsl;
+    private long clusterVersion;
+    private long identity;
+    private String key;
+    private long requestTimeout;
     private Map<KineticDevice, String> failed = new HashMap<KineticDevice, String>();
     private Map<KineticDevice, String> succeed = new HashMap<KineticDevice, String>();
 
     public FirmwareVersionChecker(String expectedFirewareVersion,
-            String nodesLogFile) throws IOException {
+            String nodesLogFile, boolean useSsl, long clusterVersion,
+            long identity, String key, long requestTimeout) throws IOException {
         this.expectedFirewareVersion = expectedFirewareVersion;
         loadDevices(nodesLogFile);
+        this.useSsl = useSsl;
+        this.clusterVersion = clusterVersion;
+        this.identity = identity;
+        this.key = key;
+        this.requestTimeout = requestTimeout;
     }
 
     public void checkFirmwareVersion() throws JsonGenerationException,
@@ -34,7 +45,8 @@ public class FirmwareVersionChecker extends DeviceLoader {
         String firmwareVersion;
         for (KineticDevice device : devices) {
             try {
-                firmwareVersion = getFirmwareVersion(device);
+                firmwareVersion = getFirmwareVersion(device, useSsl,
+                        clusterVersion, identity, key, requestTimeout);
                 if (firmwareVersion.equals(expectedFirewareVersion)) {
                     System.out.println("[Passed]"
                             + KineticDevice.toJson(device));
@@ -80,15 +92,25 @@ public class FirmwareVersionChecker extends DeviceLoader {
         }
     }
 
-    private String getFirmwareVersion(KineticDevice device)
+    private String getFirmwareVersion(KineticDevice device, boolean useSsl,
+            long clusterVersion, long identity, String key, long requestTimeout)
             throws KineticException {
         KineticAdminClient adminClient = null;
         AdminClientConfiguration adminClientConfig = null;
 
         adminClientConfig = new AdminClientConfiguration();
         adminClientConfig.setHost(device.getInet4().get(0));
-        adminClientConfig.setUseSsl(false);
-        adminClientConfig.setPort(device.getPort());
+        adminClientConfig.setUseSsl(useSsl);
+        if (useSsl) {
+            adminClientConfig.setPort(device.getTlsPort());
+        } else {
+            adminClientConfig.setPort(device.getPort());
+        }
+        adminClientConfig.setClusterVersion(clusterVersion);
+        adminClientConfig.setUserId(identity);
+        adminClientConfig.setKey(key);
+        adminClientConfig.setRequestTimeoutMillis(requestTimeout);
+
         adminClient = KineticAdminClientFactory
                 .createInstance(adminClientConfig);
 

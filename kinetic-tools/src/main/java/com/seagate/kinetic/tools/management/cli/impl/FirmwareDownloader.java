@@ -19,133 +19,159 @@ import kinetic.client.KineticException;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-public class FirmwareDownloader extends DeviceLoader{
-	private String firmware;
-	private byte[] firmwareContent;
-	private List<KineticDevice> failed = new ArrayList<KineticDevice>();
-	private List<KineticDevice> succeed = new ArrayList<KineticDevice>();
+public class FirmwareDownloader extends DeviceLoader {
+    private boolean useSsl;
+    private long clusterVersion;
+    private long identity;
+    private String key;
+    private long requestTimeout;
+    private String firmware;
+    private byte[] firmwareContent;
+    private List<KineticDevice> failed = new ArrayList<KineticDevice>();
+    private List<KineticDevice> succeed = new ArrayList<KineticDevice>();
 
-	public FirmwareDownloader(String firmware, String nodesLogFile)
-			throws IOException {
-		this.firmware = firmware;
-		loadFirmware();
-		loadDevices(nodesLogFile);
-	}
+    public FirmwareDownloader(String firmware, String nodesLogFile,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
+        this.firmware = firmware;
+        loadFirmware();
+        loadDevices(nodesLogFile);
+        this.useSsl = useSsl;
+        this.clusterVersion = clusterVersion;
+        this.identity = identity;
+        this.key = key;
+        this.requestTimeout = requestTimeout;
+    }
 
-	private void loadFirmware() throws IOException {
-		InputStream is = new FileInputStream(firmware);
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte[] b = new byte[1024];
-		int n;
-		while ((n = is.read(b)) != -1) {
-			out.write(b, 0, n);
-		}
-		is.close();
-		firmwareContent = out.toByteArray();
-	}
+    private void loadFirmware() throws IOException {
+        InputStream is = new FileInputStream(firmware);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] b = new byte[1024];
+        int n;
+        while ((n = is.read(b)) != -1) {
+            out.write(b, 0, n);
+        }
+        is.close();
+        firmwareContent = out.toByteArray();
+    }
 
-	public void updateFirmware() throws InterruptedException, KineticException,
-			JsonGenerationException, JsonMappingException, IOException {
-		CountDownLatch latch = new CountDownLatch(devices.size());
-		ExecutorService pool = Executors.newCachedThreadPool();
-		
-		System.out.println("Start download firmware......");
+    public void updateFirmware() throws InterruptedException, KineticException,
+            JsonGenerationException, JsonMappingException, IOException {
+        CountDownLatch latch = new CountDownLatch(devices.size());
+        ExecutorService pool = Executors.newCachedThreadPool();
 
-		for (KineticDevice device : devices) {
-			pool.execute(new FirmwareDownloadThread(device, firmwareContent,
-					latch));
-		}
+        System.out.println("Start download firmware......");
 
-		// wait all threads finish
-		latch.await();
-		pool.shutdown();
+        for (KineticDevice device : devices) {
+            // pool.execute(new FirmwareDownloadThread(device, firmwareContent,
+            // latch));
+            pool.execute(new FirmwareDownloadThread(firmwareContent, latch,
+                    device, useSsl, clusterVersion, identity, key,
+                    requestTimeout));
+        }
 
-		int totalDevices = devices.size();
-		int failedDevices = failed.size();
-		int succeedDevices = succeed.size();
+        // wait all threads finish
+        latch.await();
+        pool.shutdown();
 
-		assert (failedDevices + succeedDevices == totalDevices);
+        int totalDevices = devices.size();
+        int failedDevices = failed.size();
+        int succeedDevices = succeed.size();
 
-		TimeUnit.SECONDS.sleep(2);
-		System.out.flush();
-		System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-				+ succeedDevices + "/" + failedDevices + ")");
+        assert (failedDevices + succeedDevices == totalDevices);
 
-		if (succeedDevices > 0) {
-			System.out.println("Below devices downloaded firmware succeed:");
-			for (KineticDevice device : succeed) {
-				System.out.println(KineticDevice.toJson(device));
-			}
-		}
+        TimeUnit.SECONDS.sleep(2);
+        System.out.flush();
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")");
 
-		if (failedDevices > 0) {
-			System.out.println("The following devices downloaded firmware failed:");
-			for (KineticDevice device : failed) {
-				System.out.println(KineticDevice.toJson(device));
-			}
-		}
-	}
+        if (succeedDevices > 0) {
+            System.out.println("Below devices downloaded firmware succeed:");
+            for (KineticDevice device : succeed) {
+                System.out.println(KineticDevice.toJson(device));
+            }
+        }
 
-	class FirmwareDownloadThread implements Runnable {
-		private KineticDevice device = null;
-		private KineticAdminClient adminClient = null;
-		private AdminClientConfiguration adminClientConfig = null;
-		private byte[] firmwareContent = null;
-		private CountDownLatch latch = null;
+        if (failedDevices > 0) {
+            System.out
+                    .println("The following devices downloaded firmware failed:");
+            for (KineticDevice device : failed) {
+                System.out.println(KineticDevice.toJson(device));
+            }
+        }
+    }
 
-		public FirmwareDownloadThread(KineticDevice device,
-				byte[] firmwareContent, CountDownLatch latch)
-				throws KineticException {
-			this.device = device;
-			this.firmwareContent = firmwareContent;
-			this.latch = latch;
-			adminClientConfig = new AdminClientConfiguration();
-			adminClientConfig.setHost(device.getInet4().get(0));
-			adminClientConfig.setUseSsl(false);
-			adminClientConfig.setPort(device.getPort());
-			adminClient = KineticAdminClientFactory
-					.createInstance(adminClientConfig);
-		}
+    class FirmwareDownloadThread implements Runnable {
+        private KineticDevice device = null;
+        private KineticAdminClient adminClient = null;
+        private AdminClientConfiguration adminClientConfig = null;
+        private byte[] firmwareContent = null;
+        private CountDownLatch latch = null;
 
-		@Override
-		public void run() {
-			try {
-				adminClient.firmwareDownload(firmwareContent);
-				latch.countDown();
+        public FirmwareDownloadThread(byte[] firmwareContent,
+                CountDownLatch latch, KineticDevice device, boolean useSsl,
+                long clusterVersion, long identity, String key,
+                long requestTimeout) throws KineticException {
+            this.device = device;
+            this.firmwareContent = firmwareContent;
+            this.latch = latch;
 
-				synchronized (this) {
-					succeed.add(device);
-				}
+            adminClientConfig = new AdminClientConfiguration();
+            adminClientConfig.setHost(device.getInet4().get(0));
+            adminClientConfig.setUseSsl(useSsl);
+            if (useSsl) {
+                adminClientConfig.setPort(device.getTlsPort());
+            } else {
+                adminClientConfig.setPort(device.getPort());
+            }
+            adminClientConfig.setClusterVersion(clusterVersion);
+            adminClientConfig.setUserId(identity);
+            adminClientConfig.setKey(key);
+            adminClientConfig.setRequestTimeoutMillis(requestTimeout);
 
-				System.out.println("[Succeed]" + KineticDevice.toJson(device));
-			} catch (KineticException e) {
-				latch.countDown();
+            adminClient = KineticAdminClientFactory
+                    .createInstance(adminClientConfig);
+        }
 
-				synchronized (this) {
-					failed.add(device);
-				}
+        @Override
+        public void run() {
+            try {
+                adminClient.firmwareDownload(firmwareContent);
+                latch.countDown();
 
-				try {
-				    System.out.println(e.getMessage());
-					System.out.println("[Failed]"
-							+ KineticDevice.toJson(device));
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			} catch (JsonGenerationException e) {
-				e.printStackTrace();
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				try {
-					adminClient.close();
-				} catch (KineticException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+                synchronized (this) {
+                    succeed.add(device);
+                }
 
-	}
+                System.out.println("[Succeed]" + KineticDevice.toJson(device));
+            } catch (KineticException e) {
+                latch.countDown();
+
+                synchronized (this) {
+                    failed.add(device);
+                }
+
+                try {
+                    System.out.println(e.getMessage());
+                    System.out.println("[Failed]"
+                            + KineticDevice.toJson(device));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            } catch (JsonGenerationException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    adminClient.close();
+                } catch (KineticException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
 }
