@@ -14,6 +14,7 @@ Suggested Development Environments
 kinetic tools command line Usage
 ==============================
 1. Clone the code: `git clone https://github.com/Seagate/kinetic-java-tools.git`
-2. Run "mvn clean package" in "Kinetic-java-tools" root folder
-3. cd bin folder
-4. See readme.txt for usage instructions to run ktools.sh script
+2. cd to "Kinetic-java-tools/kinetic-tools" folder.
+3. Run "mvn clean package"
+4. cd to bin folder
+5. See "Kinetic-java-tools/kinetic-tools/bin/readme.txt" for usage instructions to run ktools.sh script
