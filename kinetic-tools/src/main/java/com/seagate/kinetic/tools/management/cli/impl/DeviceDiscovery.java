@@ -59,23 +59,25 @@ public class DeviceDiscovery {
         return sb.toString();
     }
 
-    private void broadcastToDiscoverNodes() throws IOException {
+    private void broadcastToDiscoverNodes() throws SocketException {
         Enumeration<NetworkInterface> nets = NetworkInterface
                 .getNetworkInterfaces();
         String mcastDestination = DEFAULT_MC_DESTNATION;
         int mcastPort = 8123;
         MulticastSocket multicastSocket;
-        for (NetworkInterface netIf : Collections.list(nets)) {
-            InetAddress iadd;
-            iadd = InetAddress.getByName(mcastDestination);
-            multicastSocket = new MulticastSocket(mcastPort);
-            try {
-                multicastSocket.setNetworkInterface(netIf);
-            } catch (SocketException e) {
-                continue;
+        if (null != nets) {
+            for (NetworkInterface netIf : Collections.list(nets)) {
+                InetAddress iadd;
+                try {
+                    iadd = InetAddress.getByName(mcastDestination);
+                    multicastSocket = new MulticastSocket(mcastPort);
+                    multicastSocket.setNetworkInterface(netIf);
+                    multicastSocket.joinGroup(iadd);
+                } catch (Exception e1) {
+                    continue;
+                }
+                new NodeDiscoveryThread(multicastSocket).start();
             }
-            multicastSocket.joinGroup(iadd);
-            new NodeDiscoveryThread(multicastSocket).start();
         }
     }
 
