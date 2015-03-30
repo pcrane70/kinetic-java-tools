@@ -16,3 +16,4 @@ kinetic tools command line Usage
 3. Run "mvn clean package"
 4. cd to bin folder
 5. See "Kinetic-java-tools/kinetic-tools/bin/readme.txt" for usage and examples to run ktools.sh script
+[https://github.com/Seagate/kinetic-java-tools/blob/master/kinetic-tools/bin/readme.txt] (https://github.com/Seagate/kinetic-java-tools/blob/master/kinetic-tools/bin/readme.txt)
