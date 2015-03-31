@@ -127,34 +127,34 @@ public class FirmwareDownloader extends DefaultExecuter {
                     succeed.put(device, "");
                 }
 
-                System.out.println("[Succeed]" + KineticDevice.toJson(device));
-
                 latch.countDown();
+
+                System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
                 synchronized (this) {
                     failed.put(device, "");
                 }
 
-                try {
-                    System.out.println(e.getMessage());
-                    System.out.println("[Failed]"
-                            + KineticDevice.toJson(device));
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-
                 latch.countDown();
+
+                try {
+                    System.out.println("[Failed]"
+                            + KineticDevice.toJson(device) + "\n"
+                            + e.getMessage());
+                } catch (IOException e1) {
+                    System.out.println(e1.getMessage());
+                }
             } catch (JsonGenerationException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             } catch (JsonMappingException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             } finally {
                 try {
                     adminClient.close();
                 } catch (KineticException e) {
-                    e.printStackTrace();
+                    System.out.println(e.getMessage());
                 }
             }
         }

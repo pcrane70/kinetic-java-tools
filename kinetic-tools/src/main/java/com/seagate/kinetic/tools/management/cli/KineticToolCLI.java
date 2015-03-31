@@ -29,6 +29,7 @@ import com.seagate.kinetic.tools.management.cli.impl.DeviceDiscovery;
 import com.seagate.kinetic.tools.management.cli.impl.FirmwareDownloader;
 import com.seagate.kinetic.tools.management.cli.impl.FirmwareVersionChecker;
 import com.seagate.kinetic.tools.management.cli.impl.InstantErase;
+import com.seagate.kinetic.tools.management.cli.impl.LockDevice;
 import com.seagate.kinetic.tools.management.cli.impl.LogGetter;
 import com.seagate.kinetic.tools.management.cli.impl.SecureErase;
 import com.seagate.kinetic.tools.management.cli.impl.SetClusterVersion;
@@ -36,6 +37,7 @@ import com.seagate.kinetic.tools.management.cli.impl.SetErasePin;
 import com.seagate.kinetic.tools.management.cli.impl.SetLockPin;
 import com.seagate.kinetic.tools.management.cli.impl.SetSecurity;
 import com.seagate.kinetic.tools.management.cli.impl.SmokeTestRunner;
+import com.seagate.kinetic.tools.management.cli.impl.UnLockDevice;
 
 /**
  *
@@ -50,10 +52,10 @@ public class KineticToolCLI {
     private static final String DEFAULT_CLUSTER_VERSION = "0";
     private static final String DEFAULT_IDENTITY = "1";
     private static final String DEFAULT_KEY = "asdfasdf";
-    private static final String DEFAULT_REQUEST_TIMEOUT = "60";
-    private static final String DEFAULT_ISE_REQUEST_TIMEOUT = "180";
+    private static final String DEFAULT_REQUEST_TIMEOUT_IN_SECOND = "60";
+    private static final String DEFAULT_ISE_REQUEST_TIMEOUT_IN_SECOND = "180";
     private static final int MILLI_SECOND_IN_UNIT = 1000;
-    private static final String DEFAULT_DISCOVER_TIME = "30";
+    private static final String DEFAULT_DISCOVER_TIME_IN_SECOND = "30";
     private static final String DEFAULT_DRIVE_OUTPUT_FILE = "drives";
     private static final String DEFAULT_GET_LOG_TYPE = "all";
     private static final String DEFAULT_GET_LOG_OUTPUT_FILE = "getlogs";
@@ -129,6 +131,18 @@ public class KineticToolCLI {
         subArgs.add("-type");
         legalArguments.put(rootArg, subArgs);
 
+        rootArg = "-lockdevice";
+        subArgs = initSubArgs();
+        subArgs.add("-pin");
+        subArgs.add("-in");
+        legalArguments.put(rootArg, subArgs);
+
+        rootArg = "-unlockdevice";
+        subArgs = initSubArgs();
+        subArgs.add("-pin");
+        subArgs.add("-in");
+        legalArguments.put(rootArg, subArgs);
+
         rootArg = "-runsmoketest";
         subArgs = initSubArgs();
         subArgs.add("-in");
@@ -148,7 +162,9 @@ public class KineticToolCLI {
         sb.append("ktool -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]o\n");
+        sb.append("ktool -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -runsmoketest <-in <driveListInputFile>>\n");
         System.out.println(sb.toString());
     }
@@ -211,41 +227,41 @@ public class KineticToolCLI {
             System.exit(OK);
         }
 
-        KineticToolCLI kineticClusterMgmtCLI = null;
-        try {
-            kineticClusterMgmtCLI = new KineticToolCLI();
-            kineticClusterMgmtCLI.validateArgNames(args);
+        KineticToolCLI kineticToolCLI = null;
 
-            String useSslInString = kineticClusterMgmtCLI.getArgValue(
-                    "-usessl", args);
+        try {
+            kineticToolCLI = new KineticToolCLI();
+            kineticToolCLI.validateArgNames(args);
+
+            String useSslInString = kineticToolCLI.getArgValue("-usessl", args);
             useSslInString = useSslInString == null ? DEFAULT_USE_SSL
                     : useSslInString;
             boolean useSsl = Boolean.parseBoolean(useSslInString);
 
-            String clusterVersionInString = kineticClusterMgmtCLI.getArgValue(
+            String clusterVersionInString = kineticToolCLI.getArgValue(
                     "-clversion", args);
             clusterVersionInString = clusterVersionInString == null ? DEFAULT_CLUSTER_VERSION
                     : clusterVersionInString;
             long clusterVersion = Long.parseLong(clusterVersionInString);
 
-            String identityInString = kineticClusterMgmtCLI.getArgValue(
-                    "-identity", args);
+            String identityInString = kineticToolCLI.getArgValue("-identity",
+                    args);
             identityInString = identityInString == null ? DEFAULT_IDENTITY
                     : identityInString;
-            long userId = Long.parseLong(identityInString);
+            long identity = Long.parseLong(identityInString);
 
-            String key = kineticClusterMgmtCLI.getArgValue("-key", args);
+            String key = kineticToolCLI.getArgValue("-key", args);
             key = key == null ? DEFAULT_KEY : key;
 
-            String requestTimeoutInString = kineticClusterMgmtCLI.getArgValue(
+            String requestTimeoutInString = kineticToolCLI.getArgValue(
                     "-reqtimeout", args);
 
             if (args[0].equalsIgnoreCase("-secureerase")
                     || args[0].equalsIgnoreCase("-instanterase")) {
-                requestTimeoutInString = requestTimeoutInString == null ? DEFAULT_ISE_REQUEST_TIMEOUT
+                requestTimeoutInString = requestTimeoutInString == null ? DEFAULT_ISE_REQUEST_TIMEOUT_IN_SECOND
                         : requestTimeoutInString;
             } else {
-                requestTimeoutInString = requestTimeoutInString == null ? DEFAULT_REQUEST_TIMEOUT
+                requestTimeoutInString = requestTimeoutInString == null ? DEFAULT_REQUEST_TIMEOUT_IN_SECOND
                         : requestTimeoutInString;
             }
             long requestTimeout = Long.parseLong(requestTimeoutInString)
@@ -253,18 +269,18 @@ public class KineticToolCLI {
 
             if (args[0].equalsIgnoreCase("-help")
                     || args[0].equalsIgnoreCase("-h")) {
-                kineticClusterMgmtCLI.printHelp();
+                kineticToolCLI.printHelp();
                 System.exit(OK);
             } else if (args[0].equalsIgnoreCase("-discover")) {
-                String timeoutInString = kineticClusterMgmtCLI.getArgValue(
-                        "-timeout", args);
-                timeoutInString = timeoutInString == null ? DEFAULT_DISCOVER_TIME
+                String timeoutInString = kineticToolCLI.getArgValue("-timeout",
+                        args);
+                timeoutInString = timeoutInString == null ? DEFAULT_DISCOVER_TIME_IN_SECOND
                         : timeoutInString;
 
                 int timeout = Integer.parseInt(timeoutInString);
 
-                String driveListOutputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-out", args);
+                String driveListOutputFile = kineticToolCLI.getArgValue("-out",
+                        args);
 
                 long time = System.currentTimeMillis();
 
@@ -286,110 +302,121 @@ public class KineticToolCLI {
                         + " drives, persist drives info in "
                         + driveListOutputFile);
             } else if (args[0].equalsIgnoreCase("-firmwaredownload")) {
-                String firmwareFile = kineticClusterMgmtCLI.getArgValue(
+                String firmwareFile = kineticToolCLI.getArgValue(
                         "-firmwaredownload", args);
 
-                String nodesLogFile = kineticClusterMgmtCLI.getArgValue("-in",
-                        args);
+                String nodesLogFile = kineticToolCLI.getArgValue("-in", args);
 
                 FirmwareDownloader downloader = new FirmwareDownloader(
                         firmwareFile, nodesLogFile, useSsl, clusterVersion,
-                        userId, key, requestTimeout);
+                        identity, key, requestTimeout);
                 downloader.updateFirmware();
             } else if (args[0].equalsIgnoreCase("-setsecurity")) {
-                String securityFile = kineticClusterMgmtCLI.getArgValue(
+                String securityFile = kineticToolCLI.getArgValue(
                         "-setsecurity", args);
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
 
                 SetSecurity setSecurityer = new SetSecurity(securityFile,
-                        driveListInputFile, useSsl, clusterVersion, userId,
+                        driveListInputFile, useSsl, clusterVersion, identity,
                         key, requestTimeout);
                 setSecurityer.setSecurity();
             } else if (args[0].equalsIgnoreCase("-seterasepin")) {
-                String oldErasePin = kineticClusterMgmtCLI.getArgValue(
-                        "-oldpin", args);
-                String newErasePin = kineticClusterMgmtCLI.getArgValue(
-                        "-newpin", args);
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
+                String oldErasePin = kineticToolCLI
+                        .getArgValue("-oldpin", args);
+                String newErasePin = kineticToolCLI
+                        .getArgValue("-newpin", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
 
                 SetErasePin setErasePiner = new SetErasePin(oldErasePin,
                         newErasePin, driveListInputFile, useSsl,
-                        clusterVersion, userId, key, requestTimeout);
+                        clusterVersion, identity, key, requestTimeout);
                 setErasePiner.setErasePin();
             } else if (args[0].equalsIgnoreCase("-setclusterversion")) {
-                String newClusterVersion = kineticClusterMgmtCLI.getArgValue(
+                String newClusterVersion = kineticToolCLI.getArgValue(
                         "-newclversion", args);
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
 
                 SetClusterVersion SetClusterVersioner = new SetClusterVersion(
                         newClusterVersion, driveListInputFile, useSsl,
-                        clusterVersion, userId, key, requestTimeout);
+                        clusterVersion, identity, key, requestTimeout);
                 SetClusterVersioner.setClusterVersion();
             } else if (args[0].equalsIgnoreCase("-instanterase")) {
-                String erasePin = kineticClusterMgmtCLI.getArgValue("-pin",
+                String erasePin = kineticToolCLI.getArgValue("-pin", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
 
                 InstantErase instantEraser = new InstantErase(erasePin,
-                        driveListInputFile, useSsl, clusterVersion, userId,
+                        driveListInputFile, useSsl, clusterVersion, identity,
                         key, requestTimeout);
                 instantEraser.instantErase();
             } else if (args[0].equalsIgnoreCase("-secureerase")) {
-                String erasePin = kineticClusterMgmtCLI.getArgValue("-pin",
+                String erasePin = kineticToolCLI.getArgValue("-pin", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
 
                 SecureErase secureEraser = new SecureErase(erasePin,
-                        driveListInputFile, useSsl, clusterVersion, userId,
+                        driveListInputFile, useSsl, clusterVersion, identity,
                         key, requestTimeout);
-                secureEraser.instantErase();
+                secureEraser.secureErase();
             } else if (args[0].equalsIgnoreCase("-checkversion")) {
-                String expectVersion = kineticClusterMgmtCLI.getArgValue("-v",
+                String expectVersion = kineticToolCLI.getArgValue("-v", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
 
                 FirmwareVersionChecker checker = new FirmwareVersionChecker(
                         expectVersion, driveListInputFile, useSsl,
-                        clusterVersion, userId, key, requestTimeout);
+                        clusterVersion, identity, key, requestTimeout);
                 checker.checkFirmwareVersion();
             } else if (args[0].equalsIgnoreCase("-setlockpin")) {
-                String oldLockPin = kineticClusterMgmtCLI.getArgValue(
-                        "-oldpin", args);
-                String newLockPin = kineticClusterMgmtCLI.getArgValue(
-                        "-newpin", args);
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
+                String oldLockPin = kineticToolCLI.getArgValue("-oldpin", args);
+                String newLockPin = kineticToolCLI.getArgValue("-newpin", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
 
                 SetLockPin setLockPiner = new SetLockPin(oldLockPin,
                         newLockPin, driveListInputFile, useSsl, clusterVersion,
-                        userId, key, requestTimeout);
+                        identity, key, requestTimeout);
                 setLockPiner.setLockPin();
             } else if (args[0].equalsIgnoreCase("-getlog")) {
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
-                String logOutputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-out", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
+                String logOutputFile = kineticToolCLI.getArgValue("-out", args);
                 logOutputFile = logOutputFile == null ? DEFAULT_GET_LOG_OUTPUT_FILE
                         + "_" + String.valueOf(System.currentTimeMillis())
                         : logOutputFile;
 
-                String logType = kineticClusterMgmtCLI.getArgValue("-type",
-                        args);
+                String logType = kineticToolCLI.getArgValue("-type", args);
                 logType = logType == null ? DEFAULT_GET_LOG_TYPE : logType;
 
                 LogGetter logGetter = new LogGetter(driveListInputFile,
-                        logOutputFile, logType, useSsl, clusterVersion, userId,
-                        key, requestTimeout);
+                        logOutputFile, logType, useSsl, clusterVersion,
+                        identity, key, requestTimeout);
                 logGetter.getAndStoreLog();
+            } else if (args[0].equalsIgnoreCase("-lockdevice")) {
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
+                String lockPin = kineticToolCLI.getArgValue("-pin", args);
+
+                LockDevice deviceLocker = new LockDevice(driveListInputFile,
+                        lockPin, useSsl, clusterVersion, identity, key,
+                        requestTimeout);
+                deviceLocker.lockDevice();
+
+            } else if (args[0].equalsIgnoreCase("-unlockdevice")) {
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
+                String unLockPin = kineticToolCLI.getArgValue("-pin", args);
+
+                UnLockDevice deviceUnLocker = new UnLockDevice(
+                        driveListInputFile, unLockPin, useSsl, clusterVersion,
+                        identity, key, requestTimeout);
+                deviceUnLocker.unLockDevice();
             } else if (args[0].equalsIgnoreCase("-runsmoketest")) {
-                String driveListInputFile = kineticClusterMgmtCLI.getArgValue(
-                        "-in", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
 
                 new SmokeTestRunner(driveListInputFile).runSmokeTests();
             } else {

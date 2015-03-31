@@ -33,7 +33,7 @@ public class SecureErase extends DefaultExecuter {
         }
     }
 
-    public void instantErase() throws InterruptedException, KineticException,
+    public void secureErase() throws InterruptedException, KineticException,
             IOException {
         CountDownLatch latch = new CountDownLatch(devices.size());
         ExecutorService pool = Executors.newCachedThreadPool();
@@ -116,33 +116,34 @@ public class SecureErase extends DefaultExecuter {
                     succeed.put(device, "");
                 }
 
-                System.out.println("[Succeed]" + KineticDevice.toJson(device));
-
                 latch.countDown();
+
+                System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
                 synchronized (this) {
                     failed.put(device, "");
                 }
 
+                latch.countDown();
+
                 try {
                     System.out.println("[Failed]"
-                            + KineticDevice.toJson(device));
+                            + KineticDevice.toJson(device) + "\n"
+                            + e.getMessage());
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    System.out.println(e1.getMessage());
                 }
-
-                latch.countDown();
             } catch (JsonGenerationException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             } catch (JsonMappingException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             } finally {
                 try {
                     adminClient.close();
                 } catch (KineticException e) {
-                    e.printStackTrace();
+                    System.out.println(e.getMessage());
                 }
             }
         }

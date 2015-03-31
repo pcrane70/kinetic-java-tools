@@ -62,7 +62,24 @@ Kinetic tools for management example:
    For instance:
    sh ktool.sh -setsecurity ./template/security.template -in drives.txt
    
-11. ktool -runsmoketest <-in <driveListInputFile>>
+11. ktool -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
+    
+    For instance:
+    sh ktool.sh -getlog -in drives.txt
+    or
+    sh ktool.sh -getlog -in drives.txt -type configuration
+    
+12. ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
+    
+    For instance:
+    sh ktool.sh -lockdevice -pin 123 -in drives.txt
+    
+13. ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
+    
+    For instance:
+    sh ktool.sh -unlockdevice -pin 123 -in drives.txt
+      
+14. ktool -runsmoketest <-in <driveListInputFile>>
 
    For instance:
    sh ktool.sh -runsmoketest -in drives.txt

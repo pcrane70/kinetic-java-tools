@@ -15,83 +15,76 @@ import kinetic.client.KineticException;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-public class SetLockPin extends DefaultExecuter {
-    private byte[] oldLockPin;
-    private byte[] newLockPin;
+public class UnLockDevice extends DefaultExecuter {
+    private byte[] unLockPin;
 
-    public SetLockPin(String oldLockPinInString, String newLockPinInString,
-            String driveInputFile, boolean useSsl, long clusterVersion,
-            long identity, String key, long requestTimeout) throws IOException {
-        this.oldLockPin = null;
-        this.newLockPin = null;
+    public UnLockDevice(String drivesInputFile, String unLockPinInString,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
+        loadDevices(drivesInputFile);
         initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
-        this.loadDevices(driveInputFile);
-        parsePin(oldLockPinInString, newLockPinInString);
+        this.unLockPin = null;
+        parseUnLockPin(unLockPinInString);
     }
 
-    private void parsePin(String oldLockPinInString, String newLockPinInString) {
-        this.oldLockPin = oldLockPinInString.getBytes(Charset.forName("UTF-8"));
-        this.newLockPin = newLockPinInString.getBytes(Charset.forName("UTF-8"));
+    private void parseUnLockPin(String unLockPinInString) {
+        if (null != unLockPinInString) {
+            this.unLockPin = unLockPinInString.getBytes(Charset
+                    .forName("UTF-8"));
+        }
     }
 
-    public void setLockPin() throws KineticException, InterruptedException,
+    public void unLockDevice() throws KineticException, InterruptedException,
             JsonGenerationException, JsonMappingException, IOException {
         CountDownLatch latch = new CountDownLatch(devices.size());
         ExecutorService pool = Executors.newCachedThreadPool();
 
-        System.out.println("Start set lock pin...");
-
         for (KineticDevice device : devices) {
-            pool.execute(new SetLockPinThread(device, oldLockPin, newLockPin,
-                    latch, useSsl, clusterVersion, identity, key,
-                    requestTimeout));
+            pool.execute(new UnLockDeviceThread(device, unLockPin, latch,
+                    useSsl, clusterVersion, identity, key, requestTimeout));
         }
 
-        // wait all threads finish
         latch.await();
         pool.shutdown();
 
-        int totalDevices = devices.size();
-        int failedDevices = failed.size();
-        int succeedDevices = succeed.size();
-
-        assert (failedDevices + succeedDevices == totalDevices);
-
         TimeUnit.SECONDS.sleep(2);
         System.out.flush();
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")");
+
+        int totalDevices = devices.size();
+        int succeedDevices = succeed.size();
+        int failedDevices = failed.size();
+
+        assert (succeedDevices + failedDevices == totalDevices);
 
         if (succeedDevices > 0) {
-            System.out.println("The following devices set lock pin succeed:");
+            System.out
+                    .println("The following devices were unlocked successfully:");
             for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
 
         if (failedDevices > 0) {
-            System.out.println("The following devices set lock pin failed:");
+            System.out.println("The following devices were unlocked failed:");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
     }
 
-    class SetLockPinThread implements Runnable {
-        private KineticDevice device = null;
-        private KineticAdminClient adminClient = null;
-        private AdminClientConfiguration adminClientConfig = null;
-        private byte[] oldLockPin = null;
-        private byte[] newLockPin = null;
-        private CountDownLatch latch = null;
+    class UnLockDeviceThread implements Runnable {
+        private byte[] unLockPin;
+        private KineticDevice device;
+        private CountDownLatch latch;
+        private AdminClientConfiguration adminClientConfig;
+        private KineticAdminClient adminClient;
 
-        public SetLockPinThread(KineticDevice device, byte[] oldLockPin,
-                byte[] newLockPin, CountDownLatch latch, boolean useSsl,
-                long clusterVersion, long identity, String key,
-                long requestTimeout) throws KineticException {
+        public UnLockDeviceThread(KineticDevice device, byte[] unLockPin,
+                CountDownLatch latch, boolean useSsl, long clusterVersion,
+                long identity, String key, long requestTimeout)
+                throws KineticException {
+            this.unLockPin = unLockPin;
             this.device = device;
-            this.oldLockPin = oldLockPin;
-            this.newLockPin = newLockPin;
             this.latch = latch;
 
             adminClientConfig = new AdminClientConfiguration();
@@ -102,19 +95,20 @@ public class SetLockPin extends DefaultExecuter {
             } else {
                 adminClientConfig.setPort(device.getPort());
             }
-            adminClientConfig.setClusterVersion(clusterVersion);
             adminClientConfig.setUserId(identity);
             adminClientConfig.setKey(key);
+            adminClientConfig.setClusterVersion(clusterVersion);
             adminClientConfig.setRequestTimeoutMillis(requestTimeout);
 
             adminClient = KineticAdminClientFactory
                     .createInstance(adminClientConfig);
+
         }
 
         @Override
         public void run() {
             try {
-                adminClient.setLockPin(oldLockPin, newLockPin);
+                adminClient.unLockDevice(unLockPin);
 
                 synchronized (this) {
                     succeed.put(device, "");
@@ -123,6 +117,7 @@ public class SetLockPin extends DefaultExecuter {
                 latch.countDown();
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
+
             } catch (KineticException e) {
                 synchronized (this) {
                     failed.put(device, "");
@@ -152,5 +147,4 @@ public class SetLockPin extends DefaultExecuter {
             }
         }
     }
-
 }

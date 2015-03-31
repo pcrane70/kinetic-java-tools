@@ -45,8 +45,8 @@ public class FirmwareVersionChecker extends DefaultExecuter {
                 }
             } catch (KineticException e) {
                 failed.put(device, "unknown");
-                System.out.println("[Failed]" + KineticDevice.toJson(device));
-                e.printStackTrace();
+                System.out.println("[Failed]" + KineticDevice.toJson(device)
+                        + "\n" + e.getMessage());
             }
 
         }
@@ -110,7 +110,7 @@ public class FirmwareVersionChecker extends DefaultExecuter {
         try {
             adminClient.close();
         } catch (KineticException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return version;
