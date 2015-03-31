@@ -6,10 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class DeviceLoader 
-{
-	protected List<KineticDevice> devices = new ArrayList<KineticDevice>();
-	
+abstract class DeviceLoader {
+    protected List<KineticDevice> devices = new ArrayList<KineticDevice>();
+
     protected void loadDevices(String drivesInputFile) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(
                 drivesInputFile));

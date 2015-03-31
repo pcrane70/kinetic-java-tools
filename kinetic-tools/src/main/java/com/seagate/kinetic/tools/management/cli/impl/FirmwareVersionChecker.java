@@ -2,9 +2,7 @@ package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import kinetic.admin.AdminClientConfiguration;
 import kinetic.admin.KineticAdminClient;
@@ -16,26 +14,15 @@ import kinetic.client.KineticException;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-public class FirmwareVersionChecker extends DeviceLoader {
+public class FirmwareVersionChecker extends DefaultExecuter {
     private String expectedFirewareVersion;
-    private boolean useSsl;
-    private long clusterVersion;
-    private long identity;
-    private String key;
-    private long requestTimeout;
-    private Map<KineticDevice, String> failed = new HashMap<KineticDevice, String>();
-    private Map<KineticDevice, String> succeed = new HashMap<KineticDevice, String>();
 
     public FirmwareVersionChecker(String expectedFirewareVersion,
             String nodesLogFile, boolean useSsl, long clusterVersion,
             long identity, String key, long requestTimeout) throws IOException {
         this.expectedFirewareVersion = expectedFirewareVersion;
         loadDevices(nodesLogFile);
-        this.useSsl = useSsl;
-        this.clusterVersion = clusterVersion;
-        this.identity = identity;
-        this.key = key;
-        this.requestTimeout = requestTimeout;
+        initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
     }
 
     public void checkFirmwareVersion() throws JsonGenerationException,
@@ -118,6 +105,14 @@ public class FirmwareVersionChecker extends DeviceLoader {
         listOfLogType.add(KineticLogType.CONFIGURATION);
         KineticLog kineticLog = adminClient.getLog(listOfLogType);
 
-        return kineticLog.getConfiguration().getVersion();
+        String version = kineticLog.getConfiguration().getVersion();
+
+        try {
+            adminClient.close();
+        } catch (KineticException e) {
+            e.printStackTrace();
+        }
+
+        return version;
     }
 }

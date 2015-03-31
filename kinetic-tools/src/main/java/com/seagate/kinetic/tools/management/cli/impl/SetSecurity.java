@@ -26,17 +26,10 @@ import com.seagate.kinetic.admin.impl.JsonUtil;
 import com.seagate.kinetic.proto.Kinetic.Command.Security;
 import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
 
-public class SetSecurity extends DeviceLoader {
+public class SetSecurity extends DefaultExecuter {
     private String security;
     private byte[] securityContent;
-    private boolean useSsl;
-    private long clusterVersion;
-    private long identity;
-    private String key;
-    private long requestTimeout;
     private List<ACL> aclList;
-    private List<KineticDevice> failed = new ArrayList<KineticDevice>();
-    private List<KineticDevice> succeed = new ArrayList<KineticDevice>();
 
     public SetSecurity(String security, String drivesInputFile, boolean useSsl,
             long clusterVersion, long identity, String key, long requestTimeout)
@@ -44,11 +37,7 @@ public class SetSecurity extends DeviceLoader {
         this.security = security;
         loadSecurity();
         loadDevices(drivesInputFile);
-        this.useSsl = useSsl;
-        this.clusterVersion = clusterVersion;
-        this.identity = identity;
-        this.key = key;
-        this.requestTimeout = requestTimeout;
+        initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
     }
 
     private void loadSecurity() throws IOException {
@@ -125,14 +114,14 @@ public class SetSecurity extends DeviceLoader {
 
         if (succeedDevices > 0) {
             System.out.println("The following devices set security succeed:");
-            for (KineticDevice device : succeed) {
+            for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
 
         if (failedDevices > 0) {
             System.out.println("The following devices set security failed:");
-            for (KineticDevice device : failed) {
+            for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
@@ -174,18 +163,17 @@ public class SetSecurity extends DeviceLoader {
         public void run() {
             try {
                 adminClient.setAcl(aclList);
-                latch.countDown();
 
                 synchronized (this) {
-                    succeed.add(device);
+                    succeed.put(device, "");
                 }
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
-            } catch (KineticException e) {
-                latch.countDown();
 
+                latch.countDown();
+            } catch (KineticException e) {
                 synchronized (this) {
-                    failed.add(device);
+                    failed.put(device, "");
                 }
 
                 try {
@@ -194,6 +182,8 @@ public class SetSecurity extends DeviceLoader {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
+
+                latch.countDown();
             } catch (JsonGenerationException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {

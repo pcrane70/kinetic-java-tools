@@ -1,8 +1,6 @@
 package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,26 +14,15 @@ import kinetic.client.KineticException;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-public class SetClusterVersion extends DeviceLoader {
+public class SetClusterVersion extends DefaultExecuter {
     private long newClusterVersion;
-    private boolean useSsl;
-    private long clusterVersion;
-    private long identity;
-    private String key;
-    private long requestTimeout;
-    private List<KineticDevice> failed = new ArrayList<KineticDevice>();
-    private List<KineticDevice> succeed = new ArrayList<KineticDevice>();
 
     public SetClusterVersion(String clusterVersionInString,
             String drivesInputFile, boolean useSsl, long clusterVersion,
             long identity, String key, long requestTimeout) throws IOException {
         this.newClusterVersion = Long.parseLong(clusterVersionInString);
         loadDevices(drivesInputFile);
-        this.useSsl = useSsl;
-        this.clusterVersion = clusterVersion;
-        this.identity = identity;
-        this.key = key;
-        this.requestTimeout = requestTimeout;
+        initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
     }
 
     public void setClusterVersion() throws InterruptedException,
@@ -69,7 +56,7 @@ public class SetClusterVersion extends DeviceLoader {
         if (succeedDevices > 0) {
             System.out
                     .println("The following devices set cluster version succeed:");
-            for (KineticDevice device : succeed) {
+            for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
@@ -77,7 +64,7 @@ public class SetClusterVersion extends DeviceLoader {
         if (failedDevices > 0) {
             System.out
                     .println("The following devices set cluster version failed:");
-            for (KineticDevice device : failed) {
+            for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
@@ -119,18 +106,17 @@ public class SetClusterVersion extends DeviceLoader {
         public void run() {
             try {
                 adminClient.setClusterVersion(newClusterVersion);
-                latch.countDown();
 
                 synchronized (this) {
-                    succeed.add(device);
+                    succeed.put(device, "");
                 }
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
-            } catch (KineticException e) {
-                latch.countDown();
 
+                latch.countDown();
+            } catch (KineticException e) {
                 synchronized (this) {
-                    failed.add(device);
+                    failed.put(device, "");
                 }
 
                 try {
@@ -139,6 +125,8 @@ public class SetClusterVersion extends DeviceLoader {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
+
+                latch.countDown();
             } catch (JsonGenerationException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {
