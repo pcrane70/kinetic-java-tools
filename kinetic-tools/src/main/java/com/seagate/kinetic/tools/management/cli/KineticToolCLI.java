@@ -38,6 +38,7 @@ import com.seagate.kinetic.tools.management.cli.impl.SetLockPin;
 import com.seagate.kinetic.tools.management.cli.impl.SetSecurity;
 import com.seagate.kinetic.tools.management.cli.impl.SmokeTestRunner;
 import com.seagate.kinetic.tools.management.cli.impl.UnLockDevice;
+import com.seagate.kinetic.tools.management.cli.impl.VendorSpecificDeviceLogGetter;
 
 /**
  *
@@ -59,6 +60,7 @@ public class KineticToolCLI {
     private static final String DEFAULT_DRIVE_OUTPUT_FILE = "drives";
     private static final String DEFAULT_GET_LOG_TYPE = "all";
     private static final String DEFAULT_GET_LOG_OUTPUT_FILE = "getlogs";
+    private static final String DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE = "vendorspecificlogs";
     private final Map<String, List<String>> legalArguments = new HashMap<String, List<String>>();
 
     public KineticToolCLI() throws KineticException {
@@ -131,6 +133,13 @@ public class KineticToolCLI {
         subArgs.add("-type");
         legalArguments.put(rootArg, subArgs);
 
+        rootArg = "-getvendorspecificdevicelog";
+        subArgs = initSubArgs();
+        subArgs.add("-in");
+        subArgs.add("-out");
+        subArgs.add("-name");
+        legalArguments.put(rootArg, subArgs);
+
         rootArg = "-lockdevice";
         subArgs = initSubArgs();
         subArgs.add("-pin");
@@ -163,6 +172,7 @@ public class KineticToolCLI {
         sb.append("ktool -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -runsmoketest <-in <driveListInputFile>>\n");
@@ -395,7 +405,26 @@ public class KineticToolCLI {
                         logOutputFile, logType, useSsl, clusterVersion,
                         identity, key, requestTimeout);
                 logGetter.getAndStoreLog();
-            } else if (args[0].equalsIgnoreCase("-lockdevice")) {
+            } else if (args[0].equalsIgnoreCase("-getvendorspecificdevicelog")) {
+                String vendorspecificname = kineticToolCLI.getArgValue("-name",
+                        args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
+                String logOutputFile = kineticToolCLI.getArgValue("-out", args);
+                logOutputFile = logOutputFile == null ? DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE
+                        + "_" + String.valueOf(System.currentTimeMillis())
+                        : logOutputFile;
+
+                String logType = kineticToolCLI.getArgValue("-type", args);
+                logType = logType == null ? DEFAULT_GET_LOG_TYPE : logType;
+
+                VendorSpecificDeviceLogGetter vendorLogGetter = new VendorSpecificDeviceLogGetter(
+                        vendorspecificname, driveListInputFile, logOutputFile,
+                        useSsl, clusterVersion, identity, key, requestTimeout);
+                vendorLogGetter.vendorSpecificDeviceLogGetter();
+            }
+
+            else if (args[0].equalsIgnoreCase("-lockdevice")) {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
                 String lockPin = kineticToolCLI.getArgValue("-pin", args);

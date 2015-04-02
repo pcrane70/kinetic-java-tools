@@ -69,17 +69,22 @@ Kinetic tools for management example:
     or
     sh ktool.sh -getlog -in drives.txt -type configuration
     
-12. ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
+12. ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
+    
+    For instance:
+    sh ktool.sh -getvendorspecificdevicelog -name com.Seagate.Kinetic.HDD.Gen1 -in drives.txt
+    
+13. ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
     For instance:
     sh ktool.sh -lockdevice -pin 123 -in drives.txt
     
-13. ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
+14. ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
     For instance:
     sh ktool.sh -unlockdevice -pin 123 -in drives.txt
       
-14. ktool -runsmoketest <-in <driveListInputFile>>
+15. ktool -runsmoketest <-in <driveListInputFile>>
 
    For instance:
    sh ktool.sh -runsmoketest -in drives.txt
