@@ -18,6 +18,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 public class FirmwareDownloader extends DefaultExecuter {
+    private static final int BATCH_THREAD_NUMBER = 100;
     private String firmware;
     private byte[] firmwareContent;
 
@@ -44,19 +45,36 @@ public class FirmwareDownloader extends DefaultExecuter {
 
     public void updateFirmware() throws InterruptedException, KineticException,
             JsonGenerationException, JsonMappingException, IOException {
-        CountDownLatch latch = new CountDownLatch(devices.size());
         ExecutorService pool = Executors.newCachedThreadPool();
 
         System.out.println("Start download firmware......");
+        
+        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
+        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
 
-        for (KineticDevice device : devices) {
-            pool.execute(new FirmwareDownloadThread(firmwareContent, latch,
-                    device, useSsl, clusterVersion, identity, key,
+        for (int i = 0; i < batchTime; i++) {
+            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
+            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
+                int num = i * BATCH_THREAD_NUMBER + j;
+                pool.execute(new FirmwareDownloadThread(firmwareContent, latch,
+                        devices.get(num), useSsl, clusterVersion, identity,
+                        key, requestTimeout));
+            }
+
+            latch.await();
+        }
+
+        CountDownLatch latchRest = new CountDownLatch(restIpCount);
+        for (int i = 0; i < restIpCount; i++) {
+            int num = batchTime * BATCH_THREAD_NUMBER + i;
+
+            pool.execute(new FirmwareDownloadThread(firmwareContent, latchRest,
+                    devices.get(num), useSsl, clusterVersion, identity, key,
                     requestTimeout));
         }
 
-        // wait all threads finish
-        latch.await();
+        latchRest.await();
+
         pool.shutdown();
 
         int totalDevices = devices.size();
