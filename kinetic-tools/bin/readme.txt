@@ -15,13 +15,15 @@ Kinetic tools for management example:
    For instance:
    sh ktool.sh -help
    
-2. ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>]
+2. ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
    For instance:
    sh ktool.sh -discover
    or
    sh ktool.sh -discover -out drives.txt -timeout 10
-
+   or
+   sh ktool.sh -discover -subnet 10.24.70
+   
 3. ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
    For instance:

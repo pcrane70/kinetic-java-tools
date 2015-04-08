@@ -106,10 +106,10 @@ public class LogGetter extends DefaultExecuter {
             JsonMappingException, IOException, KineticException {
         StringBuffer sb = new StringBuffer();
         sb.append("  {\n");
-        sb.append("    device: ");
+        sb.append("    \"device\": ");
         sb.append(JsonUtil.toJson(device));
         sb.append(",\n");
-        sb.append("    log: ");
+        sb.append("    \"log\": ");
         if (logType.equalsIgnoreCase(ALL)) {
             sb.append(JsonUtil.toJson(log));
         } else if (logType.equalsIgnoreCase(UTILIZATION)) {
