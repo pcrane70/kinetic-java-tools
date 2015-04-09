@@ -2,6 +2,7 @@ package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,53 +12,40 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import kinetic.admin.AdminClientConfiguration;
 import kinetic.admin.KineticAdminClient;
 import kinetic.admin.KineticAdminClientFactory;
-import kinetic.admin.KineticLogType;
 import kinetic.client.ConnectionListener;
 import kinetic.client.KineticException;
 
 public class PingReachableDrive extends DefaultExecuter {
-    private final Logger logger = Logger.getLogger(PingReachableDrive.class
-            .getName());
+    private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
     private static final int SUB_NET_LENGTH = 255;
     private static final int BATCH_THREAD_NUMBER = 100;
     private static final int TLS_PORT = 8443;
     private static final int PORT = 8123;
-    private List<KineticLogType> logTypes = new ArrayList<KineticLogType>();
+    private final Logger logger = Logger.getLogger(PingReachableDrive.class
+            .getName());
     private String driveListOutputFile;
     private String subnetPrefix;
-    private boolean useSsl;
-    private long clusterVersion;
-    private long identity;
-    private String key;
-    private long requestTimeout;
 
-    public PingReachableDrive(List<KineticDevice> devices, boolean useSsl,
-            long clusterVersion, long identity, String key, long requestTimeout) {
+    public PingReachableDrive(String subnetPrefixOrDriveInputFilePath,
+            String driveListOutputFile, boolean useSsl, long clusterVersion,
+            long identity, String key, long requestTimeout) throws IOException {
+        initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
 
-        this.devices = devices;
-        this.useSsl = useSsl;
-        this.clusterVersion = clusterVersion;
-        this.identity = identity;
-        this.key = key;
-        this.requestTimeout = requestTimeout;
-    }
+        if (validateSubnet(subnetPrefixOrDriveInputFilePath)) {
+            this.subnetPrefix = subnetPrefixOrDriveInputFilePath;
+        } else {
+            loadDevices(subnetPrefixOrDriveInputFilePath);
+        }
 
-    public PingReachableDrive(String subnetPrefix, String driveListOutputFile,
-            boolean useSsl, long clusterVersion, long identity, String key,
-            long requestTimeout) {
-        this.subnetPrefix = subnetPrefix;
         this.driveListOutputFile = driveListOutputFile;
-        this.useSsl = useSsl;
-        this.clusterVersion = clusterVersion;
-        this.identity = identity;
-        this.key = key;
-        this.requestTimeout = requestTimeout;
-
-        logTypes.add(KineticLogType.CONFIGURATION);
     }
 
     public void pingReachableDriveViaSubnet() throws Exception {
@@ -74,8 +62,16 @@ public class PingReachableDrive extends DefaultExecuter {
                 int num = i * BATCH_THREAD_NUMBER + j;
                 String ipAddress = subnetPrefix + "." + num;
 
+                List<String> inet4 = new ArrayList<String>();
+                inet4.add(ipAddress);
+
+                KineticDevice device = new KineticDevice();
+                device.setInet4(inet4);
+                device.setPort(PORT);
+                device.setTlsPort(TLS_PORT);
+
                 pool.execute(new PingReachableDriveViaSubnetThread(latch,
-                        ipAddress, useSsl, clusterVersion, identity, key,
+                        device, useSsl, clusterVersion, identity, key,
                         requestTimeout, listener));
             }
 
@@ -87,8 +83,16 @@ public class PingReachableDrive extends DefaultExecuter {
             int num = batchTime * BATCH_THREAD_NUMBER + i;
             String ipAddress = subnetPrefix + "." + num;
 
+            List<String> inet4 = new ArrayList<String>();
+            inet4.add(ipAddress);
+
+            KineticDevice device = new KineticDevice();
+            device.setInet4(inet4);
+            device.setPort(PORT);
+            device.setTlsPort(TLS_PORT);
+
             pool.execute(new PingReachableDriveViaSubnetThread(latchRest,
-                    ipAddress, useSsl, clusterVersion, identity, key,
+                    device, useSsl, clusterVersion, identity, key,
                     requestTimeout, listener));
         }
 
@@ -114,6 +118,80 @@ public class PingReachableDrive extends DefaultExecuter {
         }
     }
 
+    public void pingReachableDriveViaDriveList() throws Exception {
+
+        ExecutorService pool = Executors.newCachedThreadPool();
+        UnSolicitedConnectionListener listener = new UnSolicitedConnectionListener();
+
+        if (null == devices) {
+            throw new Exception("Device in file is null.");
+        }
+
+        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
+        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
+
+        for (int i = 0; i < batchTime; i++) {
+            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
+            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
+                int num = i * BATCH_THREAD_NUMBER + j;
+                KineticDevice device = devices.get(num);
+
+                pool.execute(new PingReachableDriveViaSubnetThread(latch,
+                        device, useSsl, clusterVersion, identity, key,
+                        requestTimeout, listener));
+            }
+
+            latch.await();
+        }
+
+        CountDownLatch latchRest = new CountDownLatch(restIpCount);
+        for (int i = 0; i < restIpCount; i++) {
+            int num = batchTime * BATCH_THREAD_NUMBER + i;
+            KineticDevice device = devices.get(num);
+
+            pool.execute(new PingReachableDriveViaSubnetThread(latchRest,
+                    device, useSsl, clusterVersion, identity, key,
+                    requestTimeout, listener));
+        }
+
+        latchRest.await();
+
+        pool.shutdown();
+
+        TimeUnit.SECONDS.sleep(2);
+
+        Map<KineticDevice, String> devicesofPingable = listener.getDevices();
+
+        int totalDevices = devices.size();
+        int failedDevices = failed.size();
+        int succeedDevices = devicesofPingable.size();
+
+        assert (failedDevices + succeedDevices == totalDevices);
+
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")");
+
+        if (failedDevices > 0) {
+            System.out.println("\nThe following devices ping failed:");
+            for (KineticDevice device : failed.keySet()) {
+                System.out.println(KineticDevice.toJson(device));
+            }
+        }
+
+        if (succeedDevices > 0) {
+            persistToFile(devicesofPingable.keySet(), driveListOutputFile);
+
+            System.out.println("\nThe following devices ping succeed:");
+            for (KineticDevice device : devicesofPingable.keySet()) {
+                System.out.println(KineticDevice.toJson(device));
+            }
+
+            System.out.println("\nDiscovered " + succeedDevices
+                    + " drives online, persist drives info in "
+                    + driveListOutputFile);
+        }
+    }
+
     private String persistToFile(Set<KineticDevice> deviceList, String filePath)
             throws Exception {
         assert (filePath != null);
@@ -132,23 +210,35 @@ public class PingReachableDrive extends DefaultExecuter {
         return sb.toString();
     }
 
+    private boolean validateSubnet(String subnet) {
+        Pattern pattern = Pattern.compile(SUBNET_PATTERN);
+        Matcher matcher = pattern.matcher(subnet);
+
+        return matcher.matches();
+    }
+
     class PingReachableDriveViaSubnetThread implements Runnable {
         private AdminClientConfiguration adminClientConfig;
         private KineticAdminClient adminClient = null;
         private CountDownLatch latch;
+        private KineticDevice device;
 
         public PingReachableDriveViaSubnetThread(CountDownLatch latch,
-                String host, boolean useSsl, long clusterVersion,
+                KineticDevice device, boolean useSsl, long clusterVersion,
                 long identity, String key, long requestTimeout,
                 ConnectionListener listener) {
             this.latch = latch;
+            this.device = device;
             adminClientConfig = new AdminClientConfiguration();
-            adminClientConfig.setHost(host);
+            if (null != device && null != device.getInet4()
+                    && 0 != device.getInet4().size()) {
+                adminClientConfig.setHost(device.getInet4().get(0));
+            }
             adminClientConfig.setUseSsl(useSsl);
             if (useSsl) {
-                adminClientConfig.setPort(TLS_PORT);
+                adminClientConfig.setPort(device.getTlsPort());
             } else {
-                adminClientConfig.setPort(PORT);
+                adminClientConfig.setPort(device.getPort());
             }
             adminClientConfig.setClusterVersion(clusterVersion);
             adminClientConfig.setRequestTimeoutMillis(requestTimeout);
@@ -162,10 +252,17 @@ public class PingReachableDrive extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-
             } catch (KineticException e) {
+                synchronized (this) {
+                    failed.put(device, "");
+                }
+
                 logger.warning(e.getMessage());
             } catch (Exception e) {
+                synchronized (this) {
+                    failed.put(device, "");
+                }
+
                 logger.warning(e.getMessage());
             } finally {
                 try {

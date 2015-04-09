@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import kinetic.client.KineticException;
 
@@ -50,6 +52,7 @@ import com.seagate.kinetic.tools.management.cli.impl.VendorSpecificDeviceLogGett
  */
 public class KineticToolCLI {
     private static final int OK = 0;
+    private static final int MILLI_SECOND_IN_UNIT = 1000;
     private static final String DEFAULT_USE_SSL = "true";
     private static final String DEFAULT_FW_DOWNLOAD_USE_SSL = "false";
     private static final String DEFAULT_CLUSTER_VERSION = "0";
@@ -57,12 +60,15 @@ public class KineticToolCLI {
     private static final String DEFAULT_KEY = "asdfasdf";
     private static final String DEFAULT_REQUEST_TIMEOUT_IN_SECOND = "60";
     private static final String DEFAULT_ISE_REQUEST_TIMEOUT_IN_SECOND = "180";
-    private static final int MILLI_SECOND_IN_UNIT = 1000;
     private static final String DEFAULT_DISCOVER_TIME_IN_SECOND = "30";
     private static final String DEFAULT_DRIVE_OUTPUT_FILE = "drives";
     private static final String DEFAULT_GET_LOG_TYPE = "all";
     private static final String DEFAULT_GET_LOG_OUTPUT_FILE = "getlogs";
+    private static final String DEFAULT_PING_SUCCESS_DRIVE_OUTPUT_FILE = "pingsuccessdrives";
     private static final String DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE = "vendorspecificlogs";
+    private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
     private final Map<String, List<String>> legalArguments = new HashMap<String, List<String>>();
 
     public KineticToolCLI() throws KineticException {
@@ -79,6 +85,12 @@ public class KineticToolCLI {
         subArgs.add("-timeout");
         subArgs.add("-out");
         subArgs.add("-subnet");
+        legalArguments.put(rootArg, subArgs);
+
+        rootArg = "-ping";
+        subArgs = initSubArgs();
+        subArgs.add("-in");
+        subArgs.add("-out");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-firmwaredownload";
@@ -166,6 +178,7 @@ public class KineticToolCLI {
         sb.append("Usage: ktool <-discover|-firmwaredownload|-checkversion|-setclusterversion|-setsecurity|-seterasepin|-instanterase|-runsmoketest>\n");
         sb.append("ktool -h|-help\n");
         sb.append("ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -ping <-in <driveListInputFile>> [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
@@ -311,6 +324,10 @@ public class KineticToolCLI {
 
                 String subnet = kineticToolCLI.getArgValue("-subnet", args);
                 if (null != subnet) {
+                    if (!kineticToolCLI.validateSubnet(subnet)) {
+                        throw new Exception(
+                                "Invalid subnet format, for instance: \"-subnet 192.168.10\"");
+                    }
                     PingReachableDrive pingReachableDrive = new PingReachableDrive(
                             subnet, driveListOutputFile, useSsl,
                             clusterVersion, identity, key, requestTimeout);
@@ -332,15 +349,36 @@ public class KineticToolCLI {
                             + driveListOutputFile);
                 }
 
+            } else if (args[0].equalsIgnoreCase("-ping")) {
+                String driveInputListFile = kineticToolCLI.getArgValue("-in",
+                        args);
+                if (null == driveInputListFile) {
+                    throw new Exception("Missing input drives file path.");
+                }
+
+                String driveListOutputFile = kineticToolCLI.getArgValue("-out",
+                        args);
+
+                String driveDefaultName = DEFAULT_PING_SUCCESS_DRIVE_OUTPUT_FILE
+                        + "_" + String.valueOf(System.currentTimeMillis());
+                driveListOutputFile = driveListOutputFile == null ? driveDefaultName
+                        : driveListOutputFile;
+
+                PingReachableDrive pingReachableDrive = new PingReachableDrive(
+                        driveInputListFile, driveListOutputFile, useSsl,
+                        clusterVersion, identity, key, requestTimeout);
+                pingReachableDrive.pingReachableDriveViaDriveList();
+                ;
             } else if (args[0].equalsIgnoreCase("-firmwaredownload")) {
                 String firmwareFile = kineticToolCLI.getArgValue(
                         "-firmwaredownload", args);
 
-                String nodesLogFile = kineticToolCLI.getArgValue("-in", args);
+                String driveInputListFile = kineticToolCLI.getArgValue("-in",
+                        args);
 
                 FirmwareDownloader downloader = new FirmwareDownloader(
-                        firmwareFile, nodesLogFile, useSsl, clusterVersion,
-                        identity, key, requestTimeout);
+                        firmwareFile, driveInputListFile, useSsl,
+                        clusterVersion, identity, key, requestTimeout);
                 downloader.updateFirmware();
             } else if (args[0].equalsIgnoreCase("-setsecurity")) {
                 String securityFile = kineticToolCLI.getArgValue(
@@ -525,6 +563,13 @@ public class KineticToolCLI {
         subArgs.add("-key");
         subArgs.add("-reqtimeout");
         return subArgs;
+    }
+
+    private boolean validateSubnet(String subnet) {
+        Pattern pattern = Pattern.compile(SUBNET_PATTERN);
+        Matcher matcher = pattern.matcher(subnet);
+
+        return matcher.matches();
     }
 
 }
