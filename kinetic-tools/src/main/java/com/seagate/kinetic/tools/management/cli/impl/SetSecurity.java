@@ -27,6 +27,7 @@ import com.seagate.kinetic.proto.Kinetic.Command.Security;
 import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
 
 public class SetSecurity extends DefaultExecuter {
+    private static final int BATCH_THREAD_NUMBER = 100;
     private String security;
     private byte[] securityContent;
     private List<ACL> aclList;
@@ -85,20 +86,41 @@ public class SetSecurity extends DefaultExecuter {
         }
     }
 
-    public void setSecurity() throws InterruptedException, KineticException,
-            JsonGenerationException, JsonMappingException, IOException {
-        CountDownLatch latch = new CountDownLatch(devices.size());
+    public void setSecurity() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
+
+        if (null == devices || devices.isEmpty()) {
+            throw new Exception("Drives get from input file are null or empty.");
+        }
 
         System.out.println("Start set security...");
 
-        for (KineticDevice device : devices) {
-            pool.execute(new SetSecurityThread(device, aclList, latch, useSsl,
-                    clusterVersion, identity, key, requestTimeout));
+        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
+        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
+
+        for (int i = 0; i < batchTime; i++) {
+            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
+            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
+                int num = i * BATCH_THREAD_NUMBER + j;
+                pool.execute(new SetSecurityThread(devices.get(num), aclList,
+                        latch, useSsl, clusterVersion, identity, key,
+                        requestTimeout));
+            }
+
+            latch.await();
         }
 
-        // wait all threads finish
-        latch.await();
+        CountDownLatch latchRest = new CountDownLatch(restIpCount);
+        for (int i = 0; i < restIpCount; i++) {
+            int num = batchTime * BATCH_THREAD_NUMBER + i;
+
+            pool.execute(new SetSecurityThread(devices.get(num), aclList,
+                    latchRest, useSsl, clusterVersion, identity, key,
+                    requestTimeout));
+        }
+
+        latchRest.await();
+
         pool.shutdown();
 
         int totalDevices = devices.size();

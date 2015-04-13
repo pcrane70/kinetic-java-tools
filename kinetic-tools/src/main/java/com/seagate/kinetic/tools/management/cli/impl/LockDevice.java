@@ -16,6 +16,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 public class LockDevice extends DefaultExecuter {
+    private static final int BATCH_THREAD_NUMBER = 100;
     private byte[] lockPin;
 
     public LockDevice(String driveInputFile, String lockPinInString,
@@ -33,19 +34,41 @@ public class LockDevice extends DefaultExecuter {
         }
     }
 
-    public void lockDevice() throws InterruptedException, KineticException,
-            JsonGenerationException, JsonMappingException, IOException {
-        CountDownLatch latch = new CountDownLatch(devices.size());
+    public void lockDevice() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
+        
+        if (null == devices || devices.isEmpty()) {
+            throw new Exception("Drives get from input file are null or empty.");
+        }
+
+        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
+        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
 
         System.out.println("Start lock device...");
 
-        for (KineticDevice device : devices) {
-            pool.execute(new LockDeviceThread(device, latch, lockPin, useSsl,
-                    clusterVersion, identity, key, requestTimeout));
+        for (int i = 0; i < batchTime; i++) {
+            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
+            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
+                int num = i * BATCH_THREAD_NUMBER + j;
+                pool.execute(new LockDeviceThread(devices.get(num), latch,
+                        lockPin, useSsl, clusterVersion, identity, key,
+                        requestTimeout));
+            }
+
+            latch.await();
         }
 
-        latch.await();
+        CountDownLatch latchRest = new CountDownLatch(restIpCount);
+        for (int i = 0; i < restIpCount; i++) {
+            int num = batchTime * BATCH_THREAD_NUMBER + i;
+
+            pool.execute(new LockDeviceThread(devices.get(num), latchRest,
+                    lockPin, useSsl, clusterVersion, identity, key,
+                    requestTimeout));
+        }
+
+        latchRest.await();
+
         pool.shutdown();
 
         int totalDevices = devices.size();

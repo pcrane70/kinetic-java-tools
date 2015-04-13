@@ -16,6 +16,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 public class SecureErase extends DefaultExecuter {
+    private static final int BATCH_THREAD_NUMBER = 100;
     private byte[] erasePin;
 
     public SecureErase(String erasePinInString, String drivesInputFile,
@@ -33,20 +34,41 @@ public class SecureErase extends DefaultExecuter {
         }
     }
 
-    public void secureErase() throws InterruptedException, KineticException,
-            IOException {
-        CountDownLatch latch = new CountDownLatch(devices.size());
+    public void secureErase() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
+        
+        if (null == devices || devices.isEmpty()) {
+            throw new Exception("Drives get from input file are null or empty.");
+        }
+
+        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
+        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
 
         System.out.println("Start secure erase...");
 
-        for (KineticDevice device : devices) {
-            pool.execute(new secureEraseThread(device, erasePin, latch, useSsl,
-                    clusterVersion, identity, key, requestTimeout));
+        for (int i = 0; i < batchTime; i++) {
+            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
+            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
+                int num = i * BATCH_THREAD_NUMBER + j;
+                pool.execute(new secureEraseThread(devices.get(num), erasePin,
+                        latch, useSsl, clusterVersion, identity, key,
+                        requestTimeout));
+            }
+
+            latch.await();
         }
 
-        // wait all threads finish
-        latch.await();
+        CountDownLatch latchRest = new CountDownLatch(restIpCount);
+        for (int i = 0; i < restIpCount; i++) {
+            int num = batchTime * BATCH_THREAD_NUMBER + i;
+
+            pool.execute(new secureEraseThread(devices.get(num), erasePin,
+                    latchRest, useSsl, clusterVersion, identity, key,
+                    requestTimeout));
+        }
+
+        latchRest.await();
+
         pool.shutdown();
 
         int totalDevices = devices.size();

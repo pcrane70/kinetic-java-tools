@@ -123,8 +123,8 @@ public class PingReachableDrive extends DefaultExecuter {
         ExecutorService pool = Executors.newCachedThreadPool();
         UnSolicitedConnectionListener listener = new UnSolicitedConnectionListener();
 
-        if (null == devices) {
-            throw new Exception("Device in file is null.");
+        if (null == devices || devices.isEmpty()) {
+            throw new Exception("Drives get from input file are null or empty.");
         }
 
         int batchTime = devices.size() / BATCH_THREAD_NUMBER;

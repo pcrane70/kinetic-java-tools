@@ -16,6 +16,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 public class UnLockDevice extends DefaultExecuter {
+    private static final int BATCH_THREAD_NUMBER = 100;
     private byte[] unLockPin;
 
     public UnLockDevice(String drivesInputFile, String unLockPinInString,
@@ -34,17 +35,39 @@ public class UnLockDevice extends DefaultExecuter {
         }
     }
 
-    public void unLockDevice() throws KineticException, InterruptedException,
-            JsonGenerationException, JsonMappingException, IOException {
-        CountDownLatch latch = new CountDownLatch(devices.size());
+    public void unLockDevice() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
-
-        for (KineticDevice device : devices) {
-            pool.execute(new UnLockDeviceThread(device, unLockPin, latch,
-                    useSsl, clusterVersion, identity, key, requestTimeout));
+        
+        if (null == devices || devices.isEmpty()) {
+            throw new Exception("Drives get from input file are null or empty.");
         }
 
-        latch.await();
+        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
+        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
+
+        for (int i = 0; i < batchTime; i++) {
+            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
+            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
+                int num = i * BATCH_THREAD_NUMBER + j;
+                pool.execute(new UnLockDeviceThread(devices.get(num),
+                        unLockPin, latch, useSsl, clusterVersion, identity,
+                        key, requestTimeout));
+            }
+
+            latch.await();
+        }
+
+        CountDownLatch latchRest = new CountDownLatch(restIpCount);
+        for (int i = 0; i < restIpCount; i++) {
+            int num = batchTime * BATCH_THREAD_NUMBER + i;
+
+            pool.execute(new UnLockDeviceThread(devices.get(num), unLockPin,
+                    latchRest, useSsl, clusterVersion, identity, key,
+                    requestTimeout));
+        }
+
+        latchRest.await();
+
         pool.shutdown();
 
         TimeUnit.SECONDS.sleep(2);

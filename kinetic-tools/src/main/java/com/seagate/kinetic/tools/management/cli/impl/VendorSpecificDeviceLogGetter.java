@@ -20,6 +20,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import com.seagate.kinetic.tools.management.cli.impl.util.JsonUtil;
 
 public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
+    private static final int BATCH_THREAD_NUMBER = 100;
     private byte[] vendorSpecificName;
     private String outputFilePath;
     private StringBuffer sb = new StringBuffer();
@@ -42,18 +43,39 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
         }
     }
 
-    public void vendorSpecificDeviceLogGetter() throws KineticException,
-            InterruptedException, IOException {
-        CountDownLatch latch = new CountDownLatch(devices.size());
+    public void vendorSpecificDeviceLogGetter() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
 
-        for (KineticDevice device : devices) {
-            pool.execute(new getVendorSpecificDeviceLogThread(device,
-                    vendorSpecificName, latch, useSsl, clusterVersion,
+        if (null == devices || devices.isEmpty()) {
+            throw new Exception("Drives get from input file are null or empty.");
+        }
+
+        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
+        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
+
+        for (int i = 0; i < batchTime; i++) {
+            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
+            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
+                int num = i * BATCH_THREAD_NUMBER + j;
+                pool.execute(new getVendorSpecificDeviceLogThread(devices
+                        .get(num), vendorSpecificName, latch, useSsl,
+                        clusterVersion, identity, key, requestTimeout));
+            }
+
+            latch.await();
+        }
+
+        CountDownLatch latchRest = new CountDownLatch(restIpCount);
+        for (int i = 0; i < restIpCount; i++) {
+            int num = batchTime * BATCH_THREAD_NUMBER + i;
+
+            pool.execute(new getVendorSpecificDeviceLogThread(devices.get(num),
+                    vendorSpecificName, latchRest, useSsl, clusterVersion,
                     identity, key, requestTimeout));
         }
 
-        latch.await();
+        latchRest.await();
+
         pool.shutdown();
 
         TimeUnit.SECONDS.sleep(2);

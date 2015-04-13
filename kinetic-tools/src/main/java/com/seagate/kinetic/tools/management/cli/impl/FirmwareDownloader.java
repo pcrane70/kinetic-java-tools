@@ -43,10 +43,13 @@ public class FirmwareDownloader extends DefaultExecuter {
         firmwareContent = out.toByteArray();
     }
 
-    public void updateFirmware() throws InterruptedException, KineticException,
-            JsonGenerationException, JsonMappingException, IOException {
+    public void updateFirmware() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
 
+        if (null == devices || devices.isEmpty()) {
+            throw new Exception("Drives get from input file are null or empty.");
+        }
+        
         System.out.println("Start download firmware......");
         
         int batchTime = devices.size() / BATCH_THREAD_NUMBER;
