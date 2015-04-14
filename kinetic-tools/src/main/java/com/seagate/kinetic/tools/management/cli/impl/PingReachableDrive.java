@@ -226,14 +226,18 @@ public class PingReachableDrive extends DefaultExecuter {
         public PingReachableDriveViaSubnetThread(CountDownLatch latch,
                 KineticDevice device, boolean useSsl, long clusterVersion,
                 long identity, String key, long requestTimeout,
-                ConnectionListener listener) {
+                ConnectionListener listener) throws KineticException {
             this.latch = latch;
             this.device = device;
-            adminClientConfig = new AdminClientConfiguration();
-            if (null != device && null != device.getInet4()
-                    && 0 != device.getInet4().size()) {
-                adminClientConfig.setHost(device.getInet4().get(0));
+
+            if (null == device || 0 == device.getInet4().size()
+                    || device.getInet4().isEmpty()) {
+                throw new KineticException(
+                        "device is null or no ip addresses in device.");
             }
+
+            adminClientConfig = new AdminClientConfiguration();
+            adminClientConfig.setHost(device.getInet4().get(0));
             adminClientConfig.setUseSsl(useSsl);
             if (useSsl) {
                 adminClientConfig.setPort(device.getTlsPort());

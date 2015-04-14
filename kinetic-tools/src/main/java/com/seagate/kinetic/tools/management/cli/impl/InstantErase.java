@@ -42,7 +42,7 @@ public class InstantErase extends DefaultExecuter {
         }
 
         System.out.println("Start instant erase...");
-        
+
         int batchTime = devices.size() / BATCH_THREAD_NUMBER;
         int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
 
@@ -112,6 +112,12 @@ public class InstantErase extends DefaultExecuter {
             this.erasePin = erasePin;
             this.latch = latch;
 
+            if (null == device || 0 == device.getInet4().size()
+                    || device.getInet4().isEmpty()) {
+                throw new KineticException(
+                        "device is null or no ip addresses in device.");
+            }
+
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
             adminClientConfig.setUseSsl(useSsl);
@@ -138,15 +144,11 @@ public class InstantErase extends DefaultExecuter {
                     succeed.put(device, "");
                 }
 
-                latch.countDown();
-
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
                 synchronized (this) {
                     failed.put(device, "");
                 }
-
-                latch.countDown();
 
                 try {
                     System.out.println("[Failed]"
@@ -166,6 +168,8 @@ public class InstantErase extends DefaultExecuter {
                     adminClient.close();
                 } catch (KineticException e) {
                     System.out.println(e.getMessage());
+                } finally {
+                    latch.countDown();
                 }
             }
         }

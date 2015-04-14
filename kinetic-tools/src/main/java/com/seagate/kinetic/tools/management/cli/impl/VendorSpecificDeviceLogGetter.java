@@ -151,6 +151,12 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
             this.device = device;
             this.latch = latch;
 
+            if (null == device || 0 == device.getInet4().size()
+                    || device.getInet4().isEmpty()) {
+                throw new KineticException(
+                        "device is null or no ip addresses in device.");
+            }
+
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
             adminClientConfig.setUseSsl(useSsl);
@@ -181,15 +187,11 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
                     succeed.put(device, vendorSpecficInfo2Json);
                 }
 
-                latch.countDown();
-
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
                 synchronized (this) {
                     failed.put(device, "");
                 }
-
-                latch.countDown();
 
                 try {
                     System.out.println("[Failed]"
@@ -204,6 +206,14 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
                 System.out.println(e.getMessage());
+            } finally {
+                try {
+                    adminClient.close();
+                } catch (KineticException e) {
+                    System.out.println(e.getMessage());
+                } finally {
+                    latch.countDown();
+                }
             }
         }
     }

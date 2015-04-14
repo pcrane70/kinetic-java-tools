@@ -197,6 +197,12 @@ public class LogGetter extends DefaultExecuter {
             this.latch = latch;
             this.device = device;
 
+            if (null == device || 0 == device.getInet4().size()
+                    || device.getInet4().isEmpty()) {
+                throw new KineticException(
+                        "device is null or no ip addresses in device.");
+            }
+
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
             adminClientConfig.setUseSsl(useSsl);
@@ -225,15 +231,11 @@ public class LogGetter extends DefaultExecuter {
                     succeed.put(device, log2String);
                 }
 
-                latch.countDown();
-
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
                 synchronized (this) {
                     failed.put(device, "");
                 }
-
-                latch.countDown();
 
                 try {
                     System.out.println("[Failed]"
@@ -253,6 +255,8 @@ public class LogGetter extends DefaultExecuter {
                     adminClient.close();
                 } catch (KineticException e) {
                     System.out.println(e.getMessage());
+                } finally {
+                    latch.countDown();
                 }
             }
         }

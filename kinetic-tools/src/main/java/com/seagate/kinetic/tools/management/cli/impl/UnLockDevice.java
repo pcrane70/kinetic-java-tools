@@ -37,7 +37,7 @@ public class UnLockDevice extends DefaultExecuter {
 
     public void unLockDevice() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
-        
+
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
@@ -110,6 +110,12 @@ public class UnLockDevice extends DefaultExecuter {
             this.device = device;
             this.latch = latch;
 
+            if (null == device || 0 == device.getInet4().size()
+                    || device.getInet4().isEmpty()) {
+                throw new KineticException(
+                        "device is null or no ip addresses in device.");
+            }
+
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
             adminClientConfig.setUseSsl(useSsl);
@@ -137,16 +143,12 @@ public class UnLockDevice extends DefaultExecuter {
                     succeed.put(device, "");
                 }
 
-                latch.countDown();
-
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
 
             } catch (KineticException e) {
                 synchronized (this) {
                     failed.put(device, "");
                 }
-
-                latch.countDown();
 
                 try {
                     System.out.println("[Failed]"
@@ -166,6 +168,8 @@ public class UnLockDevice extends DefaultExecuter {
                     adminClient.close();
                 } catch (KineticException e) {
                     System.out.println(e.getMessage());
+                } finally {
+                    latch.countDown();
                 }
             }
         }

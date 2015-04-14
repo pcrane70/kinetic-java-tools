@@ -113,6 +113,13 @@ public class LockDevice extends DefaultExecuter {
             this.device = device;
             this.latch = latch;
             this.lockPin = lockPin;
+            
+            if (null == device || 0 == device.getInet4().size()
+                    || device.getInet4().isEmpty()) {
+                throw new KineticException(
+                        "device is null or no ip addresses in device.");
+            }
+            
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
             adminClientConfig.setUseSsl(useSsl);
@@ -138,15 +145,11 @@ public class LockDevice extends DefaultExecuter {
                     succeed.put(device, "");
                 }
 
-                latch.countDown();
-
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
                 synchronized (this) {
                     failed.put(device, "");
                 }
-
-                latch.countDown();
 
                 try {
                     System.out.println("[Failed]"
@@ -167,6 +170,8 @@ public class LockDevice extends DefaultExecuter {
                     adminClient.close();
                 } catch (KineticException e) {
                     System.out.println(e.getMessage());
+                } finally{
+                    latch.countDown();
                 }
             }
 

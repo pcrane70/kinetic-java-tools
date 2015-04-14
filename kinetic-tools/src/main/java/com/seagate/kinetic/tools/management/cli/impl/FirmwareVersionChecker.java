@@ -84,6 +84,12 @@ public class FirmwareVersionChecker extends DefaultExecuter {
             throws KineticException {
         KineticAdminClient adminClient = null;
         AdminClientConfiguration adminClientConfig = null;
+        
+        if (null == device || 0 == device.getInet4().size()
+                || device.getInet4().isEmpty()) {
+            throw new KineticException(
+                    "device is null or no ip addresses in device.");
+        }
 
         adminClientConfig = new AdminClientConfiguration();
         adminClientConfig.setHost(device.getInet4().get(0));
