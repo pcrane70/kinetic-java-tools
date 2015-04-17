@@ -31,7 +31,6 @@ Discover a cluster of drives within a set of IP ranges.
 ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
    For instance:
-   
    sh ktool.sh -discover
    or
    sh ktool.sh -discover -out drives.txt -timeout 10
@@ -45,7 +44,6 @@ ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subn
 ktool -ping <-in <driveListInputFile>> [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>] 
 
    For instance:
-   
    sh ktool.sh -ping -in drives.txt
 ```
 
@@ -56,7 +54,6 @@ Upgrade firmware for a cluster of drives.
 ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
    For instance:
-   
    sh ktool.sh -firmwaredownload ~/kineticd-installer-v2.6.0.slod -in drives.txt
 ```
 
@@ -66,7 +63,6 @@ ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false
 ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
    For instance:
-   
    sh ktool.sh -checkversion -v 2.6.0 -in drives.txt
 ```
 
@@ -76,7 +72,6 @@ ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-us
 ktool -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
    For instance:
-   
    sh ktool.sh -seterasepin -oldpin "" -newpin 123 -in drives.txt
 ```
 
@@ -86,7 +81,6 @@ ktool -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString
 ktool -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
    For instance:
-   
    sh ktool.sh -setlockpin -oldpin "" -newpin 123 -in drives.txt
 ```
 
@@ -96,7 +90,6 @@ ktool -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> 
 ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
   
    For instance:
-   
    sh ktool.sh -instanterase -pin 123 -in drives.txt
 ```
 
@@ -106,7 +99,6 @@ ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usess
 ktool -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
   
    For instance:
-   
    sh ktool.sh -secureerase -pin 123 -in drives.txt
 ```
 
@@ -116,7 +108,6 @@ ktool -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl
 ktool -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
    For instance:
-   
    sh ktool.sh -setclusterversion -clversion 0 -in drives.txt
 ```
 
@@ -126,7 +117,6 @@ ktool -setclusterversion <-newclversion <newClusterVersionInString>> <-in <drive
 ktool -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
    For instance:
-   
    sh ktool.sh -setsecurity ./template/security.template -in drives.txt
 ```
 
@@ -136,7 +126,6 @@ ktool -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <true|fals
 ktool -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
     For instance:
-    
     sh ktool.sh -getlog -in drives.txt
     or
     sh ktool.sh -getlog -in drives.txt -type configuration
@@ -147,8 +136,7 @@ ktool -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilizat
 ```
 ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
-    For instance, to get Seagate drive logs:
-   
+    For instance, to get Seagate specific drive logs:
     sh ktool.sh -getvendorspecificdevicelog -name com.Seagate.Kinetic.HDD.Gen1 -in drives.txt
 ```
 
@@ -158,7 +146,6 @@ ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListIn
 ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
     For instance:
-   
     sh ktool.sh -lockdevice -pin 123 -in drives.txt
 ```
 
@@ -168,7 +155,6 @@ ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <
 ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
     For instance:
-   
     sh ktool.sh -unlockdevice -pin 123 -in drives.txt
 ```
 
@@ -178,6 +164,5 @@ ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl
 ktool -runsmoketest <-in <driveListInputFile>>
 
    For instance:
-   
    sh ktool.sh -runsmoketest -in drives.txt
 ```
