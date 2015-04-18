@@ -131,7 +131,7 @@ ktool -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilizat
     sh ktool.sh -getlog -in drives.txt -type configuration
 ```
 
-###Get vendor specifci logs
+###Get vendor specific logs
 
 ```
 ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
