@@ -84,7 +84,7 @@ ktool -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> 
    sh ktool.sh -setlockpin -oldpin "" -newpin 123 -in drives.txt
 ```
 
-###Set instance erase pins
+###Instance erase the drives
 
 ```
 ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
@@ -93,7 +93,7 @@ ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usess
    sh ktool.sh -instanterase -pin 123 -in drives.txt
 ```
 
-###Set secure erase pins
+###Secure erase the drives
 
 ```
 ktool -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
