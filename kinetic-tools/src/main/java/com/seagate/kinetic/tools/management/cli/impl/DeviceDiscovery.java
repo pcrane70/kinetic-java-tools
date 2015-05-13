@@ -189,7 +189,6 @@ public class DeviceDiscovery {
 
             if (null == root.get(DRIVE_MODEL)
                     || null == root.get(WORLD_WIDE_NAME)
-                    || null == root.get(IPV4_ADDR)
                     || null == root.get(NETWORK_INTERFACES)
                     || null == root.get(PORT) || null == root.get(TLS_PORT)
                     || null == root.get(SERIAL_NUMBER)
