@@ -23,6 +23,7 @@ import com.seagate.kinetic.heartbeat.KineticNetworkInterface;
 import com.seagate.kinetic.monitor.HeartbeatListener;
 
 public class DeviceDiscovery {
+    private static final int DEFAULT_MULTICAST_PORT = 8123;
     private Map<String, KineticDevice> devices = new ConcurrentHashMap<String, KineticDevice>();
     private static final String DEFAULT_MC_DESTNATION = "239.1.2.3";
     private boolean useListener = false;
@@ -63,7 +64,7 @@ public class DeviceDiscovery {
         Enumeration<NetworkInterface> nets = NetworkInterface
                 .getNetworkInterfaces();
         String mcastDestination = DEFAULT_MC_DESTNATION;
-        int mcastPort = 8123;
+        int mcastPort = DEFAULT_MULTICAST_PORT;
         MulticastSocket multicastSocket;
         if (null != nets) {
             for (NetworkInterface netIf : Collections.list(nets)) {
@@ -124,6 +125,15 @@ public class DeviceDiscovery {
     }
 
     class NodeDiscoveryThread extends Thread {
+        private static final int MAX_DATAGRAM_PACKET_SIZE = 64 * 1024;
+        private static final String FIRMWARE_VERSION = "firmware_version";
+        private static final String SERIAL_NUMBER = "serial_number";
+        private static final String TLS_PORT = "tlsPort";
+        private static final String PORT = "port";
+        private static final String IPV4_ADDR = "ipv4_addr";
+        private static final String NETWORK_INTERFACES = "network_interfaces";
+        private static final String WORLD_WIDE_NAME = "world_wide_name";
+        private static final String DRIVE_MODEL = "model";
         private MulticastSocket multicastSocket;
 
         public NodeDiscoveryThread(MulticastSocket multicastSocket) {
@@ -134,38 +144,60 @@ public class DeviceDiscovery {
                 throws Exception {
             List<KineticDevice> newDiscoveredNodes = new ArrayList<KineticDevice>();
 
-            byte[] b = new byte[64 * 1024];
+            byte[] b = new byte[MAX_DATAGRAM_PACKET_SIZE];
             DatagramPacket p = new DatagramPacket(b, b.length);
             multicastSocket.receive(p);
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readValue(p.getData(), JsonNode.class);
 
-            String model = root.get("model").asText();
+            if (!validateRoot(root)) {
+                return newDiscoveredNodes;
+            }
 
-            String wwn = root.get("world_wide_name").asText();
+            String model = root.get(DRIVE_MODEL).asText();
+
+            String wwn = root.get(WORLD_WIDE_NAME).asText();
             if (devices.containsKey(wwn))
                 return newDiscoveredNodes;
 
-            JsonNode ifs = root.get("network_interfaces");
+            JsonNode ifs = root.get(NETWORK_INTERFACES);
             List<String> inet4 = new ArrayList<String>();
             if (!ifs.isArray()) {
                 return newDiscoveredNodes;
             } else {
                 for (int i = 0; i < ifs.size(); i++) {
-                    inet4.add(ifs.get(i).get("ipv4_addr").asText());
+                    inet4.add(ifs.get(i).get(IPV4_ADDR).asText());
                 }
             }
 
-            KineticDevice node = new KineticDevice(inet4, root.get("port")
-                    .asInt(), root.get("tlsPort").asInt(), wwn, model, root
-                    .get("serial_number").asText(), root
-                    .get("firmware_version").asText());
+            KineticDevice node = new KineticDevice(inet4, root.get(PORT)
+                    .asInt(), root.get(TLS_PORT).asInt(), wwn, model, root.get(
+                    SERIAL_NUMBER).asText(), root.get(FIRMWARE_VERSION)
+                    .asText());
 
             devices.put(wwn, node);
             newDiscoveredNodes.add(node);
 
             return newDiscoveredNodes;
+        }
+
+        private boolean validateRoot(JsonNode root) {
+            if (null == root) {
+                return false;
+            }
+
+            if (null == root.get(DRIVE_MODEL)
+                    || null == root.get(WORLD_WIDE_NAME)
+                    || null == root.get(IPV4_ADDR)
+                    || null == root.get(NETWORK_INTERFACES)
+                    || null == root.get(PORT) || null == root.get(TLS_PORT)
+                    || null == root.get(SERIAL_NUMBER)
+                    || null == root.get(FIRMWARE_VERSION)) {
+                return false;
+            }
+
+            return true;
         }
 
         @Override

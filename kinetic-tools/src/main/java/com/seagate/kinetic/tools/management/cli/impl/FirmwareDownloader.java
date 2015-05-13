@@ -18,6 +18,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 public class FirmwareDownloader extends DefaultExecuter {
+    private static final int CHUNK_SIZE = 1024;
     private static final int BATCH_THREAD_NUMBER = 100;
     private String firmware;
     private byte[] firmwareContent;
@@ -34,7 +35,7 @@ public class FirmwareDownloader extends DefaultExecuter {
     private void loadFirmware() throws IOException {
         InputStream is = new FileInputStream(firmware);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] b = new byte[1024];
+        byte[] b = new byte[CHUNK_SIZE];
         int n;
         while ((n = is.read(b)) != -1) {
             out.write(b, 0, n);
