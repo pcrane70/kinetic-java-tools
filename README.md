@@ -1,7 +1,7 @@
 # kinetic-java-tools
 Kinetic Java Tools are used to help the deployment and management of Kinetic drives
 
-##Suggested Development Environments
+##Required Environments
 ==================================
   * Latest version of Git for your OS: [http://git-scm.com/downloads](http://git-scm.com/downloads)
 
@@ -20,7 +20,7 @@ Kinetic Java Tools are used to help the deployment and management of Kinetic dri
   * The kinetic tools command line script is under "Kinetic-java-tools/kinetic-tools/bin" folder
 
 ###ktool command help and options
-Obtain a list of available commands and usage information.
+Print a list of available commands and usage information.
 ```
 sh ktool.sh -help
 ```
@@ -67,7 +67,7 @@ sh ktool.sh -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>
 ```
 
 ###Set erase pins
-Set the erase pins for the devices specified in the driveListInputFile.
+Set the erase pins for the devices specified in the driveListInputFile.  A rease pin is required to perform instance erase or secure erase commands to a drive.
 ```
 sh ktool.sh -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -76,7 +76,7 @@ sh ktool.sh -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinIn
 ```
 
 ###Set lock pins
-Set the lock pins for the devices specified in the driveListInputFile.
+Set the lock pins for the devices specified in the driveListInputFile.  A lock pin is required to lock a drive.
 ```
 sh ktool.sh -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -85,7 +85,7 @@ sh ktool.sh -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInStr
 ```
 
 ###Instance erase the drives
-Erase the drives specified in the driveListInputFile with the instance erase protocol.  All contents on the drive will be instant erased and the drive is reset to its factory default settings.
+Erase the drives specified in the driveListInputFile with the instance erase protocol.  All contents on the drive will be instant erased and the drive is reset to its factory default settings. A matched pin is required in order to perform the instanterase command.
 ```
 sh ktool.sh -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
   
@@ -94,7 +94,7 @@ sh ktool.sh -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [
 ```
 
 ###Secure erase the drives
-Erase the drive specified in the driveListInputFile with the secure erase protocol.  All contents on the drive will be secure erased and the drive is reset to its factory default settings.
+Erase the drive specified in the driveListInputFile with the secure erase protocol.  All contents on the drive will be secure erased and the drive is reset to its factory default settings. A matched pin is required in order to perform the secureerase command.
 ```
 sh ktool.sh -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
   
@@ -112,7 +112,7 @@ sh ktool.sh -setclusterversion <-newclversion <newClusterVersionInString>> <-in 
 ```
 
 ###Set security
-Set security (ACL) for the devices specified in the driveListInputFile.  The ACL is specified in the securityFile.
+Set security (ACL) for the devices specified in the driveListInputFile.  The ACL is specified in the securityFile.  An example ACL templet file is located at ./template/security.template.
 ```
 sh ktool.sh -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -121,7 +121,16 @@ sh ktool.sh -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <tru
 ```
 
 ###Get logs
-Get logs for the devices specified in the driveListInputFile.  The output is written to the specified logOutputFile.
+Get device logs for the devices specified in the driveListInputFile.  The output is written to the specified logOutputFile.  The supported types are:
+
+* `utilization`
+* `temperature`
+* `capacity`
+* `configuration`
+* `statistic`
+* `message`
+* `limits`
+* `all`
 ```
 sh ktool.sh -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
