@@ -19,7 +19,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 
 public class FirmwareDownloader extends DefaultExecuter {
     private static final int CHUNK_SIZE = 1024;
-    private static final int BATCH_THREAD_NUMBER = 100;
+    private static final int BATCH_THREAD_NUMBER = 20;
     private String firmware;
     private byte[] firmwareContent;
 

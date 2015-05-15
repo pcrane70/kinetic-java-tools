@@ -15,7 +15,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 public class SetClusterVersion extends DefaultExecuter {
-    private static final int BATCH_THREAD_NUMBER = 100;
+    private static final int BATCH_THREAD_NUMBER = 20;
     private long newClusterVersion;
 
     public SetClusterVersion(String clusterVersionInString,

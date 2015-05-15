@@ -16,7 +16,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 public class UnLockDevice extends DefaultExecuter {
-    private static final int BATCH_THREAD_NUMBER = 100;
+    private static final int BATCH_THREAD_NUMBER = 20;
     private byte[] unLockPin;
 
     public UnLockDevice(String drivesInputFile, String unLockPinInString,

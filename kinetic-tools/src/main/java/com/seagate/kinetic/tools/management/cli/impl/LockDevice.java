@@ -16,7 +16,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 public class LockDevice extends DefaultExecuter {
-    private static final int BATCH_THREAD_NUMBER = 100;
+    private static final int BATCH_THREAD_NUMBER = 20;
     private byte[] lockPin;
 
     public LockDevice(String driveInputFile, String lockPinInString,

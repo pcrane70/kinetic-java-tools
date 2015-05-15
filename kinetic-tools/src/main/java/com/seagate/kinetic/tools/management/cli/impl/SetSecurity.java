@@ -27,7 +27,7 @@ import com.seagate.kinetic.proto.Kinetic.Command.Security;
 import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
 
 public class SetSecurity extends DefaultExecuter {
-    private static final int BATCH_THREAD_NUMBER = 100;
+    private static final int BATCH_THREAD_NUMBER = 20;
     private String security;
     private byte[] securityContent;
     private List<ACL> aclList;

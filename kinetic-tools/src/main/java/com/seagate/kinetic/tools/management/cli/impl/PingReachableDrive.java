@@ -26,7 +26,7 @@ public class PingReachableDrive extends DefaultExecuter {
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
     private static final int SUB_NET_LENGTH = 255;
-    private static final int BATCH_THREAD_NUMBER = 100;
+    private static final int BATCH_THREAD_NUMBER = 20;
     private static final int TLS_PORT = 8443;
     private static final int PORT = 8123;
     private final Logger logger = Logger.getLogger(PingReachableDrive.class

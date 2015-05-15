@@ -20,7 +20,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import com.seagate.kinetic.tools.management.cli.impl.util.JsonUtil;
 
 public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
-    private static final int BATCH_THREAD_NUMBER = 100;
+    private static final int BATCH_THREAD_NUMBER = 20;
     private byte[] vendorSpecificName;
     private String outputFilePath;
     private StringBuffer sb = new StringBuffer();
