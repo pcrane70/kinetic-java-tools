@@ -31,6 +31,7 @@ public class LogGetter extends DefaultExecuter {
     private static final String MESSAGES = "message";
     private static final String STATISTICS = "statistic";
     private static final String LIMITS = "limits";
+    private static final int BATCH_THREAD_NUMBER = 20;
     private String logOutFile;
     private String logType;
     private StringBuffer sb;
@@ -45,22 +46,42 @@ public class LogGetter extends DefaultExecuter {
         initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
     }
 
-    public void getAndStoreLog() throws JsonGenerationException,
-            JsonMappingException, IOException, KineticException,
-            InterruptedException {
+    public void getAndStoreLog() throws Exception {
+
+        ExecutorService pool = Executors.newCachedThreadPool();
+
+        if (null == devices || devices.isEmpty()) {
+            throw new Exception("Drives get from input file are null or empty.");
+        }
+
+        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
+        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
+
         System.out.println("Start getting and storing log......");
 
         sb.append("[\n");
 
-        CountDownLatch latch = new CountDownLatch(devices.size());
-        ExecutorService pool = Executors.newCachedThreadPool();
+        for (int i = 0; i < batchTime; i++) {
+            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
+            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
+                int num = i * BATCH_THREAD_NUMBER + j;
+                pool.execute(new GetLogThread(logType, devices.get(num), latch,
+                        useSsl, identity, key, clusterVersion, requestTimeout));
+            }
 
-        for (KineticDevice device : devices) {
-            pool.execute(new GetLogThread(logType, device, latch, useSsl,
-                    identity, key, clusterVersion, requestTimeout));
+            latch.await();
         }
 
-        latch.await();
+        CountDownLatch latchRest = new CountDownLatch(restIpCount);
+        for (int i = 0; i < restIpCount; i++) {
+            int num = batchTime * BATCH_THREAD_NUMBER + i;
+
+            pool.execute(new GetLogThread(logType, devices.get(num), latchRest,
+                    useSsl, identity, key, clusterVersion, requestTimeout));
+        }
+
+        latchRest.await();
+
         pool.shutdown();
 
         sb.append("\n]");
