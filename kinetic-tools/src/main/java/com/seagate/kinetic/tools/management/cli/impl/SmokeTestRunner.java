@@ -1,5 +1,6 @@
 package com.seagate.kinetic.tools.management.cli.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,21 +12,35 @@ import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlTest;
 
 public class SmokeTestRunner extends DefaultExecuter {
+    private String rootDir = ".";
+
     public SmokeTestRunner(String nodesLogFile) throws IOException {
         loadDevices(nodesLogFile);
     }
 
     public void runSmokeTests() {
         System.out.println("Start run smoke tests......");
+        String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+        rootDir = toolHome + File.separator + "SmokeTest-Result"
+                + File.separator + "Result-" + System.currentTimeMillis();
         for (KineticDevice device : devices) {
             runSmokeTest(device);
         }
+
+        System.out.println("All tests result has been stored at " + rootDir);
     }
 
     private void runSmokeTest(KineticDevice device) {
-        System.setProperty("KINETIC_HOST", device.getInet4().get(0));
-        System.setProperty("KINETIC_SSL_PORT", device.getTlsPort() + "");
-        System.setProperty("KINETIC_PORT", device.getPort() + "");
+        String host = device.getInet4().get(0);
+        String port = device.getPort() + "";
+        String sslPort = device.getTlsPort() + "";
+
+        String outputDirectory = rootDir + File.separator + host + "_" + port
+                + "_" + sslPort;
+
+        System.setProperty("KINETIC_HOST", host);
+        System.setProperty("KINETIC_SSL_PORT", sslPort);
+        System.setProperty("KINETIC_PORT", port);
 
         XmlSuite suite = new XmlSuite();
         suite.setName("DriveSmokeSuite");
@@ -45,6 +60,7 @@ public class SmokeTestRunner extends DefaultExecuter {
         TestNG tng = new TestNG();
         tng.addListener(new SuiteHTMLReporter());
         tng.setXmlSuites(suites);
+        tng.setOutputDirectory(outputDirectory);
         tng.run();
     }
 }

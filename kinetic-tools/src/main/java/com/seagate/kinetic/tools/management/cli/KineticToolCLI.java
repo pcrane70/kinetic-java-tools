@@ -33,6 +33,7 @@ import com.seagate.kinetic.tools.management.cli.impl.FirmwareVersionChecker;
 import com.seagate.kinetic.tools.management.cli.impl.InstantErase;
 import com.seagate.kinetic.tools.management.cli.impl.LockDevice;
 import com.seagate.kinetic.tools.management.cli.impl.LogGetter;
+import com.seagate.kinetic.tools.management.cli.impl.PerfRunner;
 import com.seagate.kinetic.tools.management.cli.impl.PingReachableDrive;
 import com.seagate.kinetic.tools.management.cli.impl.SecureErase;
 import com.seagate.kinetic.tools.management.cli.impl.SetClusterVersion;
@@ -51,6 +52,14 @@ import com.seagate.kinetic.tools.management.cli.impl.VendorSpecificDeviceLogGett
  *
  */
 public class KineticToolCLI {
+    private static final String DEFAULT_PERF_THREADS = "10";
+    private static final String DEFAULT_DISTRIBUTION = "uniform";
+    private static final String DEFAULT_READ_PROPORTION = "0";
+    private static final String DEFAULT_INSERT_PROPORTION = "1";
+    private static final String DEFAULT_CONNECTION_PER_DRIVE = "1";
+    private static final String DEFAULT_PERF_OPERATION_COUNT = "1000";
+    private static final String DEFAULT_PERF_RECORD_COUNT = "10000";
+    private static final String DEFAULT_PERF_VALUE_SIZE = "1048576";
     private static final int OK = 0;
     private static final int MILLI_SECOND_IN_UNIT = 1000;
     private static final String DEFAULT_USE_SSL = "true";
@@ -171,6 +180,19 @@ public class KineticToolCLI {
         subArgs = initSubArgs();
         subArgs.add("-in");
         legalArguments.put(rootArg, subArgs);
+
+        rootArg = "-perf";
+        subArgs.add("-in");
+        subArgs.add("-valuesize");
+        subArgs.add("-recordcount");
+        subArgs.add("-operationcount");
+        subArgs.add("-connectionperdrive");
+        subArgs.add("-readproportion");
+        subArgs.add("-insertproportion");
+        subArgs.add("-distribution");
+        subArgs.add("-threads");
+
+        legalArguments.put(rootArg, subArgs);
     }
 
     public static void printHelp() {
@@ -192,6 +214,7 @@ public class KineticToolCLI {
         sb.append("ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -runsmoketest <-in <driveListInputFile>>\n");
+        sb.append("ktool -perf <-in <driveListInputFile>> [-valuesize <valueSizeInByte>] [-recordcount <recordCountForPrepare>] [-operationcount <realOperationCount>] [-connectionperdrive <connectionPerDrive>] [-readproportion <readProportion>] [-insertproportion <insertProportion>] [-distribution <distribution>] [-threads <threads_number>]\n");
         System.out.println(sb.toString());
     }
 
@@ -481,9 +504,7 @@ public class KineticToolCLI {
                         vendorspecificname, driveListInputFile, logOutputFile,
                         useSsl, clusterVersion, identity, key, requestTimeout);
                 vendorLogGetter.vendorSpecificDeviceLogGetter();
-            }
-
-            else if (args[0].equalsIgnoreCase("-lockdevice")) {
+            } else if (args[0].equalsIgnoreCase("-lockdevice")) {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
                 String lockPin = kineticToolCLI.getArgValue("-pin", args);
@@ -507,6 +528,53 @@ public class KineticToolCLI {
                         args);
 
                 new SmokeTestRunner(driveListInputFile).runSmokeTests();
+            } else if (args[0].equalsIgnoreCase("-perf")) {
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
+                String valueSize = kineticToolCLI.getArgValue("-valuesize",
+                        args);
+                valueSize = valueSize == null ? DEFAULT_PERF_VALUE_SIZE
+                        : valueSize;
+
+                String recordCount = kineticToolCLI.getArgValue("-recordcount",
+                        args);
+                recordCount = recordCount == null ? DEFAULT_PERF_RECORD_COUNT
+                        : recordCount;
+
+                String operationCount = kineticToolCLI.getArgValue(
+                        "-operationcount", args);
+                operationCount = operationCount == null ? DEFAULT_PERF_OPERATION_COUNT
+                        : operationCount;
+
+                String connectionPerDrive = kineticToolCLI.getArgValue(
+                        "-connectionperdrive", args);
+                connectionPerDrive = connectionPerDrive == null ? DEFAULT_CONNECTION_PER_DRIVE
+                        : connectionPerDrive;
+
+                String readProportion = kineticToolCLI.getArgValue(
+                        "-readproportion", args);
+                readProportion = readProportion == null ? DEFAULT_READ_PROPORTION
+                        : readProportion;
+
+                String insertProportion = kineticToolCLI.getArgValue(
+                        "-insertproportion", args);
+                insertProportion = insertProportion == null ? DEFAULT_INSERT_PROPORTION
+                        : insertProportion;
+
+                String distribution = kineticToolCLI.getArgValue(
+                        "-distribution", args);
+                distribution = distribution == null ? DEFAULT_DISTRIBUTION
+                        : distribution;
+
+                String threads = kineticToolCLI.getArgValue("-threads", args);
+                threads = threads == null ? DEFAULT_PERF_THREADS : threads;
+
+                PerfRunner perfRunner = new PerfRunner(driveListInputFile,
+                        valueSize, recordCount, operationCount,
+                        connectionPerDrive, readProportion, insertProportion,
+                        distribution, threads);
+                perfRunner.performanceRunner();
+
             } else {
                 printHelp();
             }
