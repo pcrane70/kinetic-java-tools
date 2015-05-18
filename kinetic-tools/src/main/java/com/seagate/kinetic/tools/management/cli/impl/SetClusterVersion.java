@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import kinetic.admin.AdminClientConfiguration;
 import kinetic.admin.KineticAdminClient;
@@ -16,6 +17,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 
 public class SetClusterVersion extends DefaultExecuter {
     private static final int BATCH_THREAD_NUMBER = 20;
+    private final Logger logger = Logger.getLogger(SetClusterVersion.class.getName());
     private long newClusterVersion;
 
     public SetClusterVersion(String clusterVersionInString,
@@ -160,9 +162,13 @@ public class SetClusterVersion extends DefaultExecuter {
                 System.out.println(e.getMessage());
             } finally {
                 try {
-                    adminClient.close();
+                    if (null != adminClient) {
+                        adminClient.close();
+                    }
                 } catch (KineticException e) {
-                    System.out.println(e.getMessage());
+                    logger.warning(e.getMessage());
+                } catch (Exception e) {
+                    logger.warning(e.getMessage());
                 } finally {
                     latch.countDown();
                 }

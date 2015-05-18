@@ -10,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import kinetic.admin.ACL;
 import kinetic.admin.AdminClientConfiguration;
@@ -28,6 +29,7 @@ import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
 
 public class SetSecurity extends DefaultExecuter {
     private static final int BATCH_THREAD_NUMBER = 20;
+    private final Logger logger = Logger.getLogger(SetSecurity.class.getName());
     private String security;
     private byte[] securityContent;
     private List<ACL> aclList;
@@ -217,9 +219,13 @@ public class SetSecurity extends DefaultExecuter {
                 System.out.println(e.getMessage());
             } finally {
                 try {
-                    adminClient.close();
+                    if (null != adminClient) {
+                        adminClient.close();
+                    }
                 } catch (KineticException e) {
-                    System.out.println(e.getMessage());
+                    logger.warning(e.getMessage());
+                } catch (Exception e) {
+                    logger.warning(e.getMessage());
                 } finally {
                     latch.countDown();
                 }

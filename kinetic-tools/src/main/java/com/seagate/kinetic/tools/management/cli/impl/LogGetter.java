@@ -9,12 +9,19 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import kinetic.admin.AdminClientConfiguration;
+import kinetic.admin.Capacity;
+import kinetic.admin.Configuration;
 import kinetic.admin.KineticAdminClient;
 import kinetic.admin.KineticAdminClientFactory;
 import kinetic.admin.KineticLog;
 import kinetic.admin.KineticLogType;
+import kinetic.admin.Limits;
+import kinetic.admin.Statistics;
+import kinetic.admin.Temperature;
+import kinetic.admin.Utilization;
 import kinetic.client.KineticException;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -32,6 +39,7 @@ public class LogGetter extends DefaultExecuter {
     private static final String STATISTICS = "statistic";
     private static final String LIMITS = "limits";
     private static final int BATCH_THREAD_NUMBER = 20;
+    private final Logger logger = Logger.getLogger(LogGetter.class.getName());
     private String logOutFile;
     private String logType;
     private StringBuffer sb;
@@ -132,7 +140,8 @@ public class LogGetter extends DefaultExecuter {
         sb.append(",\n");
         sb.append("    \"log\": ");
         if (logType.equalsIgnoreCase(ALL)) {
-            sb.append(JsonUtil.toJson(log));
+            MyKineticLog myLog = new MyKineticLog(log);
+            sb.append(JsonUtil.toJson(myLog));
         } else if (logType.equalsIgnoreCase(UTILIZATION)) {
             sb.append(JsonUtil.toJson(log.getUtilization()));
         } else if (logType.equalsIgnoreCase(CAPACITY)) {
@@ -142,7 +151,10 @@ public class LogGetter extends DefaultExecuter {
         } else if (logType.equalsIgnoreCase(CONFIGURATION)) {
             sb.append(JsonUtil.toJson(log.getConfiguration()));
         } else if (logType.equalsIgnoreCase(MESSAGES)) {
-            sb.append(JsonUtil.toJson(log.getMessages()));
+            sb.append("{\"messages\":");
+            sb.append("\"");
+            sb.append(new String(log.getMessages()));
+            sb.append("\"}");
         } else if (logType.equalsIgnoreCase(STATISTICS)) {
             sb.append(JsonUtil.toJson(log.getStatistics()));
         } else if (logType.equalsIgnoreCase(LIMITS)) {
@@ -243,7 +255,6 @@ public class LogGetter extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-                
                 KineticLog log = getLog(adminClient, logType);
                 String log2String = logToJson(device, log, logType);
 
@@ -273,14 +284,71 @@ public class LogGetter extends DefaultExecuter {
                 System.out.println(e.getMessage());
             } finally {
                 try {
-                    adminClient.close();
+                    if (null != adminClient) {
+                        adminClient.close();
+                    }
                 } catch (KineticException e) {
-                    System.out.println(e.getMessage());
+                    logger.warning(e.getMessage());
+                } catch (Exception e) {
+                    logger.warning(e.getMessage());
                 } finally {
                     latch.countDown();
                 }
             }
         }
+    }
 
+    class MyKineticLog {
+        private List<Utilization> utilization;
+        private List<Temperature> temperature;
+        private Capacity capacity;
+        private Configuration configuration;
+        private List<Statistics> statistics;
+        private String messages;
+        private KineticLogType[] containedLogTypes;
+        private Limits limits;
+
+        public MyKineticLog(KineticLog log) throws KineticException {
+            this.utilization = log.getUtilization();
+            this.temperature = log.getTemperature();
+            this.capacity = log.getCapacity();
+            this.configuration = log.getConfiguration();
+            this.statistics = log.getStatistics();
+            this.messages = new String(log.getMessages());
+            this.containedLogTypes = log.getContainedLogTypes();
+            this.limits = log.getLimits();
+        }
+
+        public List<Utilization> getUtilization() {
+            return utilization;
+        }
+
+        public List<Temperature> getTemperature() {
+            return temperature;
+        }
+
+        public Capacity getCapacity() {
+            return capacity;
+        }
+
+        public Configuration getConfiguration() {
+            return configuration;
+        }
+
+        public List<Statistics> getStatistics() {
+            return statistics;
+        }
+
+        public String getMessages() {
+            return messages;
+        }
+
+        public KineticLogType[] getContainedLogTypes() {
+            return containedLogTypes;
+        }
+
+        public Limits getLimits() {
+            return limits;
+        }
     }
 }
