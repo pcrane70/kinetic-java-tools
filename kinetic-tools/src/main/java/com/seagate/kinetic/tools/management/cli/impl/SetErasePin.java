@@ -139,14 +139,14 @@ public class SetErasePin extends DefaultExecuter {
             adminClientConfig.setUserId(identity);
             adminClientConfig.setKey(key);
             adminClientConfig.setRequestTimeoutMillis(requestTimeout);
-
-            adminClient = KineticAdminClientFactory
-                    .createInstance(adminClientConfig);
         }
 
         @Override
         public void run() {
             try {
+                adminClient = KineticAdminClientFactory
+                        .createInstance(adminClientConfig);
+                
                 adminClient.setErasePin(oldErasePin, newErasePin);
 
                 synchronized (this) {

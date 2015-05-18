@@ -182,14 +182,14 @@ public class SetSecurity extends DefaultExecuter {
             adminClientConfig.setUserId(identity);
             adminClientConfig.setKey(key);
             adminClientConfig.setRequestTimeoutMillis(requestTimeout);
-
-            adminClient = KineticAdminClientFactory
-                    .createInstance(adminClientConfig);
         }
 
         @Override
         public void run() {
             try {
+                adminClient = KineticAdminClientFactory
+                        .createInstance(adminClientConfig);
+                
                 adminClient.setAcl(aclList);
 
                 synchronized (this) {

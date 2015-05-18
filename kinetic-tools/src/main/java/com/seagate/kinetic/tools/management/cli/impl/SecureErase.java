@@ -130,14 +130,14 @@ public class SecureErase extends DefaultExecuter {
             adminClientConfig.setUserId(identity);
             adminClientConfig.setKey(key);
             adminClientConfig.setRequestTimeoutMillis(requestTimeout);
-
-            adminClient = KineticAdminClientFactory
-                    .createInstance(adminClientConfig);
         }
 
         @Override
         public void run() {
             try {
+                adminClient = KineticAdminClientFactory
+                        .createInstance(adminClientConfig);
+                
                 adminClient.secureErase(erasePin);
 
                 synchronized (this) {

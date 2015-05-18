@@ -132,14 +132,14 @@ public class LockDevice extends DefaultExecuter {
             adminClientConfig.setUserId(identity);
             adminClientConfig.setKey(key);
             adminClientConfig.setClusterVersion(clusterVersion);
-
-            adminClient = KineticAdminClientFactory
-                    .createInstance(adminClientConfig);
         }
 
         @Override
         public void run() {
             try {
+                adminClient = KineticAdminClientFactory
+                        .createInstance(adminClientConfig);
+                
                 adminClient.lockDevice(lockPin);
                 synchronized (this) {
                     succeed.put(device, "");

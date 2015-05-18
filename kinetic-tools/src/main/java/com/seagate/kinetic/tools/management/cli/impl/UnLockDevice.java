@@ -128,15 +128,14 @@ public class UnLockDevice extends DefaultExecuter {
             adminClientConfig.setKey(key);
             adminClientConfig.setClusterVersion(clusterVersion);
             adminClientConfig.setRequestTimeoutMillis(requestTimeout);
-
-            adminClient = KineticAdminClientFactory
-                    .createInstance(adminClientConfig);
-
         }
 
         @Override
         public void run() {
             try {
+                adminClient = KineticAdminClientFactory
+                        .createInstance(adminClientConfig);
+                
                 adminClient.unLockDevice(unLockPin);
 
                 synchronized (this) {

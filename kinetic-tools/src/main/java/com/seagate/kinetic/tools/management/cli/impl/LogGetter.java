@@ -236,14 +236,14 @@ public class LogGetter extends DefaultExecuter {
             adminClientConfig.setRequestTimeoutMillis(requestTimeout);
             adminClientConfig.setUserId(identity);
             adminClientConfig.setKey(key);
-
-            adminClient = KineticAdminClientFactory
-                    .createInstance(adminClientConfig);
         }
 
         @Override
         public void run() {
             try {
+                adminClient = KineticAdminClientFactory
+                        .createInstance(adminClientConfig);
+                
                 KineticLog log = getLog(adminClient, logType);
                 String log2String = logToJson(device, log, logType);
 

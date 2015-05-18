@@ -169,14 +169,14 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
             adminClientConfig.setUserId(identity);
             adminClientConfig.setKey(key);
             adminClientConfig.setRequestTimeoutMillis(requestTimeout);
-
-            adminClient = KineticAdminClientFactory
-                    .createInstance(adminClientConfig);
         }
 
         @Override
         public void run() {
             try {
+                adminClient = KineticAdminClientFactory
+                        .createInstance(adminClientConfig);
+                
                 Device vendorSpecficInfo = adminClient
                         .getVendorSpecificDeviceLog(vendorSpecificName);
                 String vendorSpecficInfo2Json = device2Json(device,
