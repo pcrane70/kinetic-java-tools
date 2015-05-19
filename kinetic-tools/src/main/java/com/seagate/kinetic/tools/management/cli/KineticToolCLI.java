@@ -63,7 +63,7 @@ public class KineticToolCLI {
     private static final int OK = 0;
     private static final int MILLI_SECOND_IN_UNIT = 1000;
     private static final String DEFAULT_USE_SSL = "true";
-    private static final String DEFAULT_FW_DOWNLOAD_USE_SSL = "false";
+    private static final String DEFAULT_NON_USE_SSL = "false";
     private static final String DEFAULT_CLUSTER_VERSION = "0";
     private static final String DEFAULT_IDENTITY = "1";
     private static final String DEFAULT_KEY = "asdfasdf";
@@ -283,11 +283,13 @@ public class KineticToolCLI {
             kineticToolCLI.validateArgNames(args);
 
             String useSslInString = kineticToolCLI.getArgValue("-usessl", args);
-            if (!args[0].equalsIgnoreCase("-firmwaredownload")) {
-                useSslInString = useSslInString == null ? DEFAULT_USE_SSL
+            if (args[0].equalsIgnoreCase("-firmwaredownload")
+                    || args[0].equalsIgnoreCase("-ping")
+                    || args[0].equalsIgnoreCase("-discover")) {
+                useSslInString = useSslInString == null ? DEFAULT_NON_USE_SSL
                         : useSslInString;
             } else {
-                useSslInString = useSslInString == null ? DEFAULT_FW_DOWNLOAD_USE_SSL
+                useSslInString = useSslInString == null ? DEFAULT_USE_SSL
                         : useSslInString;
             }
 
@@ -391,7 +393,6 @@ public class KineticToolCLI {
                         driveInputListFile, driveListOutputFile, useSsl,
                         clusterVersion, identity, key, requestTimeout);
                 pingReachableDrive.pingReachableDriveViaDriveList();
-                ;
             } else if (args[0].equalsIgnoreCase("-firmwaredownload")) {
                 String firmwareFile = kineticToolCLI.getArgValue(
                         "-firmwaredownload", args);
