@@ -21,7 +21,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 public class FirmwareDownloader extends DefaultExecuter {
     private static final int CHUNK_SIZE = 1024;
     private static final int BATCH_THREAD_NUMBER = 20;
-    private final Logger logger = Logger.getLogger(FirmwareDownloader.class.getName());
+    private final Logger logger = Logger.getLogger(FirmwareDownloader.class
+            .getName());
     private String firmware;
     private byte[] firmwareContent;
 
@@ -150,18 +151,14 @@ public class FirmwareDownloader extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-                
+
                 adminClient.firmwareDownload(firmwareContent);
 
-                synchronized (this) {
-                    succeed.put(device, "");
-                }
+                succeed.put(device, "");
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 try {
                     System.out.println("[Failed]"

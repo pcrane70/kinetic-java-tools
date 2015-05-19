@@ -18,7 +18,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 
 public class InstantErase extends DefaultExecuter {
     private static final int BATCH_THREAD_NUMBER = 20;
-    private final Logger logger = Logger.getLogger(InstantErase.class.getName());
+    private final Logger logger = Logger
+            .getLogger(InstantErase.class.getName());
     private byte[] erasePin;
 
     public InstantErase(String erasePinInString, String drivesInputFile,
@@ -139,18 +140,14 @@ public class InstantErase extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-                
+
                 adminClient.instantErase(erasePin);
 
-                synchronized (this) {
-                    succeed.put(device, "");
-                }
+                succeed.put(device, "");
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 try {
                     System.out.println("[Failed]"

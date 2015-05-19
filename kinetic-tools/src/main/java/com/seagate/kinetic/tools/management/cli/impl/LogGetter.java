@@ -265,9 +265,7 @@ public class LogGetter extends DefaultExecuter {
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 try {
                     System.out.println("[Failed]"

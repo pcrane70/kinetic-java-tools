@@ -38,7 +38,7 @@ public class LockDevice extends DefaultExecuter {
 
     public void lockDevice() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
-        
+
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
@@ -115,13 +115,13 @@ public class LockDevice extends DefaultExecuter {
             this.device = device;
             this.latch = latch;
             this.lockPin = lockPin;
-            
+
             if (null == device || 0 == device.getInet4().size()
                     || device.getInet4().isEmpty()) {
                 throw new KineticException(
                         "device is null or no ip addresses in device.");
             }
-            
+
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
             adminClientConfig.setUseSsl(useSsl);
@@ -141,17 +141,13 @@ public class LockDevice extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-                
+
                 adminClient.lockDevice(lockPin);
-                synchronized (this) {
-                    succeed.put(device, "");
-                }
+                succeed.put(device, "");
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 try {
                     System.out.println("[Failed]"

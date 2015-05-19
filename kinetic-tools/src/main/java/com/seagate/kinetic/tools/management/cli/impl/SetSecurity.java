@@ -191,18 +191,14 @@ public class SetSecurity extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-                
+
                 adminClient.setAcl(aclList);
 
-                synchronized (this) {
-                    succeed.put(device, "");
-                }
+                succeed.put(device, "");
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 try {
                     System.out.println("[Failed]"

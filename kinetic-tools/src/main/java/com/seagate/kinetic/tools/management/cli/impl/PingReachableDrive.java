@@ -257,15 +257,11 @@ public class PingReachableDrive extends DefaultExecuter {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 logger.warning(e.getMessage());
             } catch (Exception e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 logger.warning(e.getMessage());
             } finally {

@@ -18,7 +18,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 
 public class UnLockDevice extends DefaultExecuter {
     private static final int BATCH_THREAD_NUMBER = 20;
-    private final Logger logger = Logger.getLogger(UnLockDevice.class.getName());
+    private final Logger logger = Logger
+            .getLogger(UnLockDevice.class.getName());
     private byte[] unLockPin;
 
     public UnLockDevice(String drivesInputFile, String unLockPinInString,
@@ -137,19 +138,15 @@ public class UnLockDevice extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-                
+
                 adminClient.unLockDevice(unLockPin);
 
-                synchronized (this) {
-                    succeed.put(device, "");
-                }
+                succeed.put(device, "");
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
 
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 try {
                     System.out.println("[Failed]"

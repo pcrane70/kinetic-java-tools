@@ -22,7 +22,8 @@ import com.seagate.kinetic.tools.management.cli.impl.util.JsonUtil;
 
 public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
     private static final int BATCH_THREAD_NUMBER = 20;
-    private final Logger logger = Logger.getLogger(VendorSpecificDeviceLogGetter.class.getName());
+    private final Logger logger = Logger
+            .getLogger(VendorSpecificDeviceLogGetter.class.getName());
     private byte[] vendorSpecificName;
     private String outputFilePath;
     private StringBuffer sb = new StringBuffer();
@@ -178,7 +179,7 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-                
+
                 Device vendorSpecficInfo = adminClient
                         .getVendorSpecificDeviceLog(vendorSpecificName);
                 String vendorSpecficInfo2Json = device2Json(device,
@@ -191,9 +192,7 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 try {
                     System.out.println("[Failed]"

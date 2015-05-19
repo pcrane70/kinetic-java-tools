@@ -17,7 +17,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 
 public class SetClusterVersion extends DefaultExecuter {
     private static final int BATCH_THREAD_NUMBER = 20;
-    private final Logger logger = Logger.getLogger(SetClusterVersion.class.getName());
+    private final Logger logger = Logger.getLogger(SetClusterVersion.class
+            .getName());
     private long newClusterVersion;
 
     public SetClusterVersion(String clusterVersionInString,
@@ -134,18 +135,14 @@ public class SetClusterVersion extends DefaultExecuter {
 
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
-                
+
                 adminClient.setClusterVersion(newClusterVersion);
 
-                synchronized (this) {
-                    succeed.put(device, "");
-                }
+                succeed.put(device, "");
 
                 System.out.println("[Succeed]" + KineticDevice.toJson(device));
             } catch (KineticException e) {
-                synchronized (this) {
-                    failed.put(device, "");
-                }
+                failed.put(device, "");
 
                 try {
                     System.out.println("[Failed]"
