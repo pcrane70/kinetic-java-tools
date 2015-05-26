@@ -30,8 +30,6 @@ public class FirmwareVersionChecker extends DefaultExecuter {
     }
 
     public void checkFirmwareVersion() throws Exception {
-        System.out.println("Start checking firmware version......");
-
         ExecutorService pool = Executors.newCachedThreadPool();
 
         if (null == devices || devices.isEmpty()) {
@@ -87,7 +85,7 @@ public class FirmwareVersionChecker extends DefaultExecuter {
 
         if (failedDevices > 0) {
             System.out
-                    .println("The following devices have different firmware version as expected:");
+                    .println("The following devices have different firmware version than expected:");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
