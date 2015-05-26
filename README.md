@@ -28,6 +28,7 @@ sh ktool.sh -help
 ###Drive discovery
 Discover a cluster of drives within a set of IP ranges.
 If subnet option is present, only devices within the subnet (0-255) are discovered and added to the output file.
+The timeout option is used to specify the sampling time to collect the devices. The default is set to 30 seconds if not set.
 ```
 sh ktool.sh -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -40,7 +41,7 @@ sh ktool.sh -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] 
 ```
 
 ###Ping drives
-Ping the devices specified in the driveListOutputFile.
+Ping the devices specified in the driveListInputFile.  This command is used to ping if the devices specified in the driveListInputFile are healthy and operational.
 ```
 sh ktool.sh -ping <-in <driveListInputFile>> [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>] 
 
@@ -49,7 +50,7 @@ sh ktool.sh -ping <-in <driveListInputFile>> [-out <driveListOutputFile>] [-uses
 ```
 
 ###Firmware upgrade
-Upgrade firmware for devices specified in the driveListInputFile.
+Upgrade firmware for devices specified in the driveListInputFile. This command is used to update device firmware releases.
 ```
 sh ktool.sh -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
@@ -58,7 +59,7 @@ sh ktool.sh -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true
 ```
 
 ###Check versions
-Check if the version of each device specified in the driveListInputFile matched the specified version. 
+Check if the version of each device specified in the driveListInputFile matched the specified version. This command is used to verify if the devices specified in driveListInputFile are equal to the indicated version.
 ```
 sh ktool.sh -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
@@ -67,7 +68,7 @@ sh ktool.sh -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>
 ```
 
 ###Set erase pins
-Set the erase pins for the devices specified in the driveListInputFile.  A rease pin is required to perform instance erase or secure erase commands to a drive.
+Set the erase pins for the devices specified in the driveListInputFile.  A rease pin is required to perform instant erase or secure erase commands to a drive.
 ```
 sh ktool.sh -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -84,8 +85,8 @@ sh ktool.sh -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInStr
    sh ktool.sh -setlockpin -oldpin "" -newpin 123 -in drives.txt
 ```
 
-###Instance erase the drives
-Erase the drives specified in the driveListInputFile with the instance erase protocol.  All contents on the drive will be instant erased and the drive is reset to its factory default settings. A matched pin is required in order to perform the instanterase command.
+###Instant erase the drives
+Erase the drives specified in the driveListInputFile with the instant erase protocol.  All contents on the drive will be instant erased and the drive is reset to its factory default settings. A matched pin is required in order to perform the instanterase command.
 ```
 sh ktool.sh -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
   
@@ -168,7 +169,7 @@ sh ktool.sh -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-
 ```
 
 ###Run smoke tests
-Run smoke tests again devices specified in the driveListInputFile.
+Run smoke tests again devices specified in the driveListInputFile. This command is used to perform sanity check on the devices specified in driveListInputFile.
 ```
 sh ktool.sh -runsmoketest <-in <driveListInputFile>>
 
