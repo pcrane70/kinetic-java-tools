@@ -287,7 +287,8 @@ public class KineticToolCLI {
                     || args[0].equalsIgnoreCase("-ping")
                     || args[0].equalsIgnoreCase("-discover")
                     || args[0].equalsIgnoreCase("-getlog")
-                    || args[0].equalsIgnoreCase("-getvendorspecificdevicelog")) {
+                    || args[0].equalsIgnoreCase("-getvendorspecificdevicelog")
+                    || args[0].equalsIgnoreCase("-checkversion")) {
                 useSslInString = useSslInString == null ? DEFAULT_NON_USE_SSL
                         : useSslInString;
             } else {
