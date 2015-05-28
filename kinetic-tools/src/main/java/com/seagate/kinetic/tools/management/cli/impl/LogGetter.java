@@ -242,6 +242,7 @@ public class LogGetter extends DefaultExecuter {
             adminClientConfig.setUseSsl(useSsl);
             if (useSsl) {
                 adminClientConfig.setPort(device.getTlsPort());
+                adminClientConfig.setThreadPoolAwaitTimeOut(1000);
             } else {
                 adminClientConfig.setPort(device.getPort());
             }
