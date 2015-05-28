@@ -72,12 +72,9 @@ public class FirmwareVersionChecker extends DefaultExecuter {
 
         System.out.flush();
 
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")");
-
         if (succeedDevices > 0) {
             System.out
-                    .println("The following devices have same firmware version as expected:");
+                    .println("\nThe following devices have same firmware version as expected:");
             for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
@@ -85,11 +82,14 @@ public class FirmwareVersionChecker extends DefaultExecuter {
 
         if (failedDevices > 0) {
             System.out
-                    .println("The following devices have different firmware version than expected:");
+                    .println("\nThe following devices have different firmware version than expected:");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
+        
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")\n");
     }
 
     class VersionCheckThread implements Runnable {

@@ -82,23 +82,23 @@ public class LockDevice extends DefaultExecuter {
         TimeUnit.SECONDS.sleep(2);
         System.out.flush();
 
-        System.out.println("\n(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")");
-
         if (succeedDevices > 0) {
             System.out
-                    .println("The following devices were locked successfully");
+                    .println("\nThe following devices were locked successfully");
             for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
 
         if (failedDevices > 0) {
-            System.out.println("The following devices were locked failed");
+            System.out.println("\nThe following devices were locked failed");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
+        
+        System.out.println("\n(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")\n");
     }
 
     class LockDeviceThread implements Runnable {

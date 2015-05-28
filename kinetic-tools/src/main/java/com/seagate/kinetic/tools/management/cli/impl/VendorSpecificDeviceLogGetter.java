@@ -90,12 +90,9 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
 
         assert (succeedDevices + failedDevices == totalDevices);
 
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")");
-
         if (succeedDevices > 0) {
             System.out
-                    .println("The following devices get vendor specific info succeed:");
+                    .println("\nThe following devices get vendor specific info succeed:");
             for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
@@ -103,11 +100,14 @@ public class VendorSpecificDeviceLogGetter extends DefaultExecuter {
 
         if (failedDevices > 0) {
             System.out
-                    .println("The following device get vendor specific info failed:");
+                    .println("\nThe following device get vendor specific info failed:");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
+
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")\n");
 
         persist2File(sb.toString());
         System.out.println("Save logs to " + outputFilePath + " completed.");

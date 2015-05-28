@@ -92,11 +92,9 @@ public class FirmwareDownloader extends DefaultExecuter {
 
         TimeUnit.SECONDS.sleep(2);
         System.out.flush();
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")");
 
         if (succeedDevices > 0) {
-            System.out.println("Below devices downloaded firmware succeed:");
+            System.out.println("\nThe following devices downloaded firmware succeed:");
             for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
@@ -104,11 +102,14 @@ public class FirmwareDownloader extends DefaultExecuter {
 
         if (failedDevices > 0) {
             System.out
-                    .println("The following devices downloaded firmware failed:");
+                    .println("\nThe following devices downloaded firmware failed:");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
+        
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")\n");
     }
 
     class FirmwareDownloadThread implements Runnable {

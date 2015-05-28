@@ -82,22 +82,23 @@ public class InstantErase extends DefaultExecuter {
 
         TimeUnit.SECONDS.sleep(2);
         System.out.flush();
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")");
 
         if (succeedDevices > 0) {
-            System.out.println("The following devices instant erase succeed:");
+            System.out.println("\nThe following devices instant erase succeed:");
             for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
 
         if (failedDevices > 0) {
-            System.out.println("The following devices instant erase failed:");
+            System.out.println("\nThe following devices instant erase failed:");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
+        
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")\n");
     }
 
     class instantEraseThread implements Runnable {

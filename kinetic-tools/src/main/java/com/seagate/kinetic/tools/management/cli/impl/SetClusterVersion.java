@@ -74,12 +74,10 @@ public class SetClusterVersion extends DefaultExecuter {
 
         TimeUnit.SECONDS.sleep(2);
         System.out.flush();
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")");
 
         if (succeedDevices > 0) {
             System.out
-                    .println("The following devices set cluster version succeed:");
+                    .println("\nThe following devices set cluster version succeed:");
             for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
@@ -87,11 +85,14 @@ public class SetClusterVersion extends DefaultExecuter {
 
         if (failedDevices > 0) {
             System.out
-                    .println("The following devices set cluster version failed:");
+                    .println("\nThe following devices set cluster version failed:");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
+        
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")\n");
     }
 
     class setClusterVersionThread implements Runnable {

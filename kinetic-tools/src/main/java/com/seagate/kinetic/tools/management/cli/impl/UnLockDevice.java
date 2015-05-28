@@ -84,18 +84,21 @@ public class UnLockDevice extends DefaultExecuter {
 
         if (succeedDevices > 0) {
             System.out
-                    .println("The following devices were unlocked successfully:");
+                    .println("\nThe following devices were unlocked successfully:");
             for (KineticDevice device : succeed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
 
         if (failedDevices > 0) {
-            System.out.println("The following devices were unlocked failed:");
+            System.out.println("\nThe following devices were unlocked failed:");
             for (KineticDevice device : failed.keySet()) {
                 System.out.println(KineticDevice.toJson(device));
             }
         }
+        
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")\n");
     }
 
     class UnLockDeviceThread implements Runnable {

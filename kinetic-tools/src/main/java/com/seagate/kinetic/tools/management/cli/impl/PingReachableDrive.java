@@ -168,9 +168,6 @@ public class PingReachableDrive extends DefaultExecuter {
 
         assert (failedDevices + succeedDevices == totalDevices);
 
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")");
-
         if (failedDevices > 0) {
             System.out.println("\nThe following devices ping failed:");
             for (KineticDevice device : failed.keySet()) {
@@ -190,6 +187,9 @@ public class PingReachableDrive extends DefaultExecuter {
                     + " drives online, persist drives info in "
                     + driveListOutputFile);
         }
+        
+        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                + succeedDevices + "/" + failedDevices + ")\n");
     }
 
     private String persistToFile(Set<KineticDevice> deviceList, String filePath)
