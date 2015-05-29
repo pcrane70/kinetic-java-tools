@@ -12,7 +12,7 @@ Kinetic Java Tools are used to help the deployment and management of Kinetic dri
 ##Building kinetic tools
 ==============================
   1. Clone the code: `git clone https://github.com/Seagate/kinetic-java-tools.git`
-  2. cd to "kinetic-java-tools/kinetic-tools" folder
+  2. cd to "kinetic-java-tools" folder
   3. Run "mvn clean package"
   
 ##Supported commands and usage examples
