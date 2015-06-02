@@ -126,7 +126,7 @@ public class SecureErase extends DefaultExecuter {
             adminClientConfig.setUseSsl(useSsl);
             if (useSsl) {
                 adminClientConfig.setPort(device.getTlsPort());
-                adminClientConfig.setThreadPoolAwaitTimeOut(1000);
+                adminClientConfig.setThreadPoolAwaitTimeOut(5000);
             } else {
                 adminClientConfig.setPort(device.getPort());
             }
