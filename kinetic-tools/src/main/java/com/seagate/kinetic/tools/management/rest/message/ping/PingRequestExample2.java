@@ -17,34 +17,22 @@
  */
 package com.seagate.kinetic.tools.management.rest.message.ping;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.util.MessageUtil;
 
 /**
  * This generates a simple example of the <code>PingRequest</code> message.
  * <p>
- * A list of device Id is set in the Ping request message.
+ * The disco Id is set in the Ping request message. The disco Id is obtained
+ * from a prior <code>DiscoverResponse</code> message.
+ * 
  */
-public class PingRequestExample {
+public class PingRequestExample2 {
 
     public static void main(String[] args) {
 
         PingRequest req = new PingRequest();
 
-        List<DeviceId> devices = new ArrayList<DeviceId>();
-
-        DeviceId deviceId = new DeviceId();
-
-        deviceId.setWwn("1234");
-        String[] ips = { "127.0.0.1" };
-        deviceId.setIps(ips);
-
-        devices.add(deviceId);
-
-        req.setDevices(devices);
+        req.setDiscoId("12345");
 
         String request = req.toJson();
 

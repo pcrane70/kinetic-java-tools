@@ -27,6 +27,8 @@ public class DiscoverResponseExample {
 
         DiscoverResponse resp = new DiscoverResponse();
 
+        resp.setDiscoId("1234567890");
+
         resp.setDevices(devices);
 
         System.out.println(resp.toJson());

@@ -31,6 +31,15 @@ public class RestRequest extends RestMessage {
 
     private String key = "asdfasdf";
 
+    /**
+     * The discover Id is returned in the DiscoverResponse message. If this is
+     * present in the subsequent requests, all devices associated with the
+     * cached discover result will be included in the request.
+     * 
+     * If this is present, the devices field is ignored.
+     */
+    private String discoId = null;
+
     private List<DeviceId> devices = null;
 
     public void setIdentity(String id) {
@@ -55,6 +64,14 @@ public class RestRequest extends RestMessage {
 
     public List<DeviceId> getDevices() {
         return this.devices;
+    }
+
+    public String getDiscoId() {
+        return this.discoId;
+    }
+
+    public void setDiscoId(String id) {
+        this.discoId = id;
     }
 
 }

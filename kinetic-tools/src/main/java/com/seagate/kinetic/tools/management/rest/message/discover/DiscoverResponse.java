@@ -32,10 +32,25 @@ import com.seagate.kinetic.tools.management.rest.message.RestResponse;
  */
 public class DiscoverResponse extends RestResponse {
 
+    /**
+     * The discover Id is returned in the DiscoverResponse message. If this is
+     * present in the subsequent requests, all devices associated with the
+     * cached discover result will be associated with the request.
+     */
+    private String discoId = null;
+
     protected List<DeviceInfo> devices = new ArrayList<DeviceInfo>();
 
     public DiscoverResponse() {
         setMessageType(MessageType.DISCOVER_REPLY);
+    }
+
+    public String getDiscoId() {
+        return this.discoId;
+    }
+
+    public void setDiscoId(String id) {
+        this.discoId = id;
     }
 
     public void setDevices(List<DeviceInfo> devices) {
