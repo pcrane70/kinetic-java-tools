@@ -29,11 +29,11 @@ import com.seagate.kinetic.tools.management.rest.message.RestResponse;
  * @author chiaming
  *
  */
-public class GetlogResponse extends RestResponse {
+public class GetLogResponse extends RestResponse {
 
     private List<DeviceLog> deviceLogs = new ArrayList<DeviceLog>();
 
-    public GetlogResponse() {
+    public GetLogResponse() {
         setMessageType(MessageType.GETLOG_REPLY);
     }
 

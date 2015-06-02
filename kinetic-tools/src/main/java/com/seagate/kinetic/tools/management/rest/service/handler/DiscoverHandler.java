@@ -17,14 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.rest.service.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.seagate.kinetic.tools.management.cli.impl.KineticDevice;
-import com.seagate.kinetic.tools.management.rest.message.DeviceInfo;
 import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverRequest;
-import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverResponse;
-import com.seagate.kinetic.tools.management.rest.service.ServiceContext;
 import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
 
 /**
@@ -33,36 +26,8 @@ import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
  * @author chiaming
  *
  */
-public class DiscoverHandler implements ServiceHandler {
-
-    public DiscoverHandler() {
-        // TODO Auto-generated constructor stub
-    }
-
-    @Override
-    public void service(ServiceContext context) {
-
-        List<DeviceInfo> devices = new ArrayList<DeviceInfo>();
-
-        for (int i = 0; i < 2; i++) {
-
-            KineticDevice device = new KineticDevice();
-
-            DeviceInfo dstatus = new DeviceInfo();
-
-            dstatus.setDevice(device);
-
-            device.setSerialNumber(String.valueOf(i));
-
-            devices.add(dstatus);
-        }
-
-        DiscoverResponse resp = new DiscoverResponse();
-
-        resp.setDevices(devices);
-
-        context.setResponseMessage(resp);
-    }
+public class DiscoverHandler extends GenericServiceHandler implements
+        ServiceHandler {
 
     @SuppressWarnings("rawtypes")
     @Override

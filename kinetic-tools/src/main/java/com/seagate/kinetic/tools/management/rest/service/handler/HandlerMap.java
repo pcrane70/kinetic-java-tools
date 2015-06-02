@@ -40,6 +40,9 @@ public class HandlerMap {
     // discover request
     public static final String DISCOVER = "/discover";
 
+    // getlog request
+    public static final String GETLOG = "/getlog";
+
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
     
@@ -47,6 +50,7 @@ public class HandlerMap {
         hmap.put(PING, new PingHandler());
         hmap.put(ERROR, new ErrorHandler());
         hmap.put(DISCOVER, new DiscoverHandler());
+        hmap.put(GETLOG, new GetLogHandler());
     }
 
     /**

@@ -17,6 +17,8 @@
  */
 package com.seagate.kinetic.tools.management.rest.service.handler;
 
+import java.util.logging.Logger;
+
 import com.seagate.kinetic.tools.management.rest.message.ErrorResponse;
 import com.seagate.kinetic.tools.management.rest.service.ServiceContext;
 import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
@@ -30,9 +32,14 @@ import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
  */
 public class ErrorHandler implements ServiceHandler {
 
+    public static final Logger logger = Logger.getLogger(ErrorHandler.class
+            .getName());
+
     @Override
     public void service(ServiceContext context) {
         ErrorResponse response = new ErrorResponse();
+
+        logger.info("sending error response: " + response.toJson());
 
         context.setResponseMessage(response);
     }

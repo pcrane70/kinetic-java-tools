@@ -13,7 +13,7 @@ public class GetLogResponseExample {
 
     public static void main(String[] args) {
 
-        GetlogResponse resp = new GetlogResponse();
+        GetLogResponse resp = new GetLogResponse();
 
         List<DeviceLog> listOfLogs = new ArrayList<DeviceLog>();
 

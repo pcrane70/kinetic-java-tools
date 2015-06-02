@@ -8,7 +8,7 @@ public class GetLogRequestExample {
 
     public static void main(String[] args) {
 
-        GetlogRequest req = new GetlogRequest();
+        GetLogRequest req = new GetLogRequest();
 
         req.setLogType(KineticLogType.CONFIGURATION);
 
@@ -16,8 +16,8 @@ public class GetLogRequestExample {
 
         System.out.println(request);
 
-        GetlogRequest req2 = (GetlogRequest) MessageUtil.fromJson(request,
-                GetlogRequest.class);
+        GetLogRequest req2 = (GetLogRequest) MessageUtil.fromJson(request,
+                GetLogRequest.class);
 
         String request2 = req2.toJson();
 

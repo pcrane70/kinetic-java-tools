@@ -27,7 +27,7 @@ import com.seagate.kinetic.tools.management.rest.message.RestRequest;
  * 
  * @author chiaming
  */
-public class GetlogRequest extends RestRequest {
+public class GetLogRequest extends RestRequest {
 
     private KineticLogType logType = null;
 
@@ -49,7 +49,7 @@ public class GetlogRequest extends RestRequest {
         return this.logType;
     }
 
-    public GetlogRequest() {
+    public GetLogRequest() {
         setMessageType(MessageType.GETLOG);
     }
 }

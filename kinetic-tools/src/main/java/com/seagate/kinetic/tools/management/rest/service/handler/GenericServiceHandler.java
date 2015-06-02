@@ -59,16 +59,18 @@ public abstract class GenericServiceHandler implements ServiceHandler {
             // set request to context
             context.setRequestMessage(req);
 
+            logger.info("received request message: " + req.toJson());
+
             /**
              * call bridge service
              */
             RestResponse response = RestBridgeServiceFactory
                     .getServiceInstance().service(context.getRequestMessage());
 
+            logger.info("sending response message: " + response.toJson());
+
             // set response to service context
             context.setResponseMessage(response);
-
-            logger.info("generic handler processed request ...");
         } catch (InstantiationException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
         } catch (IllegalAccessException e) {

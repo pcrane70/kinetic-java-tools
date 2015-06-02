@@ -63,72 +63,79 @@ public class HandlerUtil {
         // instantiate object
         RestRequest req = (RestRequest) clazz.newInstance();
 
-        // list of devices for the request
-        List<DeviceId> devices = new ArrayList<DeviceId>();
-
         /**
          * get from request params if present
          */
         Map<String, String[]> params = httpRequest.getParameterMap();
 
-        // ip param name
-        String[] ips = params.get("ip");
+        // check if discoId is present
+        String[] discoId = params.get("discoId");
+        if (discoId != null) {
+            req.setDiscoId(discoId[0]);
+        } else {
 
-        if (ips != null) {
+            // list of devices for the request
+            List<DeviceId> devices = new ArrayList<DeviceId>();
 
-            /**
-             * device holder
-             */
-            DeviceId dev = new DeviceId();
+            // ip param name
+            String[] ips = params.get("ip");
 
-            /**
-             * set device Id
-             */
-            dev.setIps(ips);
+            if (ips != null) {
 
-            /**
-             * set ports
-             */
-            String[] ports = params.get("port");
-            if (ports != null) {
-                dev.setPort(Integer.parseInt(ports[0]));
+                /**
+                 * device holder
+                 */
+                DeviceId dev = new DeviceId();
+
+                /**
+                 * set device Id
+                 */
+                dev.setIps(ips);
+
+                /**
+                 * set ports
+                 */
+                String[] ports = params.get("port");
+                if (ports != null) {
+                    dev.setPort(Integer.parseInt(ports[0]));
+                }
+
+                /**
+                 * set tls port
+                 */
+                ports = params.get("tlsport");
+                if (ports != null) {
+                    dev.setTlsPort(Integer.parseInt(ports[0]));
+                }
+
+                /**
+                 * set wwn
+                 */
+                String[] wwns = params.get("wwn");
+                if (wwns != null) {
+                    dev.setWwn(wwns[0]);
+                }
+
+                devices.add(dev);
+
+                req.setDevices(devices);
             }
+        }
 
-            /**
-             * set tls port
-             */
-            ports = params.get("tlsport");
-            if (ports != null) {
-                dev.setTlsPort(Integer.parseInt(ports[0]));
-            }
+        /**
+         * set identity
+         */
+        String[] ids = params.get("identity");
+        if (ids != null) {
+            req.setIdentity(ids[0]);
+        }
 
-            /**
-             * set wwn
-             */
-            String[] wwns = params.get("wwn");
-            if (wwns != null) {
-                dev.setWwn(wwns[0]);
-            }
-
-            devices.add(dev);
-
-            req.setDevices(devices);
-
-            /**
-             * set identity
-             */
-            String[] ids = params.get("identity");
-            if (ids != null) {
-                req.setIdentity(ids[0]);
-            }
-
-            /**
-             * set key
-             */
-            String[] keys = params.get("key");
-            if (keys != null) {
-                req.setKey(keys[0]);
-            }
+        /**
+         * set key
+         */
+        String[] keys = params.get("key");
+        if (keys != null) {
+            req.setKey(keys[0]);
         }
 
         return req;
