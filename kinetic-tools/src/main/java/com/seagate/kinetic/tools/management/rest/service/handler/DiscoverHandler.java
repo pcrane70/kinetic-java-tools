@@ -17,6 +17,11 @@
  */
 package com.seagate.kinetic.tools.management.rest.service.handler;
 
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverRequest;
 import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
 
@@ -33,6 +38,32 @@ public class DiscoverHandler extends GenericServiceHandler implements
     @Override
     public Class getRequestMessageClass() {
         return DiscoverRequest.class;
+    }
+
+    @Override
+    protected void transformRequestParams(HttpServletRequest httpRequest,
+            RestRequest req) {
+        if (httpRequest.getContentLength() <= 0) {
+
+            DiscoverRequest request = (DiscoverRequest) req;
+
+            Map<String, String[]> params = httpRequest.getParameterMap();
+
+            String[] subnet = params.get("subnet");
+            if (subnet != null) {
+                request.setSubnet(subnet[0]);
+            }
+
+            String[] clversion = params.get("clversion");
+            if (clversion != null) {
+                request.setClversion(Integer.parseInt(clversion[0]));
+            }
+
+            String[] timeout = params.get("timeout");
+            if (timeout != null) {
+                request.setTimeout(Integer.parseInt(timeout[0]));
+            }
+        }
     }
 
 }

@@ -52,9 +52,12 @@ public abstract class GenericServiceHandler implements ServiceHandler {
          */
         try {
 
-            // transform http request to rest request
+            // transform common http request to rest request
             RestRequest req = HandlerUtil.transformRequest(httpRequest,
                     getRequestMessageClass());
+
+            // transform request specific params
+            this.transformRequestParams(httpRequest, req);
 
             // set request to context
             context.setRequestMessage(req);
@@ -76,6 +79,11 @@ public abstract class GenericServiceHandler implements ServiceHandler {
         } catch (IllegalAccessException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
         }
+    }
+
+    protected void transformRequestParams(HttpServletRequest httpRequest,
+            RestRequest req) {
+        ;
     }
 
 }

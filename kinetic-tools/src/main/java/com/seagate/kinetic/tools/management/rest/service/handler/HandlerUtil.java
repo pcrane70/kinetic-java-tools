@@ -44,9 +44,9 @@ public class HandlerUtil {
             .getName());
 
     /**
-     * Transfrom http request params to rest request message. This is used for
-     * simple request that contains one device only. Use json body for request
-     * if contains more than one device.
+     * Transfrom common http request params to rest request message. This is
+     * used for simple request that contains one device only. Use json body for
+     * request if contains more than one device.
      * 
      * @param httpRequest
      *            http request message
