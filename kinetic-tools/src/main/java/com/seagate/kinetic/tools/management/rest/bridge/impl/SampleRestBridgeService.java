@@ -20,6 +20,8 @@ package com.seagate.kinetic.tools.management.rest.bridge.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.admin.Capacity;
 import kinetic.admin.Limits;
 
@@ -32,6 +34,7 @@ import com.seagate.kinetic.tools.management.rest.message.ErrorResponse;
 import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 import com.seagate.kinetic.tools.management.rest.message.RestResponse;
+import com.seagate.kinetic.tools.management.rest.message.checkversion.CheckVersionResponse;
 import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverResponse;
 import com.seagate.kinetic.tools.management.rest.message.getlog.DeviceLog;
 import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
@@ -69,6 +72,9 @@ public class SampleRestBridgeService implements RestBridgeService {
             break;
         case GETLOG:
             response = getlog(request);
+            break;
+        case CHECKVERSION:
+            response = this.checkVersion(request);
             break;
         default:
             response = new ErrorResponse();
@@ -175,6 +181,29 @@ public class SampleRestBridgeService implements RestBridgeService {
         }
 
         return response;
+    }
+
+    public RestResponse checkVersion(RestRequest request) {
+
+        CheckVersionResponse resp = new CheckVersionResponse();
+        List<DeviceStatus> statusList = new ArrayList<DeviceStatus>();
+
+        DeviceStatus status = new DeviceStatus();
+        DeviceId id = new DeviceId();
+        String[] ip = { "127.0.0.1" };
+        id.setIps(ip);
+
+        status.setDevice(id);
+
+        status.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
+        status.setMessage("expect version: 2.7.3, device version: 2.7.2");
+
+        statusList.add(status);
+
+        resp.setDevices(statusList);
+
+        return resp;
+
     }
 
 }

@@ -138,6 +138,16 @@ public class HandlerUtil {
             req.setKey(keys[0]);
         }
 
+        String[] useSsl = params.get("usessl");
+        if (useSsl != null) {
+            req.setUseSsl(Boolean.parseBoolean(useSsl[0]));
+        }
+
+        String[] reqTimeout = params.get("reqtimeout");
+        if (reqTimeout != null) {
+            req.setRequestTimeout(Integer.parseInt(reqTimeout[0]));
+        }
+
         return req;
     }
 

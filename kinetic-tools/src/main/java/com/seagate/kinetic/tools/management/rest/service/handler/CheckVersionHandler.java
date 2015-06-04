@@ -4,19 +4,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import kinetic.admin.KineticLogType;
-
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
-import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogRequest;
+import com.seagate.kinetic.tools.management.rest.message.checkversion.CheckVersionRequest;
 import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
 
-public class GetLogHandler extends GenericServiceHandler implements
+public class CheckVersionHandler extends GenericServiceHandler implements
         ServiceHandler {
 
     @SuppressWarnings("rawtypes")
     @Override
     public Class getRequestMessageClass() {
-        return GetLogRequest.class;
+        return CheckVersionRequest.class;
     }
 
     @Override
@@ -25,20 +23,15 @@ public class GetLogHandler extends GenericServiceHandler implements
 
         if (httpRequest.getContentLength() <= 0) {
 
-            GetLogRequest request = (GetLogRequest) req;
+            CheckVersionRequest request = (CheckVersionRequest) req;
 
             Map<String, String[]> params = httpRequest.getParameterMap();
 
-            String[] useSsl = params.get("usessl");
-            if (useSsl != null) {
-                request.setUseSsl(Boolean.parseBoolean(useSsl[0]));
-            }
-
-            String[] type = params.get("logtype");
-            if (type != null) {
-                request.setLogType(KineticLogType.valueOf(type[0].toUpperCase()));
+            // compatible to CLI (uses this option -v)
+            String[] version = params.get("v");
+            if (version != null) {
+                request.setExpectFirmwareVersion(version[0].toUpperCase());
             }
         }
     }
-
 }

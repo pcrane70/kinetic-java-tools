@@ -43,6 +43,8 @@ public class HandlerMap {
     // getlog request
     public static final String GETLOG = "/getlog";
 
+    public static final String CHECKVERSION = "/checkversion";
+
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
     
@@ -51,6 +53,7 @@ public class HandlerMap {
         hmap.put(ERROR, new ErrorHandler());
         hmap.put(DISCOVER, new DiscoverHandler());
         hmap.put(GETLOG, new GetLogHandler());
+        hmap.put(CHECKVERSION, new CheckVersionHandler());
     }
 
     /**
@@ -69,6 +72,8 @@ public class HandlerMap {
         handler = hmap.get(path);
 
         if (handler == null) {
+            logger.warning("cound not find handler for request: " + path);
+
             handler = hmap.get(ERROR);
         }
 
