@@ -19,6 +19,8 @@ package com.seagate.kinetic.tools.management.rest.service.handler;
 
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.seagate.kinetic.tools.management.rest.message.ErrorResponse;
 import com.seagate.kinetic.tools.management.rest.service.ServiceContext;
 import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
@@ -40,6 +42,9 @@ public class ErrorHandler implements ServiceHandler {
         ErrorResponse response = new ErrorResponse();
 
         logger.info("sending error response: " + response.toJson());
+
+        response.setErrorCode(HttpServletResponse.SC_NOT_FOUND);
+        response.setErrorMessage("unsupported service.");
 
         context.setResponseMessage(response);
     }

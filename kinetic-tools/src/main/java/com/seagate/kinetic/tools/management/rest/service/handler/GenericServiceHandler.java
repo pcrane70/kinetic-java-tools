@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 import com.seagate.kinetic.tools.management.rest.bridge.RestBridgeServiceFactory;
+import com.seagate.kinetic.tools.management.rest.message.ErrorResponse;
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 import com.seagate.kinetic.tools.management.rest.message.RestResponse;
 import com.seagate.kinetic.tools.management.rest.service.ServiceContext;
@@ -48,6 +49,11 @@ public abstract class GenericServiceHandler implements ServiceHandler {
         HttpServletRequest httpRequest = context.getHttpServletRequest();
 
         /**
+         * rest response message
+         */
+        RestResponse response = null;
+
+        /**
          * transform request message
          */
         try {
@@ -67,17 +73,24 @@ public abstract class GenericServiceHandler implements ServiceHandler {
             /**
              * call bridge service
              */
-            RestResponse response = RestBridgeServiceFactory
+            response = RestBridgeServiceFactory
                     .getServiceInstance().service(context.getRequestMessage());
 
             logger.info("sending response message: " + response.toJson());
 
+        } catch (Exception e) {
+
+            // construct error response message
+            response = new ErrorResponse();
+
+            // set error message
+            ((ErrorResponse) response).setErrorMessage(e.getClass().getName()
+                    + ":" + e.getMessage());
+
+            logger.log(Level.WARNING, e.getMessage(), e);
+        } finally {
             // set response to service context
             context.setResponseMessage(response);
-        } catch (InstantiationException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
         }
     }
 

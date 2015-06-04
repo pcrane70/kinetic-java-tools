@@ -28,6 +28,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import com.seagate.kinetic.tools.management.rest.message.ErrorResponse;
 import com.seagate.kinetic.tools.management.rest.message.RestResponse;
 import com.seagate.kinetic.tools.management.rest.service.handler.HandlerMap;
 
@@ -68,7 +69,15 @@ public class KineticRestService extends AbstractHandler {
 
         // write response message
         response.setContentType("application/json; charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
+
+        // set http response status code
+        if (resp instanceof ErrorResponse) {
+            response.setStatus(((ErrorResponse) resp).getErrorCode());
+        } else {
+            response.setStatus(HttpServletResponse.SC_OK);
+        }
+
+        // write body
         response.getWriter().println(body);
 
         // set message processed flag
