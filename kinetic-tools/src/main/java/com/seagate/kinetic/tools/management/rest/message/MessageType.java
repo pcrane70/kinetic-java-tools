@@ -25,6 +25,6 @@ package com.seagate.kinetic.tools.management.rest.message;
  */
 public enum MessageType {
 
-    DISCOVER, DISCOVER_REPLY, PING, PING_REPLY, GETLOG, GETLOG_REPLY, ERROR;
+    DISCOVER, DISCOVER_REPLY, PING, PING_REPLY, GETLOG, GETLOG_REPLY, CHECKVERSION, CHECKVERSION_REPLY, ERROR;
 
 }

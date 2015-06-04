@@ -17,6 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.rest.message;
 
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 
@@ -29,7 +30,7 @@ public class DeviceStatus {
 
     private DeviceId deviceId = null;
 
-    private String status = "OK";
+    private int status = HttpServletResponse.SC_OK;
 
     private String message = null;
 
@@ -41,11 +42,11 @@ public class DeviceStatus {
         return this.deviceId;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return this.status;
     }
 

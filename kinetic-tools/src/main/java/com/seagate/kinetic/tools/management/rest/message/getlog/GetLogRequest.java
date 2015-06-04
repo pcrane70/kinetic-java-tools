@@ -31,16 +31,6 @@ public class GetLogRequest extends RestRequest {
 
     private KineticLogType logType = null;
 
-    private boolean useSsl = false;
-
-    public void setUseSsl(boolean flag) {
-        this.useSsl = flag;
-    }
-
-    public boolean getUseSsl() {
-        return this.useSsl;
-    }
-
     public void setLogType(KineticLogType type) {
         this.logType = type;
     }

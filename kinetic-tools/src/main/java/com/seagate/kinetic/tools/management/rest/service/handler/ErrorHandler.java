@@ -41,12 +41,14 @@ public class ErrorHandler implements ServiceHandler {
     public void service(ServiceContext context) {
         ErrorResponse response = new ErrorResponse();
 
-        logger.info("sending error response: " + response.toJson());
-
         response.setErrorCode(HttpServletResponse.SC_NOT_FOUND);
-        response.setErrorMessage("unsupported service.");
+
+        String uri = context.getHttpServletRequest().getRequestURI();
+        response.setErrorMessage("unsupported service: " + uri);
 
         context.setResponseMessage(response);
+
+        logger.info("sending error response: " + response.toJson());
     }
 
     @SuppressWarnings("rawtypes")

@@ -31,6 +31,11 @@ public class RestRequest extends RestMessage {
 
     private String key = "asdfasdf";
 
+    private boolean useSsl = false;
+
+    // request timeout in seconds
+    private int reqtimeout = 30;
+
     /**
      * The discover Id is returned in the DiscoverResponse message. If this is
      * present in the subsequent requests, all devices associated with the
@@ -56,6 +61,22 @@ public class RestRequest extends RestMessage {
 
     public String getKey() {
         return this.key;
+    }
+
+    public void setUseSsl(boolean useSsl) {
+        this.useSsl = useSsl;
+    }
+
+    public boolean getUseSsl() {
+        return this.useSsl;
+    }
+
+    public void setRequestTimeout(int requestTimeoutInSeconds) {
+        this.reqtimeout = requestTimeoutInSeconds;
+    }
+
+    public int getRequestTimeout() {
+        return this.reqtimeout;
     }
 
     public void setDevices(List<DeviceId> devices) {
