@@ -33,6 +33,8 @@ ktool.sh -help
 Discover a cluster of drives within a set of IP ranges.
 If subnet option is present, only devices within the subnet (0-255) are discovered and added to the output file.
 The timeout option is used to specify the sampling time to collect the devices. The default is set to 30 seconds if not set.
+
+The output of this command is stored in the output file if specified.  Otherwise, it is printed on the console.  The format is in JSON format.
 ```
 ktool.sh -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -46,6 +48,8 @@ ktool.sh -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-s
 
 ###Ping drives
 Ping the devices specified in the driveListInputFile.  This command is used to ping if the devices specified in the driveListInputFile are healthy and operational.
+
+The output of this command is stored in the output file if specified.  Otherwise, it is printed on the console.  The format is in JSON format.
 ```
 ktool.sh -ping <-in <driveListInputFile>> [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>] 
 
@@ -126,7 +130,11 @@ ktool.sh -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <true|f
 ```
 
 ###Get logs
-Get device logs for the devices specified in the driveListInputFile.  The output is written to the specified logOutputFile.  The supported types are:
+Get device logs for the devices specified in the driveListInputFile.
+
+The output of this command is stored in the output file if specified.  Otherwise, it is printed on the console.  The format is in JSON format.
+
+The supported types are:
 
 * `utilization`
 * `temperature`
@@ -147,6 +155,8 @@ ktool.sh -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utili
 
 ###Get vendor specific logs
 Get vendor specific logs from the devices specified in the driveListInputFile. The Seagate drive specific log name is com.Seagate.Kinetic.HDD.Gen1 (as shown in the example).
+
+The output of this command is stored in the output file if specified.  Otherwise, it is printed on the console.  The format is in JSON format.
 ```
 ktool.sh -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
