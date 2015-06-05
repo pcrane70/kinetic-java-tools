@@ -33,6 +33,9 @@ public class GetLogResponse extends RestResponse {
 
     private List<DeviceLog> deviceLogs = new ArrayList<DeviceLog>();
 
+    // vendor specific device log
+    private byte[] value = null;
+
     public GetLogResponse() {
         setMessageType(MessageType.GETLOG_REPLY);
     }
@@ -45,5 +48,23 @@ public class GetLogResponse extends RestResponse {
         return this.deviceLogs;
     }
 
+    /**
+     * XXX chiaming 06/04/2015: only support one device at a time.
+     * 
+     * @param value
+     *            vendor specific device log
+     */
+    public void setValue(byte[] value) {
+        this.value = value;
+    }
+
+    /**
+     * get vendor specific device log.
+     * 
+     * @return vendor specific device log
+     */
+    public byte[] getValue() {
+        return this.value;
+    }
 
 }

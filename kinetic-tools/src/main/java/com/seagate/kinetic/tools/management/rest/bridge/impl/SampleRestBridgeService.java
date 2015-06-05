@@ -39,11 +39,13 @@ import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverRespon
 import com.seagate.kinetic.tools.management.rest.message.getlog.DeviceLog;
 import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
+import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
+import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinResponse;
 
 /**
  * 
- * This is an example of a dummy RestBridgeService that "echo" a Ping response
- * with the requested data .
+ * This is an example of a dummy RestBridgeService that responds with hard-coded
+ * response associated with the requested data .
  * 
  * @author chiaming
  *
@@ -75,6 +77,12 @@ public class SampleRestBridgeService implements RestBridgeService {
             break;
         case CHECKVERSION:
             response = this.checkVersion(request);
+            break;
+        case SET_ERASEPIN:
+            response = this.setErasePin(request);
+            break;
+        case SET_LOCKPIN:
+            response = this.setLockPin(request);
             break;
         default:
             response = new ErrorResponse();
@@ -206,4 +214,51 @@ public class SampleRestBridgeService implements RestBridgeService {
 
     }
 
+    private RestResponse setErasePin(RestRequest request) {
+        List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+
+        for (int i = 0; i < 2; i++) {
+
+            DeviceId device = new DeviceId();
+
+            DeviceStatus dstatus = new DeviceStatus();
+
+            dstatus.setDevice(device);
+
+            // List<String> ips = {"127.0.0.1"};
+            device.setWwn(String.valueOf(i));
+
+            devices.add(dstatus);
+        }
+
+        SetErasePinResponse resp = new SetErasePinResponse();
+
+        resp.setDevices(devices);
+
+        return resp;
+    }
+
+    private RestResponse setLockPin(RestRequest request) {
+        List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+
+        for (int i = 0; i < 2; i++) {
+
+            DeviceId device = new DeviceId();
+
+            DeviceStatus dstatus = new DeviceStatus();
+
+            dstatus.setDevice(device);
+
+            // List<String> ips = {"127.0.0.1"};
+            device.setWwn(String.valueOf(i));
+
+            devices.add(dstatus);
+        }
+
+        SetLockPinResponse resp = new SetLockPinResponse();
+
+        resp.setDevices(devices);
+
+        return resp;
+    }
 }

@@ -15,20 +15,31 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message.ping;
+package com.seagate.kinetic.tools.management.rest.message.getlog;
 
-import com.seagate.kinetic.tools.management.rest.message.MessageType;
-import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
+import kinetic.admin.KineticLogType;
 
-/**
- * Ping response message.
- * 
- * @author chiaming
- */
-public class PingResponse extends RestResponseWithStatus {
+import com.seagate.kinetic.tools.management.rest.message.util.MessageUtil;
 
-    public PingResponse() {
-        setMessageType(MessageType.PING_REPLY);
+public class GetVendorSpecificLogRequestExample {
+
+    public static void main(String[] args) {
+
+        GetLogRequest req = new GetLogRequest();
+
+        req.setLogType(KineticLogType.DEVICE);
+        req.setName("com.Seagate.Kinetic.HDD.Gen1");
+
+        String request = req.toJson();
+
+        System.out.println(request);
+
+        GetLogRequest req2 = (GetLogRequest) MessageUtil.fromJson(request,
+                GetLogRequest.class);
+
+        String request2 = req2.toJson();
+
+        System.out.println(request2);
     }
 
 }

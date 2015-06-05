@@ -43,7 +43,14 @@ public class HandlerMap {
     // getlog request
     public static final String GETLOG = "/getlog";
 
+    // check version
     public static final String CHECKVERSION = "/checkversion";
+
+    // set erase pin
+    public static final String SETERASEPIN = "/seterasepin";
+
+    // set lock pin
+    public static final String SETLOCKPIN = "/setlockpin";
 
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
@@ -54,6 +61,9 @@ public class HandlerMap {
         hmap.put(DISCOVER, new DiscoverHandler());
         hmap.put(GETLOG, new GetLogHandler());
         hmap.put(CHECKVERSION, new CheckVersionHandler());
+        
+        hmap.put(SETERASEPIN, new SetErasePinHandler());
+        hmap.put(SETLOCKPIN, new SetLockPinHandler());
     }
 
     /**

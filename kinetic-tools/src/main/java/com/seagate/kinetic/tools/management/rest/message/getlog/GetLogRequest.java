@@ -31,6 +31,16 @@ public class GetLogRequest extends RestRequest {
 
     private KineticLogType logType = null;
 
+    /**
+     * Vendor specific log name. The <code>KineticLogType</code> must be set to
+     * DEVICE.
+     */
+    private String name = null;
+
+    public GetLogRequest() {
+        setMessageType(MessageType.GETLOG);
+    }
+
     public void setLogType(KineticLogType type) {
         this.logType = type;
     }
@@ -39,7 +49,11 @@ public class GetLogRequest extends RestRequest {
         return this.logType;
     }
 
-    public GetLogRequest() {
-        setMessageType(MessageType.GETLOG);
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
     }
 }

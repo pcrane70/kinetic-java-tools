@@ -15,40 +15,39 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message.checkversion;
+package com.seagate.kinetic.tools.management.rest.message.setpin;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.DeviceStatus;
-import com.seagate.kinetic.tools.management.rest.message.MessageType;
-import com.seagate.kinetic.tools.management.rest.message.RestResponse;
 
-/**
- * Check version response message.
- * 
- * @author chiaming
- *
- */
-public class CheckVersionResponse extends RestResponse {
+public class SetLockPinResponseExample {
 
-    /**
-     * The status code is set to HttpServletResponse.SC_EXPECTATION_FAILED if
-     * version is not the expected firmware version.
-     * 
-     * The status message contains the firmware version of the device.
-     */
-    protected List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+    public static void main(String[] args) {
 
-    public CheckVersionResponse() {
-        super.setMessageType(MessageType.CHECKVERSION_REPLY);
+        List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+
+        for (int i = 0; i < 2; i++) {
+
+            DeviceId device = new DeviceId();
+
+            DeviceStatus dstatus = new DeviceStatus();
+
+            dstatus.setDevice(device);
+
+            // List<String> ips = {"127.0.0.1"};
+            device.setWwn(String.valueOf(i));
+
+            devices.add(dstatus);
+        }
+
+        SetLockPinResponse resp = new SetLockPinResponse();
+
+        resp.setDevices(devices);
+
+        System.out.println(resp.toJson());
     }
 
-    public void setDevices(List<DeviceStatus> devices) {
-        this.devices = devices;
-    }
-
-    public List<DeviceStatus> getDevices() {
-        return this.devices;
-    }
 }

@@ -15,38 +15,46 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message.checkversion;
+package com.seagate.kinetic.tools.management.rest.message.setpin;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.seagate.kinetic.tools.management.rest.message.DeviceId;
-import com.seagate.kinetic.tools.management.rest.message.DeviceStatus;
+import com.seagate.kinetic.tools.management.rest.message.util.MessageUtil;
 
-public class CheckVersionResponseExample {
+public class SetLockPinRequestExample {
 
     public static void main(String[] args) {
 
-        CheckVersionResponse resp = new CheckVersionResponse();
-        List<DeviceStatus> statusList = new ArrayList<DeviceStatus>();
-        
-        DeviceStatus status = new DeviceStatus();
-        DeviceId id = new DeviceId();
-        String[] ip = { "127.0.0.1" };
-        id.setIps(ip);
-        
-        status.setDevice(id);
+        SetLockPinRequest req = new SetLockPinRequest();
 
-        status.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
-        status.setMessage("expect version: 2.7.3, device version: 2.7.2");
+        List<DeviceId> devices = new ArrayList<DeviceId>();
 
-        statusList.add(status);
+        DeviceId deviceId = new DeviceId();
 
-        resp.setDevices(statusList);
+        deviceId.setWwn("1234");
+        String[] ips = { "127.0.0.1" };
+        deviceId.setIps(ips);
 
-        System.out.println(resp.toJson());
+        devices.add(deviceId);
+
+        req.setDevices(devices);
+
+        req.setOldPin("123");
+        req.setNewPin("456");
+
+        String request = req.toJson();
+
+        System.out.println(request);
+
+        SetLockPinRequest req2 = (SetLockPinRequest) MessageUtil.fromJson(
+                request,
+ SetLockPinRequest.class);
+
+        String request2 = req2.toJson();
+
+        System.out.println(request2);
 
     }
 

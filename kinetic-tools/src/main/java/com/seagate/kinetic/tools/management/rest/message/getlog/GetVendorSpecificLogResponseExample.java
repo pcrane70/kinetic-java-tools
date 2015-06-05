@@ -15,39 +15,47 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message.checkversion;
+package com.seagate.kinetic.tools.management.rest.message.getlog;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
 
 import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.DeviceStatus;
 
-public class CheckVersionResponseExample {
+public class GetVendorSpecificLogResponseExample {
 
     public static void main(String[] args) {
 
-        CheckVersionResponse resp = new CheckVersionResponse();
-        List<DeviceStatus> statusList = new ArrayList<DeviceStatus>();
-        
-        DeviceStatus status = new DeviceStatus();
-        DeviceId id = new DeviceId();
-        String[] ip = { "127.0.0.1" };
-        id.setIps(ip);
-        
-        status.setDevice(id);
+        GetLogResponse resp = new GetLogResponse();
 
-        status.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
-        status.setMessage("expect version: 2.7.3, device version: 2.7.2");
+        List<DeviceLog> listOfLogs = new ArrayList<DeviceLog>();
 
-        statusList.add(status);
+        for (int i = 0; i < 1; i++) {
+            DeviceLog dlog = new DeviceLog();
 
-        resp.setDevices(statusList);
+            DeviceStatus status = new DeviceStatus();
+
+            DeviceId did = new DeviceId();
+            did.setPort(8123 + i);
+            did.setTlsPort(8443 + i);
+
+            status.setDevice(did);
+            dlog.setDeviceStatus(status);
+
+            listOfLogs.add(dlog);
+
+            resp.setDeviceLogs(listOfLogs);
+        }
+
+        try {
+            resp.setValue("vendor specific device log".getBytes("utf8"));
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         System.out.println(resp.toJson());
-
     }
-
 }

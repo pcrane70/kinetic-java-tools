@@ -15,20 +15,34 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message.ping;
+package com.seagate.kinetic.tools.management.rest.message.setpin;
 
 import com.seagate.kinetic.tools.management.rest.message.MessageType;
-import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
+import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 
-/**
- * Ping response message.
- * 
- * @author chiaming
- */
-public class PingResponse extends RestResponseWithStatus {
+public class SetErasePinRequest extends RestRequest {
 
-    public PingResponse() {
-        setMessageType(MessageType.PING_REPLY);
+    private String oldpin = null;
+    private String newpin = null;
+
+    public SetErasePinRequest() {
+        setMessageType(MessageType.SET_ERASEPIN);
+    }
+
+    public void setOldPin(String pin) {
+        this.oldpin = pin;
+    }
+
+    public String getOldPin() {
+        return this.oldpin;
+    }
+
+    public void setNewPin(String pin) {
+        this.newpin = pin;
+    }
+
+    public String getNewPin() {
+        return this.newpin;
     }
 
 }

@@ -15,20 +15,27 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message.ping;
+package com.seagate.kinetic.tools.management.rest.message;
 
-import com.seagate.kinetic.tools.management.rest.message.MessageType;
-import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Ping response message.
+ * Rest response with device status.
  * 
  * @author chiaming
+ *
  */
-public class PingResponse extends RestResponseWithStatus {
+public class RestResponseWithStatus extends RestResponse {
 
-    public PingResponse() {
-        setMessageType(MessageType.PING_REPLY);
+    // list of device status
+    protected List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+
+    public void setDevices(List<DeviceStatus> devices) {
+        this.devices = devices;
     }
 
+    public List<DeviceStatus> getDevices() {
+        return this.devices;
+    }
 }
