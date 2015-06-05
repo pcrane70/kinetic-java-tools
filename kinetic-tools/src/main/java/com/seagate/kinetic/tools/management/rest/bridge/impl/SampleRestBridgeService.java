@@ -36,6 +36,8 @@ import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 import com.seagate.kinetic.tools.management.rest.message.RestResponse;
 import com.seagate.kinetic.tools.management.rest.message.checkversion.CheckVersionResponse;
 import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverResponse;
+import com.seagate.kinetic.tools.management.rest.message.erasedevice.InstantEraseResponse;
+import com.seagate.kinetic.tools.management.rest.message.erasedevice.SecureEraseResponse;
 import com.seagate.kinetic.tools.management.rest.message.getlog.DeviceLog;
 import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
@@ -83,6 +85,12 @@ public class SampleRestBridgeService implements RestBridgeService {
             break;
         case SET_LOCKPIN:
             response = this.setLockPin(request);
+            break;
+        case INSTANT_ERASE:
+            response = this.instantErase(request);
+            break;
+        case SECURE_ERASE:
+            response = this.secureErase(request);
             break;
         default:
             response = new ErrorResponse();
@@ -261,4 +269,53 @@ public class SampleRestBridgeService implements RestBridgeService {
 
         return resp;
     }
+
+    private RestResponse instantErase(RestRequest request) {
+
+        List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+
+        for (int i = 0; i < 2; i++) {
+
+            DeviceId device = new DeviceId();
+
+            DeviceStatus dstatus = new DeviceStatus();
+
+            dstatus.setDevice(device);
+
+            device.setWwn(String.valueOf(i));
+
+            devices.add(dstatus);
+        }
+
+        InstantEraseResponse resp = new InstantEraseResponse();
+
+        resp.setDevices(devices);
+
+        return resp;
+    }
+
+    private RestResponse secureErase(RestRequest request) {
+
+        List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+
+        for (int i = 0; i < 2; i++) {
+
+            DeviceId device = new DeviceId();
+
+            DeviceStatus dstatus = new DeviceStatus();
+
+            dstatus.setDevice(device);
+
+            device.setWwn(String.valueOf(i));
+
+            devices.add(dstatus);
+        }
+
+        SecureEraseResponse resp = new SecureEraseResponse();
+
+        resp.setDevices(devices);
+
+        return resp;
+    }
+
 }

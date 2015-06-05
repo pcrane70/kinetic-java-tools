@@ -43,7 +43,7 @@ public class RestRequest extends RestMessage {
      * 
      * If this is present, the devices field is ignored.
      */
-    private String discoId = null;
+    private String discoid = null;
 
     private List<DeviceId> devices = null;
 
@@ -88,11 +88,11 @@ public class RestRequest extends RestMessage {
     }
 
     public String getDiscoId() {
-        return this.discoId;
+        return this.discoid;
     }
 
     public void setDiscoId(String id) {
-        this.discoId = id;
+        this.discoid = id;
     }
 
 }

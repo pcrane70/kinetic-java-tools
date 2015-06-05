@@ -37,7 +37,7 @@ public class DiscoverResponse extends RestResponse {
      * present in the subsequent requests, all devices associated with the
      * cached discover result will be associated with the request.
      */
-    private String discoId = null;
+    private String discoid = null;
 
     protected List<DeviceInfo> devices = new ArrayList<DeviceInfo>();
 
@@ -46,11 +46,11 @@ public class DiscoverResponse extends RestResponse {
     }
 
     public String getDiscoId() {
-        return this.discoId;
+        return this.discoid;
     }
 
     public void setDiscoId(String id) {
-        this.discoId = id;
+        this.discoid = id;
     }
 
     public void setDevices(List<DeviceInfo> devices) {

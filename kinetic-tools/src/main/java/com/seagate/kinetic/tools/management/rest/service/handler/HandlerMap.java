@@ -52,6 +52,12 @@ public class HandlerMap {
     // set lock pin
     public static final String SETLOCKPIN = "/setlockpin";
 
+    // instant erase
+    public static final String INSTANTERASE = "/instanterase";
+
+    // secure erase
+    public static final String SECUREERASE = "/secureerase";
+
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
     
@@ -64,6 +70,10 @@ public class HandlerMap {
         
         hmap.put(SETERASEPIN, new SetErasePinHandler());
         hmap.put(SETLOCKPIN, new SetLockPinHandler());
+
+        hmap.put(INSTANTERASE, new InstantEraseHandler());
+
+        hmap.put(SECUREERASE, new SecureEraseHandler());
     }
 
     /**

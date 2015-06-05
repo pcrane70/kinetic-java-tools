@@ -69,7 +69,7 @@ public class HandlerUtil {
         Map<String, String[]> params = httpRequest.getParameterMap();
 
         // check if discoId is present
-        String[] discoId = params.get("discoId");
+        String[] discoId = params.get("discoid");
         if (discoId != null) {
             req.setDiscoId(discoId[0]);
         } else {
