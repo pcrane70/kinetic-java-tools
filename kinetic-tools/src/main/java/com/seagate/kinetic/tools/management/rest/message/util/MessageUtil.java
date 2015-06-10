@@ -18,6 +18,16 @@
 package com.seagate.kinetic.tools.management.rest.message.util;
 
 import com.google.gson.Gson;
+import com.seagate.kinetic.tools.management.rest.message.MessageType;
+import com.seagate.kinetic.tools.management.rest.message.RestResponse;
+import com.seagate.kinetic.tools.management.rest.message.checkversion.CheckVersionResponse;
+import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverResponse;
+import com.seagate.kinetic.tools.management.rest.message.erasedevice.InstantEraseResponse;
+import com.seagate.kinetic.tools.management.rest.message.erasedevice.SecureEraseResponse;
+import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
+import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
+import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
+import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinResponse;
 
 /**
  * Rest Json message utilities.
@@ -49,6 +59,41 @@ public class MessageUtil {
          * convert json to its corresponding Java container instance.
          */
         return gson.fromJson(json, clazz);
+    }
+
+    public static RestResponse getResponseMessage(MessageType mtype) {
+        RestResponse response = null;
+
+        switch (mtype) {
+        case DISCOVER:
+            response = new DiscoverResponse();
+            break;
+        case PING:
+            response = new PingResponse();
+            break;
+        case GETLOG:
+            response = new GetLogResponse();
+            break;
+        case CHECKVERSION:
+            response = new CheckVersionResponse();
+            break;
+        case SET_ERASEPIN:
+            response = new SetErasePinResponse();
+            break;
+        case SET_LOCKPIN:
+            response = new SetLockPinResponse();
+            break;
+        case INSTANT_ERASE:
+            response = new InstantEraseResponse();
+            break;
+        case SECURE_ERASE:
+            response = new SecureEraseResponse();
+            break;
+        default:
+            throw new java.lang.UnsupportedOperationException(mtype.name());
+        }
+
+        return response;
     }
 
 }

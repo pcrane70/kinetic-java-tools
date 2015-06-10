@@ -15,24 +15,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message;
+package com.seagate.kinetic.tools.management.rest.client;
 
 /**
- * Rest response message super class.
+ * Place holder for rest client configurations.
  * 
  * @author chiaming
- *
+ * 
+ * @see KineticRestClient
  */
-public class RestResponse extends RestMessage {
+public class RestClientConfiguration {
 
-    // overall response status. follows http status convention.
-    private int overallStatus = 200;
-
-    public void setOverallStatus(int status) {
-        this.overallStatus = status;
-    }
-
-    public int getOverallStatus() {
-        return this.overallStatus;
+    public RestClientConfiguration() {
+        // TODO Auto-generated constructor stub
     }
 }
