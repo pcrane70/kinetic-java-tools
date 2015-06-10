@@ -170,8 +170,7 @@ public class HandlerUtil {
 
             String data = buffer.toString();
 
-            restRequest = (RestRequest) MessageUtil.fromJson(data,
-                    clazz.getClass());
+            restRequest = (RestRequest) MessageUtil.fromJson(data, clazz);
 
         } catch (IOException ioe) {
             logger.log(Level.WARNING, ioe.getMessage(), ioe);
