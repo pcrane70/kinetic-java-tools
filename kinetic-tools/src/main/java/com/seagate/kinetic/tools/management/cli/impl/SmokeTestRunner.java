@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2014 Seagate Technology.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.File;
@@ -11,14 +28,16 @@ import org.testng.xml.XmlClass;
 import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlTest;
 
-public class SmokeTestRunner extends DefaultExecuter {
+import com.seagate.kinetic.tools.management.common.KineticToolsException;
+
+public class SmokeTestRunner extends AbstractCommand {
     private String rootDir = ".";
 
     public SmokeTestRunner(String nodesLogFile) throws IOException {
-        loadDevices(nodesLogFile);
+        super(nodesLogFile);
     }
 
-    public void runSmokeTests() {
+    private void runSmokeTests() {
         System.out.println("Start run smoke tests......");
         String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
         rootDir = toolHome + File.separator + "SmokeTest-Result"
@@ -62,5 +81,19 @@ public class SmokeTestRunner extends DefaultExecuter {
         tng.setXmlSuites(suites);
         tng.setOutputDirectory(outputDirectory);
         tng.run();
+    }
+
+    @Override
+    public void execute() throws KineticToolsException {
+        try {
+            runSmokeTests();
+        } catch (Exception e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    @Override
+    public void done() throws KineticToolsException {
+        // do nothing
     }
 }

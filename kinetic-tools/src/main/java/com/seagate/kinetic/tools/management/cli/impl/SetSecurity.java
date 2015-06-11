@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2014 Seagate Technology.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.ByteArrayOutputStream;
@@ -6,30 +23,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import kinetic.admin.ACL;
-import kinetic.admin.AdminClientConfiguration;
 import kinetic.admin.Domain;
-import kinetic.admin.KineticAdminClient;
-import kinetic.admin.KineticAdminClientFactory;
 import kinetic.client.KineticException;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 
 import com.google.protobuf.ByteString;
 import com.seagate.kinetic.admin.impl.JsonUtil;
 import com.seagate.kinetic.proto.Kinetic.Command.Security;
 import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
+import com.seagate.kinetic.tools.management.common.KineticToolsException;
 
-public class SetSecurity extends DefaultExecuter {
-    private static final int BATCH_THREAD_NUMBER = 20;
-    private final Logger logger = Logger.getLogger(SetSecurity.class.getName());
+public class SetSecurity extends AbstractCommand {
     private String security;
     private byte[] securityContent;
     private List<ACL> aclList;
@@ -37,10 +42,10 @@ public class SetSecurity extends DefaultExecuter {
     public SetSecurity(String security, String drivesInputFile, boolean useSsl,
             long clusterVersion, long identity, String key, long requestTimeout)
             throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout,
+                drivesInputFile);
         this.security = security;
         loadSecurity();
-        loadDevices(drivesInputFile);
-        initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
     }
 
     private void loadSecurity() throws IOException {
@@ -88,146 +93,46 @@ public class SetSecurity extends DefaultExecuter {
         }
     }
 
-    public void setSecurity() throws Exception {
-        ExecutorService pool = Executors.newCachedThreadPool();
-
+    private void setSecurity() throws Exception {
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
         System.out.println("Start set security...");
-
-        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
-        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
-
-        for (int i = 0; i < batchTime; i++) {
-            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
-            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
-                int num = i * BATCH_THREAD_NUMBER + j;
-                pool.execute(new SetSecurityThread(devices.get(num), aclList,
-                        latch, useSsl, clusterVersion, identity, key,
-                        requestTimeout));
-            }
-
-            latch.await();
+        List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
+        for (KineticDevice device : devices) {
+            threads.add(new SetSecurityThread(device, aclList));
         }
-
-        CountDownLatch latchRest = new CountDownLatch(restIpCount);
-        for (int i = 0; i < restIpCount; i++) {
-            int num = batchTime * BATCH_THREAD_NUMBER + i;
-
-            pool.execute(new SetSecurityThread(devices.get(num), aclList,
-                    latchRest, useSsl, clusterVersion, identity, key,
-                    requestTimeout));
-        }
-
-        latchRest.await();
-
-        pool.shutdown();
-
-        int totalDevices = devices.size();
-        int failedDevices = failed.size();
-        int succeedDevices = succeed.size();
-
-        assert (failedDevices + succeedDevices == totalDevices);
-
-        TimeUnit.SECONDS.sleep(2);
-        System.out.flush();
-
-        if (succeedDevices > 0) {
-            System.out.println("\nThe following devices set security succeed:");
-            for (KineticDevice device : succeed.keySet()) {
-                System.out.println(KineticDevice.toJson(device));
-            }
-        }
-
-        if (failedDevices > 0) {
-            System.out.println("\nThe following devices set security failed:");
-            for (KineticDevice device : failed.keySet()) {
-                System.out.println(KineticDevice.toJson(device));
-            }
-        }
-        
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")\n");
+        poolExecuteThreadsInGroups(threads);
     }
 
-    class SetSecurityThread implements Runnable {
-        private KineticDevice device = null;
-        private KineticAdminClient adminClient = null;
-        private AdminClientConfiguration adminClientConfig = null;
+    class SetSecurityThread extends AbstractWorkThread {
         private List<ACL> aclList = null;
-        private CountDownLatch latch = null;
 
-        public SetSecurityThread(KineticDevice device, List<ACL> aclList,
-                CountDownLatch latch, boolean useSsl, long clusterVersion,
-                long identity, String key, long requestTimeout)
+        public SetSecurityThread(KineticDevice device, List<ACL> aclList)
                 throws KineticException {
-            this.device = device;
+            super(device);
             this.aclList = aclList;
-            this.latch = latch;
-
-            if (null == device || 0 == device.getInet4().size()
-                    || device.getInet4().isEmpty()) {
-                throw new KineticException(
-                        "device is null or no ip addresses in device.");
-            }
-
-            adminClientConfig = new AdminClientConfiguration();
-            adminClientConfig.setHost(device.getInet4().get(0));
-            adminClientConfig.setUseSsl(useSsl);
-            if (useSsl) {
-                adminClientConfig.setPort(device.getTlsPort());
-                adminClientConfig.setThreadPoolAwaitTimeOut(5000);
-            } else {
-                adminClientConfig.setPort(device.getPort());
-            }
-            adminClientConfig.setClusterVersion(clusterVersion);
-            adminClientConfig.setUserId(identity);
-            adminClientConfig.setKey(key);
-            adminClientConfig.setRequestTimeoutMillis(requestTimeout);
         }
 
         @Override
-        public void run() {
+        void runTask() throws KineticToolsException {
             try {
-                adminClient = KineticAdminClientFactory
-                        .createInstance(adminClientConfig);
-
                 adminClient.setAcl(aclList);
-
-                succeed.put(device, "");
-
-                System.out.println("[Succeed]" + KineticDevice.toJson(device));
+                report.reportSuccess(device);
             } catch (KineticException e) {
-                failed.put(device, "");
-
-                try {
-                    System.out.println("[Failed]"
-                            + KineticDevice.toJson(device) + "\n"
-                            + e.getMessage());
-                } catch (IOException e1) {
-                    System.out.println(e1.getMessage());
-                }
-            } catch (JsonGenerationException e) {
-                System.out.println(e.getMessage());
-            } catch (JsonMappingException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            } finally {
-                try {
-                    if (null != adminClient) {
-                        adminClient.close();
-                    }
-                } catch (KineticException e) {
-                    logger.warning(e.getMessage());
-                } catch (Exception e) {
-                    logger.warning(e.getMessage());
-                } finally {
-                    latch.countDown();
-                }
+                throw new KineticToolsException(e);
             }
         }
+    }
+
+    @Override
+    public void execute() throws KineticToolsException {
+        try {
+            setSecurity();
+        } catch (Exception e) {
+            throw new KineticToolsException(e);
+        }
+
     }
 }

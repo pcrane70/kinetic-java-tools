@@ -17,8 +17,10 @@
  */
 package com.seagate.kinetic.tools.management.cli.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,58 +28,58 @@ import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
 
-public class SetErasePin extends AbstractCommand {
-    private byte[] oldErasePin;
-    private byte[] newErasePin;
+public class FirmwareDownload extends AbstractCommand {
+    private static final int CHUNK_SIZE = 1024;
+    private String firmware;
+    private byte[] firmwareContent;
 
-    public SetErasePin(String oldErasePinInString, String newErasePinInString,
-            String drivesInputFile, boolean useSsl, long clusterVersion,
-            long identity, String key, long requestTimeout) throws IOException {
+    public FirmwareDownload(String firmware, String drivesLogFile,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
-                drivesInputFile);
-        this.oldErasePin = null;
-        this.newErasePin = null;
-        parsePin(oldErasePinInString, newErasePinInString);
+                drivesLogFile);
+        this.firmware = firmware;
     }
 
-    private void parsePin(String oldErasePin, String newErasePin) {
-        if (null != oldErasePin) {
-            this.oldErasePin = oldErasePin.getBytes(Charset.forName("UTF-8"));
+    private void loadFirmware() throws IOException {
+        InputStream is = new FileInputStream(firmware);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] b = new byte[CHUNK_SIZE];
+        int n;
+        while ((n = is.read(b)) != -1) {
+            out.write(b, 0, n);
         }
-
-        if (null != newErasePin) {
-            this.newErasePin = newErasePin.getBytes(Charset.forName("UTF-8"));
-        }
+        is.close();
+        firmwareContent = out.toByteArray();
     }
 
-    private void setErasePin() throws Exception {
+    private void updateFirmware() throws Exception {
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        System.out.println("Start set erase pin...");
+        System.out.println("Start download firmware......");
+
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         for (KineticDevice device : devices) {
-            threads.add(new SetErasePinThread(device, oldErasePin, newErasePin));
+            threads.add(new FirmwareDownloadThread(firmwareContent, device));
         }
         poolExecuteThreadsInGroups(threads);
     }
 
-    class SetErasePinThread extends AbstractWorkThread {
-        private byte[] oldErasePin = null;
-        private byte[] newErasePin = null;
+    class FirmwareDownloadThread extends AbstractWorkThread {
+        private byte[] firmwareContent = null;
 
-        public SetErasePinThread(KineticDevice device, byte[] oldErasePin,
-                byte[] newErasePin) throws KineticException {
+        public FirmwareDownloadThread(byte[] firmwareContent,
+                KineticDevice device) throws KineticException {
             super(device);
-            this.oldErasePin = oldErasePin;
-            this.newErasePin = newErasePin;
+            this.firmwareContent = firmwareContent;
         }
 
         @Override
         void runTask() throws KineticToolsException {
             try {
-                adminClient.setErasePin(oldErasePin, newErasePin);
+                adminClient.firmwareDownload(firmwareContent);
                 report.reportSuccess(device);
             } catch (KineticException e) {
                 throw new KineticToolsException(e);
@@ -86,12 +88,22 @@ public class SetErasePin extends AbstractCommand {
     }
 
     @Override
+    public void init() throws KineticToolsException {
+        super.init();
+
+        try {
+            loadFirmware();
+        } catch (IOException e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    @Override
     public void execute() throws KineticToolsException {
         try {
-            setErasePin();
+            updateFirmware();
         } catch (Exception e) {
             throw new KineticToolsException(e);
         }
-
     }
 }

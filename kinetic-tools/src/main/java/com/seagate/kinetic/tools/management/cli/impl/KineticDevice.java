@@ -1,15 +1,26 @@
+/**
+ * Copyright (C) 2014 Seagate Technology.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package com.seagate.kinetic.tools.management.cli.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import com.seagate.kinetic.tools.management.cli.impl.util.JsonUtil;
+import com.seagate.kinetic.tools.management.common.util.MessageUtil;
 
 public class KineticDevice {
     private List<String> inet4;
@@ -104,15 +115,12 @@ public class KineticDevice {
                 this.model, this.serialNumber, this.firmwareVersion);
     }
 
-    public static KineticDevice fromJson(String json)
-            throws JsonParseException, JsonMappingException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(json, KineticDevice.class);
+    public static KineticDevice fromJson(String json) {
+        return (KineticDevice) MessageUtil.fromJson(json, KineticDevice.class);
     }
 
-    public static String toJson(KineticDevice device)
-            throws JsonGenerationException, JsonMappingException, IOException {
-        return JsonUtil.toJson(device);
+    public static String toJson(KineticDevice device) {
+        return MessageUtil.toJson(device);
     }
 
     @Override

@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2014 Seagate Technology.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.File;
@@ -5,194 +22,100 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import kinetic.admin.AdminClientConfiguration;
-import kinetic.admin.KineticAdminClient;
 import kinetic.admin.KineticAdminClientFactory;
 import kinetic.client.ConnectionListener;
 import kinetic.client.KineticException;
 
-public class PingReachableDrive extends DefaultExecuter {
+import com.seagate.kinetic.common.lib.KineticMessage;
+import com.seagate.kinetic.proto.Kinetic.Command.GetLog.Configuration;
+import com.seagate.kinetic.proto.Kinetic.Command.GetLog.Configuration.Interface;
+import com.seagate.kinetic.tools.management.common.KineticToolsException;
+
+public class PingReachableDrive extends AbstractCommand {
     private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+    private static final int UNSOLICITED_MSG_MAX_WAIT_MS = 5000;
     private static final int SUB_NET_LENGTH = 255;
-    private static final int BATCH_THREAD_NUMBER = 20;
     private static final int TLS_PORT = 8443;
     private static final int PORT = 8123;
-    private final Logger logger = Logger.getLogger(PingReachableDrive.class
-            .getName());
     private String driveListOutputFile;
-    private String subnetPrefix;
+    private String subnetPrefix = null;
+    private AtomicInteger unSolicitedCounter = new AtomicInteger(0);
+    private AtomicInteger reqCounter = new AtomicInteger(0);
 
     public PingReachableDrive(String subnetPrefixOrDriveInputFilePath,
             String driveListOutputFile, boolean useSsl, long clusterVersion,
             long identity, String key, long requestTimeout) throws IOException {
-        initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
+        super(useSsl, clusterVersion, identity, key, requestTimeout,
+                subnetPrefixOrDriveInputFilePath);
+        this.driveListOutputFile = driveListOutputFile;
 
         if (validateSubnet(subnetPrefixOrDriveInputFilePath)) {
             this.subnetPrefix = subnetPrefixOrDriveInputFilePath;
-        } else {
-            loadDevices(subnetPrefixOrDriveInputFilePath);
         }
-
-        this.driveListOutputFile = driveListOutputFile;
     }
 
-    public void pingReachableDriveViaSubnet() throws Exception {
+    private void waitUnSolicitedMesesages(int maxWaitMilliSeconds) {
+        boolean stop = false;
+        long start = System.currentTimeMillis();
+        do {
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+                if ((System.currentTimeMillis() - start > maxWaitMilliSeconds || unSolicitedCounter
+                        .get() == 0) && reqCounter.get() == 0) {
+                    stop = true;
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } while (!stop);
 
-        ExecutorService pool = Executors.newCachedThreadPool();
+    }
+
+    private void pingReachableDriveViaSubnet() throws Exception {
         UnSolicitedConnectionListener listener = new UnSolicitedConnectionListener();
 
-        int batchTime = SUB_NET_LENGTH / BATCH_THREAD_NUMBER;
-        int restIpCount = SUB_NET_LENGTH % BATCH_THREAD_NUMBER;
-
-        for (int i = 0; i < batchTime; i++) {
-            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
-            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
-                int num = i * BATCH_THREAD_NUMBER + j;
-                String ipAddress = subnetPrefix + "." + num;
-
-                List<String> inet4 = new ArrayList<String>();
-                inet4.add(ipAddress);
-
-                KineticDevice device = new KineticDevice();
-                device.setInet4(inet4);
-                device.setPort(PORT);
-                device.setTlsPort(TLS_PORT);
-
-                pool.execute(new PingReachableDriveViaSubnetThread(latch,
-                        device, useSsl, clusterVersion, identity, key,
-                        requestTimeout, listener));
-            }
-
-            latch.await();
-        }
-
-        CountDownLatch latchRest = new CountDownLatch(restIpCount);
-        for (int i = 0; i < restIpCount; i++) {
-            int num = batchTime * BATCH_THREAD_NUMBER + i;
-            String ipAddress = subnetPrefix + "." + num;
-
-            List<String> inet4 = new ArrayList<String>();
-            inet4.add(ipAddress);
-
-            KineticDevice device = new KineticDevice();
+        List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
+        List<String> inet4 = null;
+        KineticDevice device = null;
+        for (int i = 0; i < SUB_NET_LENGTH; i++) {
+            inet4 = new ArrayList<String>();
+            inet4.add(subnetPrefix + "." + i);
+            device = new KineticDevice();
             device.setInet4(inet4);
             device.setPort(PORT);
             device.setTlsPort(TLS_PORT);
 
-            pool.execute(new PingReachableDriveViaSubnetThread(latchRest,
-                    device, useSsl, clusterVersion, identity, key,
-                    requestTimeout, listener));
+            threads.add(new PingReachableDriveThread(device, listener));
         }
+        poolExecuteThreadsInGroups(threads);
 
-        latchRest.await();
-
-        pool.shutdown();
-
-        TimeUnit.SECONDS.sleep(1);
-
-        Map<KineticDevice, String> devices = listener.getDevices();
-
-        if (devices.size() > 0) {
-
-            persistToFile(devices.keySet(), driveListOutputFile);
-
-            for (KineticDevice device : devices.keySet()) {
-                System.out.println(KineticDevice.toJson(device));
-            }
-
-            System.out.println("\nDiscovered " + devices.size()
-                    + " drives via subnet: " + subnetPrefix
-                    + ", persist drives info in " + driveListOutputFile);
-        }
+        waitUnSolicitedMesesages(UNSOLICITED_MSG_MAX_WAIT_MS);
     }
 
-    public void pingReachableDriveViaDriveList() throws Exception {
-
-        ExecutorService pool = Executors.newCachedThreadPool();
+    private void pingReachableDriveViaDriveList() throws Exception {
         UnSolicitedConnectionListener listener = new UnSolicitedConnectionListener();
 
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
-        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
-
-        for (int i = 0; i < batchTime; i++) {
-            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
-            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
-                int num = i * BATCH_THREAD_NUMBER + j;
-                KineticDevice device = devices.get(num);
-
-                pool.execute(new PingReachableDriveViaSubnetThread(latch,
-                        device, useSsl, clusterVersion, identity, key,
-                        requestTimeout, listener));
-            }
-
-            latch.await();
+        List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
+        for (KineticDevice device : devices) {
+            threads.add(new PingReachableDriveThread(device, listener));
         }
+        poolExecuteThreadsInGroups(threads);
 
-        CountDownLatch latchRest = new CountDownLatch(restIpCount);
-        for (int i = 0; i < restIpCount; i++) {
-            int num = batchTime * BATCH_THREAD_NUMBER + i;
-            KineticDevice device = devices.get(num);
-
-            pool.execute(new PingReachableDriveViaSubnetThread(latchRest,
-                    device, useSsl, clusterVersion, identity, key,
-                    requestTimeout, listener));
-        }
-
-        latchRest.await();
-
-        pool.shutdown();
-
-        TimeUnit.SECONDS.sleep(2);
-
-        Map<KineticDevice, String> devicesofPingable = listener.getDevices();
-
-        int totalDevices = devices.size();
-        int failedDevices = failed.size();
-        int succeedDevices = devicesofPingable.size();
-
-        assert (failedDevices + succeedDevices == totalDevices);
-
-        if (failedDevices > 0) {
-            System.out.println("\nThe following devices ping failed:");
-            for (KineticDevice device : failed.keySet()) {
-                System.out.println(KineticDevice.toJson(device));
-            }
-        }
-
-        if (succeedDevices > 0) {
-            persistToFile(devicesofPingable.keySet(), driveListOutputFile);
-
-            System.out.println("\nThe following devices ping succeed:");
-            for (KineticDevice device : devicesofPingable.keySet()) {
-                System.out.println(KineticDevice.toJson(device));
-            }
-
-            System.out.println("\nDiscovered " + succeedDevices
-                    + " drives online, persist drives info in "
-                    + driveListOutputFile);
-        }
-        
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")\n");
+        waitUnSolicitedMesesages(UNSOLICITED_MSG_MAX_WAIT_MS);
     }
 
-    private String persistToFile(Set<KineticDevice> deviceList, String filePath)
+    private String persistToFile(List<KineticDevice> deviceList, String filePath)
             throws Exception {
         assert (filePath != null);
         assert (deviceList != null);
@@ -217,38 +140,10 @@ public class PingReachableDrive extends DefaultExecuter {
         return matcher.matches();
     }
 
-    class PingReachableDriveViaSubnetThread implements Runnable {
-        private AdminClientConfiguration adminClientConfig;
-        private KineticAdminClient adminClient = null;
-        private CountDownLatch latch;
-        private KineticDevice device;
-
-        public PingReachableDriveViaSubnetThread(CountDownLatch latch,
-                KineticDevice device, boolean useSsl, long clusterVersion,
-                long identity, String key, long requestTimeout,
-                ConnectionListener listener) throws KineticException {
-            this.latch = latch;
-            this.device = device;
-
-            if (null == device || 0 == device.getInet4().size()
-                    || device.getInet4().isEmpty()) {
-                throw new KineticException(
-                        "device is null or no ip addresses in device.");
-            }
-
-            adminClientConfig = new AdminClientConfiguration();
-            adminClientConfig.setHost(device.getInet4().get(0));
-            adminClientConfig.setUseSsl(useSsl);
-            if (useSsl) {
-                adminClientConfig.setPort(device.getTlsPort());
-                adminClientConfig.setThreadPoolAwaitTimeOut(5000);
-            } else {
-                adminClientConfig.setPort(device.getPort());
-            }
-            adminClientConfig.setClusterVersion(clusterVersion);
-            adminClientConfig.setRequestTimeoutMillis(requestTimeout);
-            adminClientConfig.setUserId(identity);
-            adminClientConfig.setKey(key);
+    class PingReachableDriveThread extends AbstractWorkThread {
+        public PingReachableDriveThread(KineticDevice device,
+                UnSolicitedConnectionListener listener) throws KineticException {
+            super(device);
             adminClientConfig.setConnectionListener(listener);
         }
 
@@ -257,27 +152,147 @@ public class PingReachableDrive extends DefaultExecuter {
             try {
                 adminClient = KineticAdminClientFactory
                         .createInstance(adminClientConfig);
+                runTask();
             } catch (KineticException e) {
-                failed.put(device, "");
-
-                logger.warning(e.getMessage());
-            } catch (Exception e) {
-                failed.put(device, "");
-
-                logger.warning(e.getMessage());
+                report.reportFailure(device, null);
+            } catch (KineticToolsException e) {
+                report.reportFailure(device, null);
             } finally {
+                reqCounter.getAndDecrement();
                 try {
                     if (null != adminClient) {
                         adminClient.close();
                     }
                 } catch (KineticException e) {
-                    logger.warning(e.getMessage());
+                    e.printStackTrace();
                 } catch (Exception e) {
-                    logger.warning(e.getMessage());
+                    e.printStackTrace();
                 } finally {
                     latch.countDown();
                 }
             }
+        }
+
+        @Override
+        void runTask() throws KineticToolsException {
+            unSolicitedCounter.getAndIncrement();
+        }
+    }
+
+    class UnSolicitedConnectionListener implements ConnectionListener {
+        @Override
+        public void onMessage(KineticMessage message) {
+            KineticDevice device = new KineticDevice();
+            Configuration configuration = null;
+            if (null != message && null != message.getCommand()
+                    && null != message.getCommand().getBody()
+                    && null != message.getCommand().getBody().getGetLog())
+
+                configuration = message.getCommand().getBody().getGetLog()
+                        .getConfiguration();
+
+            if (null != configuration) {
+                List<Interface> itfs = configuration.getInterfaceList();
+                List<String> inet4 = new ArrayList<String>();
+                if (null != itfs && 0 != itfs.size()) {
+                    if (null != itfs.get(0)
+                            && null != itfs.get(0).getIpv4Address()) {
+                        inet4.add(itfs.get(0).getIpv4Address().toStringUtf8());
+                    }
+                    if (null != itfs.get(1)
+                            && null != itfs.get(1).getIpv4Address()) {
+                        inet4.add(itfs.get(1).getIpv4Address().toStringUtf8());
+                    }
+                }
+                device.setInet4(inet4);
+                device.setModel(configuration.getModel());
+                device.setPort(configuration.getPort());
+                device.setTlsPort(configuration.getTlsPort());
+                device.setFirmwareVersion(configuration.getVersion());
+                device.setSerialNumber(configuration.getSerialNumber()
+                        .toStringUtf8());
+                device.setWwn(configuration.getWorldWideName().toStringUtf8());
+            }
+
+            report.reportSuccess(device, "");
+            unSolicitedCounter.getAndDecrement();
+        }
+    }
+
+    @Override
+    public void init() throws KineticToolsException {
+        if (null == subnetPrefix) {
+            super.init();
+            reqCounter = new AtomicInteger(devices.size());
+        } else {
+            reqCounter = new AtomicInteger(SUB_NET_LENGTH);
+        }
+
+    }
+
+    @Override
+    public void execute() throws KineticToolsException {
+        if (null == subnetPrefix) {
+            try {
+                pingReachableDriveViaDriveList();
+            } catch (Exception e) {
+                throw new KineticToolsException(e);
+            }
+        } else {
+            try {
+                pingReachableDriveViaSubnet();
+            } catch (Exception e) {
+                throw new KineticToolsException(e);
+            }
+        }
+    }
+
+    @Override
+    public void done() throws KineticToolsException {
+        List<KineticDevice> reachableDevices = report.getSucceedDevices();
+        if (null == subnetPrefix) {
+            int totalDevices = devices.size();
+            int failedDevices = report.getFailedDevices().size();
+            int succeedDevices = reachableDevices.size();
+
+            assert (failedDevices + succeedDevices == totalDevices);
+
+            if (failedDevices > 0) {
+                System.out.println("\nThe following devices ping failed:");
+                for (KineticDevice device : report.getFailedDevices()) {
+                    System.out.println(KineticDevice.toJson(device));
+                }
+            }
+
+            if (succeedDevices > 0) {
+                System.out.println("\nThe following devices ping succeed:");
+                for (KineticDevice device : reachableDevices) {
+                    System.out.println(KineticDevice.toJson(device));
+                }
+
+                System.out.println("\nDiscovered " + succeedDevices
+                        + " drives online, persist drives info in "
+                        + driveListOutputFile);
+            }
+
+            System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
+                    + succeedDevices + "/" + failedDevices + ")\n");
+        } else {
+            if (reachableDevices.size() > 0) {
+                for (KineticDevice device : reachableDevices) {
+                    System.out.println(KineticDevice.toJson(device));
+                }
+
+                System.out.println("\nDiscovered " + reachableDevices.size()
+                        + " drives via subnet: " + subnetPrefix
+                        + ", persist drives info in " + driveListOutputFile);
+            }
+        }
+
+        try {
+            persistToFile(reachableDevices, driveListOutputFile);
+        } catch (Exception e) {
+            throw new KineticToolsException(e);
         }
     }
 }

@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2014 Seagate Technology.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.BufferedReader;
@@ -9,8 +26,11 @@ import java.util.List;
 
 import kinetic.client.KineticException;
 
-public class PerfRunner extends DefaultExecuter {
-    private static final String KINETIC_TOOLS_HOME = System.getProperty("KINETIC_TOOLS_HOME", ".");
+import com.seagate.kinetic.tools.management.common.KineticToolsException;
+
+public class PerfRunner extends AbstractCommand {
+    private static final String KINETIC_TOOLS_HOME = System.getProperty(
+            "KINETIC_TOOLS_HOME", ".");
     private static final String DEFAULT_WORKLOAD_KINETIC_PATH = "workloadkinetic";
     private static final int ZERO = 0;
     private String valueSize;
@@ -25,8 +45,9 @@ public class PerfRunner extends DefaultExecuter {
     public PerfRunner(String driveListInputFile, String valueSize,
             String recordCount, String operationCount,
             String connectionPerDrive, String readProportion,
-            String insertProportion, String distribution, String threads) throws IOException {
-        loadDevices(driveListInputFile);
+            String insertProportion, String distribution, String threads)
+            throws IOException {
+        super(driveListInputFile);
         this.valueSize = valueSize;
         this.recordCount = recordCount;
         this.operationCount = operationCount;
@@ -37,18 +58,19 @@ public class PerfRunner extends DefaultExecuter {
         this.threads = threads;
     }
 
-    public void performanceRunner() throws Exception {
+    private void performanceRunner() throws Exception {
         String workloadContent = assembleWorkload(devices, valueSize,
                 recordCount, operationCount, connectionPerDrive,
                 readProportion, insertProportion, distribution);
 
         persistWorkloadFile(workloadContent, DEFAULT_WORKLOAD_KINETIC_PATH);
 
-        String ycsbScriptPath = KINETIC_TOOLS_HOME + File.separator + "bin" + File.separator + "run_ycsb.sh";
-        String commandLine = ycsbScriptPath + " " + threads; 
-        
+        String ycsbScriptPath = KINETIC_TOOLS_HOME + File.separator + "bin"
+                + File.separator + "run_ycsb.sh";
+        String commandLine = ycsbScriptPath + " " + threads;
+
         System.out.println(commandLine);
-        
+
         runCommandLine(commandLine);
     }
 
@@ -146,7 +168,7 @@ public class PerfRunner extends DefaultExecuter {
         }
 
         sb.append("hosts=");
-        
+
         for (KineticDevice kineticDevice : kineticDevices) {
             String host = null;
             if (null != kineticDevice && null != kineticDevice.getInet4()
@@ -167,5 +189,19 @@ public class PerfRunner extends DefaultExecuter {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void execute() throws KineticToolsException {
+        try {
+            performanceRunner();
+        } catch (Exception e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    @Override
+    public void done() throws KineticToolsException {
+        // do nothing
     }
 }

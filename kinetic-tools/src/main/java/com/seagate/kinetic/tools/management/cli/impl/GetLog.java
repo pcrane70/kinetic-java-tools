@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2014 Seagate Technology.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.File;
@@ -5,17 +22,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
-import kinetic.admin.AdminClientConfiguration;
 import kinetic.admin.Capacity;
 import kinetic.admin.Configuration;
 import kinetic.admin.KineticAdminClient;
-import kinetic.admin.KineticAdminClientFactory;
 import kinetic.admin.KineticLog;
 import kinetic.admin.KineticLogType;
 import kinetic.admin.Limits;
@@ -24,12 +34,10 @@ import kinetic.admin.Temperature;
 import kinetic.admin.Utilization;
 import kinetic.client.KineticException;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
+import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.common.util.MessageUtil;
 
-import com.seagate.kinetic.tools.management.cli.impl.util.JsonUtil;
-
-public class LogGetter extends DefaultExecuter {
+public class GetLog extends AbstractCommand {
     private static final String ALL = "all";
     private static final String TEMPERATURE = "temperature";
     private static final String CAPACITY = "capacity";
@@ -38,90 +46,34 @@ public class LogGetter extends DefaultExecuter {
     private static final String MESSAGES = "message";
     private static final String STATISTICS = "statistic";
     private static final String LIMITS = "limits";
-    private static final int BATCH_THREAD_NUMBER = 20;
-    private final Logger logger = Logger.getLogger(LogGetter.class.getName());
     private String logOutFile;
     private String logType;
-    private StringBuffer sb;
 
-    public LogGetter(String nodesLogFile, String logOutFile, String logType,
+    public GetLog(String nodesLogFile, String logOutFile, String logType,
             boolean useSsl, long clusterVersion, long identity, String key,
             long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout,
+                nodesLogFile);
         this.logType = logType;
         this.logOutFile = logOutFile;
         this.sb = new StringBuffer();
-        loadDevices(nodesLogFile);
-        initBasicSettings(useSsl, clusterVersion, identity, key, requestTimeout);
     }
 
-    public void getAndStoreLog() throws Exception {
-
-        ExecutorService pool = Executors.newCachedThreadPool();
-
+    private void getAndStoreLog() throws Exception {
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        int batchTime = devices.size() / BATCH_THREAD_NUMBER;
-        int restIpCount = devices.size() % BATCH_THREAD_NUMBER;
-
         System.out.println("Start getting and storing log......");
 
         sb.append("[\n");
-
-        for (int i = 0; i < batchTime; i++) {
-            CountDownLatch latch = new CountDownLatch(BATCH_THREAD_NUMBER);
-            for (int j = 0; j < BATCH_THREAD_NUMBER; j++) {
-                int num = i * BATCH_THREAD_NUMBER + j;
-                pool.execute(new GetLogThread(logType, devices.get(num), latch,
-                        useSsl, identity, key, clusterVersion, requestTimeout));
-            }
-
-            latch.await();
+        List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
+        for (KineticDevice device : devices) {
+            threads.add(new GetLogThread(logType, device));
         }
-
-        CountDownLatch latchRest = new CountDownLatch(restIpCount);
-        for (int i = 0; i < restIpCount; i++) {
-            int num = batchTime * BATCH_THREAD_NUMBER + i;
-
-            pool.execute(new GetLogThread(logType, devices.get(num), latchRest,
-                    useSsl, identity, key, clusterVersion, requestTimeout));
-        }
-
-        latchRest.await();
-
-        pool.shutdown();
-
+        poolExecuteThreadsInGroups(threads);
         sb.append("\n]");
-
-        int totalDevices = devices.size();
-        int failedDevices = failed.size();
-        int succeedDevices = succeed.size();
-
-        assert (failedDevices + succeedDevices == totalDevices);
-
-        TimeUnit.SECONDS.sleep(2);
-        System.out.flush();
-
-        if (succeedDevices > 0) {
-            System.out.println("\nThe following devices get log succeed:");
-            for (KineticDevice dev : succeed.keySet()) {
-                System.out.println(KineticDevice.toJson(dev));
-            }
-        }
-
-        if (failedDevices > 0) {
-            System.out.println("\nThe following devices get log failed:");
-            for (KineticDevice dev : failed.keySet()) {
-                System.out.println(KineticDevice.toJson(dev));
-            }
-        }
-        
-        System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                + succeedDevices + "/" + failedDevices + ")\n");
-
         persistToFile(sb.toString());
-        System.out.println("Save logs to " + logOutFile + " completed.");
     }
 
     private void persistToFile(String log) throws IOException {
@@ -132,38 +84,45 @@ public class LogGetter extends DefaultExecuter {
     }
 
     private String logToJson(KineticDevice device, KineticLog log,
-            String logType) throws JsonGenerationException,
-            JsonMappingException, IOException, KineticException {
+            String logType) throws KineticException {
         StringBuffer sb = new StringBuffer();
+        String jsonLog = "";
         sb.append("  {\n");
         sb.append("    \"device\": ");
-        sb.append(JsonUtil.toJson(device));
+        sb.append(MessageUtil.toJson(device));
         sb.append(",\n");
         sb.append("    \"log\": ");
         if (logType.equalsIgnoreCase(ALL)) {
             MyKineticLog myLog = new MyKineticLog(log);
-            sb.append(JsonUtil.toJson(myLog));
+            jsonLog = MessageUtil.toJson(myLog);
         } else if (logType.equalsIgnoreCase(UTILIZATION)) {
-            sb.append(JsonUtil.toJson(log.getUtilization()));
+            jsonLog = MessageUtil.toJson(log.getUtilization());
         } else if (logType.equalsIgnoreCase(CAPACITY)) {
-            sb.append(JsonUtil.toJson(log.getCapacity()));
+            jsonLog = MessageUtil.toJson(log.getCapacity());
         } else if (logType.equalsIgnoreCase(TEMPERATURE)) {
-            sb.append(JsonUtil.toJson(log.getTemperature()));
+            jsonLog = MessageUtil.toJson(log.getTemperature());
         } else if (logType.equalsIgnoreCase(CONFIGURATION)) {
-            sb.append(JsonUtil.toJson(log.getConfiguration()));
+            jsonLog = MessageUtil.toJson(log.getConfiguration());
         } else if (logType.equalsIgnoreCase(MESSAGES)) {
-            sb.append("{\"messages\":");
-            sb.append("\"");
-            sb.append(new String(log.getMessages()));
-            sb.append("\"}");
+            jsonLog = new String(log.getMessages());
         } else if (logType.equalsIgnoreCase(STATISTICS)) {
-            sb.append(JsonUtil.toJson(log.getStatistics()));
+            sb.append(MessageUtil.toJson(log.getStatistics()));
         } else if (logType.equalsIgnoreCase(LIMITS)) {
-            sb.append(JsonUtil.toJson(log.getLimits()));
+            sb.append(MessageUtil.toJson(log.getLimits()));
         } else {
             throw new IllegalArgumentException(
                     "Type should be utilization, capacity, temperature, configuration, message, statistic, limits or all");
         }
+
+        if (logType.equalsIgnoreCase(MESSAGES)) {
+            sb.append("{\"messages\":");
+            sb.append("\"");
+            sb.append(jsonLog);
+            sb.append("\"}");
+        } else {
+            sb.append(jsonLog);
+        }
+        report.setAdditionMessage(device, log);
         sb.append("\n  }");
 
         return sb.toString();
@@ -218,82 +177,23 @@ public class LogGetter extends DefaultExecuter {
         return kineticAdminClient.getLog(listOfLogType);
     }
 
-    class GetLogThread implements Runnable {
-        private AdminClientConfiguration adminClientConfig;
-        private KineticAdminClient adminClient;
-        private KineticDevice device;
-        private CountDownLatch latch;
-
-        public GetLogThread(String logType, KineticDevice device,
-                CountDownLatch latch, boolean useSsl, long identity,
-                String key, long clusterVersion, long requestTimeout)
+    class GetLogThread extends AbstractWorkThread {
+        public GetLogThread(String logType, KineticDevice device)
                 throws KineticException {
-            this.latch = latch;
-            this.device = device;
-
-            if (null == device || 0 == device.getInet4().size()
-                    || device.getInet4().isEmpty()) {
-                throw new KineticException(
-                        "device is null or no ip addresses in device.");
-            }
-
-            adminClientConfig = new AdminClientConfiguration();
-            adminClientConfig.setHost(device.getInet4().get(0));
-            adminClientConfig.setUseSsl(useSsl);
-            if (useSsl) {
-                adminClientConfig.setPort(device.getTlsPort());
-                adminClientConfig.setThreadPoolAwaitTimeOut(5000);
-            } else {
-                adminClientConfig.setPort(device.getPort());
-            }
-            adminClientConfig.setClusterVersion(clusterVersion);
-            adminClientConfig.setRequestTimeoutMillis(requestTimeout);
-            adminClientConfig.setUserId(identity);
-            adminClientConfig.setKey(key);
+            super(device);
         }
 
         @Override
-        public void run() {
+        void runTask() throws KineticToolsException {
             try {
-                adminClient = KineticAdminClientFactory
-                        .createInstance(adminClientConfig);
                 KineticLog log = getLog(adminClient, logType);
                 String log2String = logToJson(device, log, logType);
-
-                synchronized (this) {
+                synchronized (sb) {
                     sb.append(log2String);
-                    succeed.put(device, log2String);
                 }
-
-                System.out.println("[Succeed]" + KineticDevice.toJson(device));
+                report.reportSuccess(device);
             } catch (KineticException e) {
-                failed.put(device, "");
-
-                try {
-                    System.out.println("[Failed]"
-                            + KineticDevice.toJson(device) + "\n"
-                            + e.getMessage());
-                } catch (IOException e1) {
-                    System.out.println(e1.getMessage());
-                }
-            } catch (JsonGenerationException e) {
-                System.out.println(e.getMessage());
-            } catch (JsonMappingException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            } finally {
-                try {
-                    if (null != adminClient) {
-                        adminClient.close();
-                    }
-                } catch (KineticException e) {
-                    logger.warning(e.getMessage());
-                } catch (Exception e) {
-                    logger.warning(e.getMessage());
-                } finally {
-                    latch.countDown();
-                }
+                throw new KineticToolsException(e);
             }
         }
     }
@@ -350,5 +250,20 @@ public class LogGetter extends DefaultExecuter {
         public Limits getLimits() {
             return limits;
         }
+    }
+
+    @Override
+    public void execute() throws KineticToolsException {
+        try {
+            getAndStoreLog();
+        } catch (Exception e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    @Override
+    public void done() throws KineticToolsException {
+        super.done();
+        System.out.println("Save logs to " + logOutFile + " completed.");
     }
 }
