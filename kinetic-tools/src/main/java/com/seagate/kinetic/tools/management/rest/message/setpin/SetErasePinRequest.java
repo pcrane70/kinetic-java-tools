@@ -21,12 +21,12 @@ import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 
 public class SetErasePinRequest extends RestRequest {
-
     private String oldpin = null;
     private String newpin = null;
 
     public SetErasePinRequest() {
         setMessageType(MessageType.SET_ERASEPIN);
+        setUseSsl(true);
     }
 
     public void setOldPin(String pin) {

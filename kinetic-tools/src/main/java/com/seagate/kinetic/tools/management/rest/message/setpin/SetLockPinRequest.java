@@ -21,12 +21,12 @@ import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 
 public class SetLockPinRequest extends RestRequest {
-
     private String oldpin = null;
     private String newpin = null;
 
     public SetLockPinRequest() {
         setMessageType(MessageType.SET_LOCKPIN);
+        setUseSsl(true);
     }
 
     public void setOldPin(String pin) {

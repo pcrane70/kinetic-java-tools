@@ -21,11 +21,14 @@ import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 
 public class SecureEraseRequest extends RestRequest {
+	private static final int REQUEST_TIMEOUT_IN_SECONDS = 180;
 
     private String erasepin = null;
 
     public SecureEraseRequest() {
         setMessageType(MessageType.SECURE_ERASE);
+        setRequestTimeout(REQUEST_TIMEOUT_IN_SECONDS);
+		setUseSsl(true);
     }
 
     public void setPin(String pin) {

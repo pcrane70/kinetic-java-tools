@@ -17,7 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.rest.bridge;
 
-import com.seagate.kinetic.tools.management.rest.bridge.impl.SampleRestBridgeService;
+import com.seagate.kinetic.tools.management.rest.bridge.impl.DefaultRestBridgeService;
 
 /**
  * Boot-strap class to instantiate <code>RestBridgeService</code> service.
@@ -27,7 +27,7 @@ import com.seagate.kinetic.tools.management.rest.bridge.impl.SampleRestBridgeSer
 public class RestBridgeServiceFactory {
 
     // sample rest bridge service implementation
-    private static RestBridgeService service = new SampleRestBridgeService();
+    private static RestBridgeService service = new DefaultRestBridgeService();
 
     /**
      * Get an instance of <code>RestBridgeService</code>

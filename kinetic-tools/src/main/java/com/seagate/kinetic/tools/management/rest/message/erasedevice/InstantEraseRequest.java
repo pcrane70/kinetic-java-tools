@@ -21,19 +21,22 @@ import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 
 public class InstantEraseRequest extends RestRequest {
+	private static final int REQUEST_TIMEOUT_IN_SECONDS = 180;
 
-    private String erasepin = null;
+	private String erasepin = null;
 
-    public InstantEraseRequest() {
-        setMessageType(MessageType.INSTANT_ERASE);
-    }
+	public InstantEraseRequest() {
+		setMessageType(MessageType.INSTANT_ERASE);
+		setRequestTimeout(REQUEST_TIMEOUT_IN_SECONDS);
+		setUseSsl(true);
+	}
 
-    public void setPin(String pin) {
-        this.erasepin = pin;
-    }
+	public void setPin(String pin) {
+		this.erasepin = pin;
+	}
 
-    public String getPin() {
-        return this.erasepin;
-    }
+	public String getPin() {
+		return this.erasepin;
+	}
 
 }
