@@ -33,14 +33,14 @@ ktool.sh -help
 Discover a cluster of drives within a set of IP ranges.
 
 The optional inputs for the script includes the following:
-  * out ~ Used to specify path of output file for discovered IP Address list, i.e. drives.txt. If option is not specified, the default file output name will be drives_timestamp in milliseconds. The format is in JSON format. 
+  * out ~ Used to specify path of output file for discovered IP Address list, i.e. drives.txt. If option is not specified, the default file output name will be drives_timestamp in milliseconds. The content of output format is in JSON format. 
   * timeout ~ Used to specify the sampling time to collect the devices in seconds when subnet option is not used. The default timeout is set to 30 seconds if not specified 
-  * subnet ~ When the subnet is specified, only devices within the subnet (0-255) are discovered and added to the output file. If not specified, drives in all subnets will be discovered by default via multicast. 
-  * usessl ~ Used only when subnet option is specified. If true, the Kinetic tool uses Secure Socket connection to discover the devices. By defualt, this option is set to false. If subnet option is not specified, this option will be ignored.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. Option is only applicable when subnet option is applied. The default request timeout is set to 30 seconds. 
+  * subnet ~ When the subnet is specified, only devices within the subnet (0-255) are discovered and added to the output file. If not specified, devices with detectable heartbeats will be discovered by default via multicast. 
+  * usessl ~ Used only when subnet option is specified. If true, the Kinetic tool uses secure socket connection to discover the devices. By defualt, this option is set to false. If subnet option is not specified, this option will be ignored.
+  * clversion ~ If specified, only devices set with the specified cluster version are discovered. For discover command, this option is ignored if subnet option is not specified.
+  * identity ~ User identity used to authenticate with the devices.  Each user's priviledges are based on configured Access Control List (ACL) for each device. The default user identity ("1") is provided if not specified.  For discover command, this option is ignored if subnet option is not specified.
+  * key ~ The security key of the user.  A default key ("asdfasdf") is used if not specified.  For discover command, this option is ignored if subnet option is not specified.
+  * reqtimeout ~ Used to specify the request timeout for the request. Option is only applicable when subnet option is applied. The default request timeout is set to 30 seconds. 
 
 ```
 ktool.sh -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
@@ -61,11 +61,11 @@ The required input for the script includes the following:
 
 The optional inputs for the script includes the following:
   * out ~ Used to specify name of output file for pinged IP Address list, i.e. pingdrives.txt. If option is not specified, the default file output name will be pingsuccessdrives_timestamp in milliseconds. The format is in JSON format. 
-  * usessl ~ If option is set to true, the Kinetic tool uses Secure Socket connection to communicate with the devices. By defualt, this option is set to false.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+  * usessl ~ If option is set to true, the Kinetic tool uses secure socket connection to communicate with the devices. By defualt, this option is set to false.
+  * clversion ~ If specified, only devices matched with the specified cluster version are performed.
+  * identity ~ User identity used to authenticate with the device.  Each user's priviledges are based on configured Access Control List (ACL) for each device. The default user identity ("1") is used if not specified.
+  * key ~ The security key of the user.  A default key ("asdfasdf") is used if not specified.
+  * reqtimeout ~ Used to specify the request timeout for the request. The default request timeout is set to 30 seconds. 
 
 
 ```
@@ -82,12 +82,7 @@ The required inputs for the script includes the following:
   * fmfile ~ Path to Kinetic firmware image file.
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to true, the Kinetic tool uses Secure Socket connection to communicate with the devices. By defualt, this option is set to false.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs for the script are the same as ping command specified above.
 
 ```
 ktool.sh -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
@@ -103,12 +98,8 @@ The required inputs for the script includes the following:
   * v ~ Indicated firmware version to be matched with devices in the driveListInputFile
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to true, the Kinetic tool uses Secure Socket connection to communicate with the devices. By defualt, this option is set to false.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs for the script are the same as ping command specified above.
+
 ```
 ktool.sh -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
@@ -124,12 +115,8 @@ The required inputs for the script includes the following:
   * newpin ~ New pin to be used to access the devices to perform instant erase or secure erase
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to false, the Kinetic tool does not use Secure Socket connection to communicate with the devices. By defualt, this option is set to true.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs for the script are the same as ping command specified above.
+
 ```
 ktool.sh -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -145,12 +132,8 @@ The required inputs for the script includes the following:
   * newpin ~ New lock pin to be used to lock and unlock the devices
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to false, the Kinetic tool does not use Secure Socket connection to communicate with the devices. By defualt, this option is set to true.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs for the script are the same as ping command specified above.
+
 ```
 ktool.sh -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -162,15 +145,10 @@ ktool.sh -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString
 Erase the drives specified in the driveListInputFile with the instant erase protocol.  All contents on the drive will be instant erased and the drive is reset to its factory default settings. A matched pin is required in order to perform the instanterase command.
 
 The required inputs for the script includes the following:
-  * pin ~ Assigned erase pin for the devices in string format.
+  * pin ~ The erase pin used to perform the instant erase command for the devices.
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to false, the Kinetic tool does not use Secure Socket connection to communicate with the devices. By defualt, this option is set to true.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs for the script are the same as ping command specified above.
 ```
 ktool.sh -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
   
@@ -182,15 +160,10 @@ ktool.sh -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-us
 Erase the drive specified in the driveListInputFile with the secure erase protocol.  All contents on the drive will be secure erased and the drive is reset to its factory default settings. A matched pin is required in order to perform the secureerase command.
 
 The required inputs for the script includes the following:
-  * pin ~ Assigned erase pin for the devices in string format.
+  * pin ~ The erase pin used to perform the secure erase command for the devices.
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to false, the Kinetic tool does not use Secure Socket connection to communicate with the devices. By defualt, this option is set to true.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs for the script are the same as ping command specified above.
 ```
 ktool.sh -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
   
@@ -202,15 +175,10 @@ ktool.sh -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-use
 Set cluster version for the devices specified in the driveListInputFile.
 
 The required inputs for the script includes the following:
-  * newclversion ~ Used to specify desired cluster version in string format.
+  * newclversion ~ Used to specify desired cluster version for the devices.
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to true, the Kinetic tool uses Secure Socket connection to communicate with the devices. By defualt, this option is set to false.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs for the script are the same as ping command specified above.
 ```
 ktool.sh -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
@@ -225,12 +193,7 @@ The required inputs for the script includes the following:
   * setsecurity ~ Used to specify the path of the file that holds the ACL
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to false, the Kinetic tool does not use Secure Socket connection to communicate with the devices. By defualt, this option is set to true.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs for the script are the same as ping command specified above.
 ```
 ktool.sh -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
 
@@ -255,11 +218,7 @@ The optional inputs for the script includes the following:
    * `message` ~ Detailed log information of devices' activity.
    * `limits` ~ Maximum limits of the device key size, value size, version size, tag size, connections, oustanding read and write requests, message size, key range count, and identity count.
    * `all` ~ All log types stated above. Do not need to use type option for this selection.
-  * usessl ~ If option is set to true, the Kinetic tool uses Secure Socket connection to communicate with the devices. By defualt, this option is set to false.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+   * The optional inputs (usessl, clversion, identity, key, reqtimeout) for the script are the same as ping command specified above.
 
 ```
 ktool.sh -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
@@ -277,12 +236,7 @@ The required inputs for the script includes the following:
   * name ~ Used to specify the specific vendor log name. The Seagate drive specific log name is com.Seagate.Kinetic.HDD.Gen1 (as shown in the example).
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to true, the Kinetic tool uses Secure Socket connection to communicate with the devices. By defualt, this option is set to false.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs (usessl, clversion, identity, key, reqtimeout) for the script are the same as ping command specified above.
 ```
 ktool.sh -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
@@ -297,12 +251,7 @@ The required inputs for the script includes the following:
   * pin ~ Assigned lock pin for the devices in string format.
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to false, the Kinetic tool does not use Secure Socket connection to communicate with the devices. By defualt, this option is set to true.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs (usessl, clversion, identity, key, reqtimeout) for the script are the same as ping command specified above.
 
 ```
 ktool.sh -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
@@ -318,12 +267,7 @@ The required inputs for the script includes the following:
   * pin ~ Assigned lock pin for the devices in string format.
   * in ~ Used to specify path of the input file that contains the list of IP addresses for the commmand, i.e. drives.txt.
 
-The optional inputs for the script includes the following:
-  * usessl ~ If option is set to false, the Kinetic tool does not use Secure Socket connection to communicate with the devices. By defualt, this option is set to true.
-  * clversion ~ When used, only devices set with the specified cluster version are discovered.
-  * identity ~ Identity of user priviledges based on configured Access Control List (ACL) for the device. Option does not apply if ACL is not configured.
-  * key ~ The security key used in concurrent with the identity option to determine access privledges.
-  * reqtimeout ~ Used to specify the request time to connect with the device via TCP or SSL connections. The default request timeout is set to 30 seconds. 
+The optional inputs (usessl, clversion, identity, key, reqtimeout) for the script are the same as ping command specified above.
 ```
 ktool.sh -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
     
