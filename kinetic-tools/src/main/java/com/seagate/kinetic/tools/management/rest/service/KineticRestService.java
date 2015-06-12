@@ -17,20 +17,9 @@
  */
 package com.seagate.kinetic.tools.management.rest.service;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-
-import com.seagate.kinetic.tools.management.rest.message.ErrorResponse;
-import com.seagate.kinetic.tools.management.rest.message.RestResponse;
-import com.seagate.kinetic.tools.management.rest.service.handler.HandlerMap;
 
 /**
  * Rest service boot-strap class.
@@ -38,70 +27,78 @@ import com.seagate.kinetic.tools.management.rest.service.handler.HandlerMap;
  * @author chiaming
  *
  */
-public class KineticRestService extends AbstractHandler {
+public class KineticRestService {
 
     public static final Logger logger = Logger
             .getLogger(KineticRestService.class
             .getName());
 
+    // service configuration
+    private ServiceConfiguration config = null;
+
+    private Server server = null;
+
     /**
-     * Rest request routing engine.
+     * initialize service.
+     * 
+     * @param config
+     *            service configuration
+     * @throws Exception
      */
-    @Override
-    public void handle(String target, Request baseRequest,
-            HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    public void init(ServiceConfiguration config) throws Exception {
 
-        // get service handler
-        ServiceHandler handler = this.getServiceHandler(request);
+        this.config = config;
 
-        // construct service context
-        ServiceContext context = new ServiceContext(request);
-
-        // handler request
-        handler.service(context);
-
-        // get response message
-        RestResponse resp = context.getResponseMessage();
-
-        // convert to json
-        String body = resp.toJson();
-
-        // write response message
-        response.setContentType("application/json; charset=utf-8");
-
-        // set http response status code
-        if (resp instanceof ErrorResponse) {
-            response.setStatus(((ErrorResponse) resp).getErrorCode());
-        } else {
-            response.setStatus(HttpServletResponse.SC_OK);
+        if (config == null) {
+            throw new java.lang.NullPointerException("config cannot be null");
         }
 
-        // write body
-        response.getWriter().println(body);
+        this.server = new Server(config.getPort());
 
-        // set message processed flag
-        baseRequest.setHandled(true);
+        this.server.setHandler(new RestServiceHandler());
     }
 
     /**
-     * Get service handler based on the request message
+     * start rest service.
      * 
-     * @param request
-     *            http rest message
-     * 
-     * @return the corresponding service handler to handle the request message.
+     * @throws Exception
+     *             if any internal error occurred
      */
-    private ServiceHandler getServiceHandler(HttpServletRequest request) {
+    public void start() throws Exception {
+        this.server.start();
 
-        // get request URI
-        String path = request.getRequestURI();
+        logger.info("kinetic rest service is ready on port: "
+                + config.getPort());
+    }
 
-        // get handler based on the request uri
-        ServiceHandler handler = HandlerMap.findHandler(path);
+    /**
+     * Get service configuration.
+     * 
+     * @return service configuration
+     */
+    public ServiceConfiguration getServiceConfiguration() {
+        return this.config;
+    }
 
-        // service handler
-        return handler;
+
+    /**
+     * check if service is running
+     */
+    public boolean isRunning() {
+
+        if (server == null) {
+            return false;
+        }
+
+        return this.server.isRunning();
+    }
+
+    public void stop() throws Exception {
+        this.server.stop();
+    }
+
+    public void destroy() {
+        ;
     }
 
     /**
@@ -112,28 +109,13 @@ public class KineticRestService extends AbstractHandler {
      */
     public static void main(String[] args) throws Exception {
 
-        // LogManager.getLogManager().reset();
+        ServiceConfiguration config = new ServiceConfiguration();
 
-        int port = 8080;
+        KineticRestService service = new KineticRestService();
 
-        /**
-         * override if port is specified as the first argument.
-         */
-        if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
-        }
+        service.init(config);
 
-        // construct new instance of server
-        Server server = new Server(port);
-        // set message handler
-        server.setHandler(new KineticRestService());
-
-        // start server
-        server.start();
-
-        logger.info("kinetic rest service is ready on port: " + port);
-
-        server.join();
+        service.start();
     }
 
 }

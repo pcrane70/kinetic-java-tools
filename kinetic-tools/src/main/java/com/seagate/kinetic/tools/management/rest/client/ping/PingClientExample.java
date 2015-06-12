@@ -36,13 +36,13 @@ public class PingClientExample {
         try {
 
             // default url
-            String url = "http://localhost:8888/ping";
+            String url = "http://localhost:8080/ping";
 
             // new ping request message
             PingRequest request = new PingRequest();
 
             // set disco id, discoid is obtained from a prior discover request
-            request.setDiscoId("drives_1434128858059");
+            request.setDiscoId("drives_1434151727576");
 
             // send request
             RestResponse response = client.send(url, request);

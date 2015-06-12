@@ -28,7 +28,7 @@ public class DiscoverClientExample {
         KineticRestClient client = new KineticRestClient();
 
         // default url
-        String url = "http://localhost:8888/discover";
+        String url = "http://localhost:8080/discover";
 
         // override with arg[0]
         if (args.length > 0) {
