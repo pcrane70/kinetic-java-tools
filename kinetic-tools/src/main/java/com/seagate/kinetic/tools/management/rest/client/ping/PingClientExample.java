@@ -33,23 +33,28 @@ public class PingClientExample {
 
         KineticRestClient client = new KineticRestClient();
 
-        // default url
-        String url = "http://localhost:8888/ping";
+        try {
 
-        // new ping request message
-        PingRequest request = new PingRequest();
+            // default url
+            String url = "http://localhost:8888/ping";
 
-        // set disco id, discoid is obtained from a prior discover request
-        request.setDiscoId("1234567890");
+            // new ping request message
+            PingRequest request = new PingRequest();
 
-        // send request
-        RestResponse response = client.send(url, request);
+            // set disco id, discoid is obtained from a prior discover request
+            request.setDiscoId("drives_1434128858059");
 
-        // print response
-        System.out.println(response.toJson());
+            // send request
+            RestResponse response = client.send(url, request);
 
-        // close client
-        client.close();
+            // print response
+            System.out.println(response.toJson());
+
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
     }
 
 }

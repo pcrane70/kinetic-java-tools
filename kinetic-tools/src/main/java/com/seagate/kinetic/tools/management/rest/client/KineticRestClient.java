@@ -17,6 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.rest.client;
 
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,6 +44,8 @@ public class KineticRestClient {
 
     public static final Logger logger = Logger
             .getLogger(KineticRestClient.class.getName());
+
+    public static final String CONTENT_TYPE = "application/json; charset=utf-8";
 
     // to be used
     @SuppressWarnings("unused")
@@ -114,7 +117,8 @@ public class KineticRestClient {
 
         // create content provider
         StringContentProvider provider = new StringContentProvider(
-                restRequest.toJson());
+                CONTENT_TYPE, restRequest.toJson(),
+                StandardCharsets.UTF_8);
 
         // set content provider
         request.content(provider);
