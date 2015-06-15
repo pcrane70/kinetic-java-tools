@@ -40,6 +40,8 @@ import com.seagate.kinetic.tools.management.rest.message.erasedevice.InstantEras
 import com.seagate.kinetic.tools.management.rest.message.erasedevice.SecureEraseResponse;
 import com.seagate.kinetic.tools.management.rest.message.getlog.DeviceLog;
 import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
+import com.seagate.kinetic.tools.management.rest.message.lockdevice.LockDeviceResponse;
+import com.seagate.kinetic.tools.management.rest.message.lockdevice.UnLockDeviceResponse;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinResponse;
@@ -91,6 +93,12 @@ public class SampleRestBridgeService implements RestBridgeService {
             break;
         case SECURE_ERASE:
             response = this.secureErase(request);
+            break;
+        case LOCK_DEVICE:
+            response = this.lockdevice(request);
+            break;
+        case UNLOCK_DEVICE:
+            response = this.unlockdevice(request);
             break;
         default:
             response = new ErrorResponse();
@@ -312,6 +320,54 @@ public class SampleRestBridgeService implements RestBridgeService {
         }
 
         SecureEraseResponse resp = new SecureEraseResponse();
+
+        resp.setDevices(devices);
+
+        return resp;
+    }
+
+    private RestResponse lockdevice(RestRequest request) {
+
+        List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+
+        for (int i = 0; i < 2; i++) {
+
+            DeviceId device = new DeviceId();
+
+            DeviceStatus dstatus = new DeviceStatus();
+
+            dstatus.setDevice(device);
+
+            device.setWwn(String.valueOf(i));
+
+            devices.add(dstatus);
+        }
+
+        LockDeviceResponse resp = new LockDeviceResponse();
+
+        resp.setDevices(devices);
+
+        return resp;
+    }
+
+    private RestResponse unlockdevice(RestRequest request) {
+
+        List<DeviceStatus> devices = new ArrayList<DeviceStatus>();
+
+        for (int i = 0; i < 2; i++) {
+
+            DeviceId device = new DeviceId();
+
+            DeviceStatus dstatus = new DeviceStatus();
+
+            dstatus.setDevice(device);
+
+            device.setWwn(String.valueOf(i));
+
+            devices.add(dstatus);
+        }
+
+        UnLockDeviceResponse resp = new UnLockDeviceResponse();
 
         resp.setDevices(devices);
 

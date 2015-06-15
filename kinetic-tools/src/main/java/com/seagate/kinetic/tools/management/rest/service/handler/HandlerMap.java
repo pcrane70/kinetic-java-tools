@@ -58,6 +58,11 @@ public class HandlerMap {
     // secure erase
     public static final String SECUREERASE = "/secureerase";
 
+    // lock device
+    public static final String LOCKDEVICE = "/lockdevice";
+
+    public static final String UNLOCKDEVICE = "/unlockdevice";
+
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
     
@@ -74,6 +79,10 @@ public class HandlerMap {
         hmap.put(INSTANTERASE, new InstantEraseHandler());
 
         hmap.put(SECUREERASE, new SecureEraseHandler());
+
+        hmap.put(LOCKDEVICE, new LockDeviceHandler());
+
+        hmap.put(UNLOCKDEVICE, new UnLockDeviceHandler());
     }
 
     /**
@@ -95,6 +104,8 @@ public class HandlerMap {
             logger.warning("cound not find handler for request: " + path);
 
             handler = hmap.get(ERROR);
+        } else {
+            logger.info("found handler: " + handler.getClass().getName());
         }
 
         return handler;
