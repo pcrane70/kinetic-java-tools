@@ -33,6 +33,9 @@ public class RestRequest extends RestMessage {
 
     private boolean useSsl = false;
 
+    // cluster version
+    private int clversion = 0;
+
     // request timeout in seconds
     private int reqtimeout = 30;
 
@@ -93,6 +96,14 @@ public class RestRequest extends RestMessage {
 
     public void setDiscoId(String id) {
         this.discoid = id;
+    }
+
+    public void setClversion(int v) {
+        this.clversion = v;
+    }
+
+    public int getClversion() {
+        return this.clversion;
     }
 
 }

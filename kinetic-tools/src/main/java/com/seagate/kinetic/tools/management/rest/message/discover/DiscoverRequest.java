@@ -31,9 +31,6 @@ public class DiscoverRequest extends RestRequest {
 
     private int timeout = 10;
 
-    // cluster version
-    private int clversion = 0;
-
     public DiscoverRequest() {
         setMessageType(MessageType.DISCOVER);
     }
@@ -54,11 +51,4 @@ public class DiscoverRequest extends RestRequest {
         return this.timeout;
     }
 
-    public void setClversion(int v) {
-        this.clversion = v;
-    }
-
-    public int getClversion() {
-        return this.clversion;
-    }
 }
