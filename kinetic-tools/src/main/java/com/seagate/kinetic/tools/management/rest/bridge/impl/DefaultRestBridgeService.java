@@ -36,11 +36,13 @@ import com.seagate.kinetic.tools.management.cli.impl.GetLog;
 import com.seagate.kinetic.tools.management.cli.impl.InstantErase;
 import com.seagate.kinetic.tools.management.cli.impl.Invoker;
 import com.seagate.kinetic.tools.management.cli.impl.KineticDevice;
+import com.seagate.kinetic.tools.management.cli.impl.LockDevice;
 import com.seagate.kinetic.tools.management.cli.impl.PingReachableDrive;
 import com.seagate.kinetic.tools.management.cli.impl.Report;
 import com.seagate.kinetic.tools.management.cli.impl.SecureErase;
 import com.seagate.kinetic.tools.management.cli.impl.SetErasePin;
 import com.seagate.kinetic.tools.management.cli.impl.SetLockPin;
+import com.seagate.kinetic.tools.management.cli.impl.UnLockDevice;
 import com.seagate.kinetic.tools.management.rest.bridge.RestBridgeService;
 import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.DeviceInfo;
@@ -61,6 +63,10 @@ import com.seagate.kinetic.tools.management.rest.message.erasedevice.SecureErase
 import com.seagate.kinetic.tools.management.rest.message.getlog.DeviceLog;
 import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogRequest;
 import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
+import com.seagate.kinetic.tools.management.rest.message.lockdevice.LockDeviceRequest;
+import com.seagate.kinetic.tools.management.rest.message.lockdevice.LockDeviceResponse;
+import com.seagate.kinetic.tools.management.rest.message.lockdevice.UnLockDeviceRequest;
+import com.seagate.kinetic.tools.management.rest.message.lockdevice.UnLockDeviceResponse;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingRequest;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinRequest;
@@ -78,7 +84,6 @@ import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinRespon
  */
 public class DefaultRestBridgeService implements RestBridgeService {
     private static final int DEFAULT_PING_DISCOVER_TIMEOUT = 10;
-    private static final int DEFAULT_CLUSTER_VERSION = 0;
     private static final String DRIVES_FILE_PREFIX = "drives_";
     private static final String PING_FILE_PREFIX = "ping_";
     private static final String GETLOG_LOG_FILE_PREFIX = "getlog_";
@@ -122,6 +127,12 @@ public class DefaultRestBridgeService implements RestBridgeService {
             case SECURE_ERASE:
                 response = this.secureErase((SecureEraseRequest) request);
                 break;
+            case LOCK_DEVICE:
+                response = this.lockDevice((LockDeviceRequest) request);
+                break;
+            case UNLOCK_DEVICE:
+                response = this.unLockDevice((UnLockDeviceRequest) request);
+                break;
             default:
                 response = new ErrorResponse();
             }
@@ -160,7 +171,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
         Invoker invoker = new DefaultCommandInvoker();
         Report report = invoker.execute(new GetLog(discoId,
                 GETLOG_LOG_FILE_PREFIX + System.currentTimeMillis(), ALL,
-                request.getUseSsl(), DEFAULT_CLUSTER_VERSION, Long
+                request.getUseSsl(), request.getClversion(), Long
                         .parseLong(request.getIdentity()), request.getKey(),
                 request.getRequestTimeout()));
 
@@ -315,7 +326,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
 
         Command command = new PingReachableDrive(discoId, PING_FILE_PREFIX
                 + System.currentTimeMillis(), request.getUseSsl(),
-                DEFAULT_CLUSTER_VERSION, Long.parseLong(request.getIdentity()),
+                request.getClversion(), Long.parseLong(request.getIdentity()),
                 request.getKey(), request.getRequestTimeout());
         execCommandAndSetResp(response, command,
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -374,9 +385,9 @@ public class DefaultRestBridgeService implements RestBridgeService {
 
         Invoker invoker = new DefaultCommandInvoker();
         Report report = invoker.execute(new CheckFirmwareVersion(request
-                .getExpectFirmwareVersion(), discoId, request.getUseSsl(), 0,
-                Long.parseLong(request.getIdentity()), request.getKey(),
-                request.getRequestTimeout()));
+                .getExpectFirmwareVersion(), discoId, request.getUseSsl(),
+                request.getClversion(), Long.parseLong(request.getIdentity()),
+                request.getKey(), request.getRequestTimeout()));
         DeviceId device = null;
         DeviceStatus dstatus = null;
         List<DeviceStatus> respDevices = new ArrayList<DeviceStatus>();
@@ -412,10 +423,11 @@ public class DefaultRestBridgeService implements RestBridgeService {
             return response;
         }
 
-        execCommandAndSetResp(response, new SetErasePin(request.getOldPin(),
-                request.getNewPin(), discoId, request.getUseSsl(),
-                DEFAULT_CLUSTER_VERSION, Long.parseLong(request.getIdentity()),
-                request.getKey(), request.getRequestTimeout()),
+        execCommandAndSetResp(response,
+                new SetErasePin(request.getOldPin(), request.getNewPin(),
+                        discoId, request.getUseSsl(), request.getClversion(),
+                        Long.parseLong(request.getIdentity()),
+                        request.getKey(), request.getRequestTimeout()),
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 
         return response;
@@ -430,10 +442,11 @@ public class DefaultRestBridgeService implements RestBridgeService {
             return response;
         }
 
-        execCommandAndSetResp(response, new SetLockPin(request.getOldPin(),
-                request.getNewPin(), discoId, request.getUseSsl(),
-                DEFAULT_CLUSTER_VERSION, Long.parseLong(request.getIdentity()),
-                request.getKey(), request.getRequestTimeout()),
+        execCommandAndSetResp(response,
+                new SetLockPin(request.getOldPin(), request.getNewPin(),
+                        discoId, request.getUseSsl(), request.getClversion(),
+                        Long.parseLong(request.getIdentity()),
+                        request.getKey(), request.getRequestTimeout()),
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 
         return response;
@@ -451,7 +464,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
         execCommandAndSetResp(
                 response,
                 new InstantErase(request.getPin(), discoId,
-                        request.getUseSsl(), DEFAULT_CLUSTER_VERSION, Long
+                        request.getUseSsl(), request.getClversion(), Long
                                 .parseLong(request.getIdentity()), request
                                 .getKey(), request.getRequestTimeout()),
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -471,7 +484,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
         execCommandAndSetResp(
                 response,
                 new SecureErase(request.getPin(), discoId, request.getUseSsl(),
-                        DEFAULT_CLUSTER_VERSION, Long.parseLong(request
+                        request.getClversion(), Long.parseLong(request
                                 .getIdentity()), request.getKey(), request
                                 .getRequestTimeout()),
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -479,4 +492,43 @@ public class DefaultRestBridgeService implements RestBridgeService {
         return response;
     }
 
+    private RestResponse lockDevice(LockDeviceRequest request)
+            throws NumberFormatException, IOException {
+        LockDeviceResponse response = new LockDeviceResponse();
+        String discoId = request.getDiscoId();
+        if (discoId == null || discoId.isEmpty()) {
+            response.setDevices(null);
+            return response;
+        }
+
+        execCommandAndSetResp(
+                response,
+                new LockDevice(discoId, request.getPin(), request.getUseSsl(),
+                        request.getClversion(), Long.parseLong(request
+                                .getIdentity()), request.getKey(), request
+                                .getRequestTimeout()),
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+
+        return response;
+    }
+
+    private RestResponse unLockDevice(UnLockDeviceRequest request)
+            throws NumberFormatException, IOException {
+        UnLockDeviceResponse response = new UnLockDeviceResponse();
+        String discoId = request.getDiscoId();
+        if (discoId == null || discoId.isEmpty()) {
+            response.setDevices(null);
+            return response;
+        }
+
+        execCommandAndSetResp(
+                response,
+                new UnLockDevice(discoId, request.getPin(),
+                        request.getUseSsl(), request.getClversion(), Long
+                                .parseLong(request.getIdentity()), request
+                                .getKey(), request.getRequestTimeout()),
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+
+        return response;
+    }
 }
