@@ -22,9 +22,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.lockdevice.LockDeviceResponse;
 
 public class LockDevice extends AbstractCommand {
     private byte[] lockPin;
@@ -49,7 +52,6 @@ public class LockDevice extends AbstractCommand {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        System.out.println("Start lock device...");
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         for (KineticDevice device : devices) {
             threads.add(new LockDeviceThread(device, lockPin));
@@ -83,6 +85,19 @@ public class LockDevice extends AbstractCommand {
         try {
             lockDevice();
         } catch (Exception e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    @Override
+    public void done() throws KineticToolsException {
+        super.done();
+        LockDeviceResponse response = new LockDeviceResponse();
+        try {
+            report.persistReport(response,
+                    "lockdevice_" + System.currentTimeMillis(),
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } catch (IOException e) {
             throw new KineticToolsException(e);
         }
     }

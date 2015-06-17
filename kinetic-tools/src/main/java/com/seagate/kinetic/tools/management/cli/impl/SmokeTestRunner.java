@@ -38,15 +38,12 @@ public class SmokeTestRunner extends AbstractCommand {
     }
 
     private void runSmokeTests() {
-        System.out.println("Start run smoke tests......");
         String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
         rootDir = toolHome + File.separator + "SmokeTest-Result"
                 + File.separator + "Result-" + System.currentTimeMillis();
         for (KineticDevice device : devices) {
             runSmokeTest(device);
         }
-
-        System.out.println("All tests result has been stored at " + rootDir);
     }
 
     private void runSmokeTest(KineticDevice device) {
@@ -94,6 +91,6 @@ public class SmokeTestRunner extends AbstractCommand {
 
     @Override
     public void done() throws KineticToolsException {
-        // do nothing
+        System.out.println("All tests result has been stored at " + rootDir);
     }
 }

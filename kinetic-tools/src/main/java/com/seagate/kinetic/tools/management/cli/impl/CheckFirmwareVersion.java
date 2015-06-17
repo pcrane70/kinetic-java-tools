@@ -21,11 +21,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.admin.KineticLog;
 import kinetic.admin.KineticLogType;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.common.util.MessageUtil;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
+import com.seagate.kinetic.tools.management.rest.message.DeviceStatus;
+import com.seagate.kinetic.tools.management.rest.message.checkversion.CheckVersionResponse;
 
 public class CheckFirmwareVersion extends AbstractCommand {
     private String expectedFirewareVersion;
@@ -42,8 +48,6 @@ public class CheckFirmwareVersion extends AbstractCommand {
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
-
-        System.out.println("Start verify firmware version...");
 
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         for (KineticDevice device : devices) {
@@ -90,6 +94,41 @@ public class CheckFirmwareVersion extends AbstractCommand {
         try {
             checkFirmwareVersion();
         } catch (Exception e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    @Override
+    public void done() throws KineticToolsException {
+        super.done();
+        CheckVersionResponse response = new CheckVersionResponse();
+        DeviceId device = null;
+        DeviceStatus dstatus = null;
+        List<DeviceStatus> respDevices = new ArrayList<DeviceStatus>();
+
+        for (KineticDevice kineticDevice : report.getSucceedDevices()) {
+            device = initDevice(kineticDevice);
+            dstatus = new DeviceStatus();
+            dstatus.setDevice(device);
+            respDevices.add(dstatus);
+        }
+
+        for (KineticDevice kineticDevice : report.getFailedDevices()) {
+            device = initDevice(kineticDevice);
+            dstatus = new DeviceStatus();
+            dstatus.setDevice(device);
+            dstatus.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
+            dstatus.setMessage("Expect " + expectedFirewareVersion + " but "
+                    + kineticDevice.getFirmwareVersion());
+            respDevices.add(dstatus);
+        }
+
+        response.setDevices(respDevices);
+
+        try {
+            report.persistReport(MessageUtil.toJson(response), "checkversion_"
+                    + System.currentTimeMillis());
+        } catch (IOException e) {
             throw new KineticToolsException(e);
         }
     }

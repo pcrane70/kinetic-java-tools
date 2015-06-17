@@ -21,9 +21,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
 
 public class SetClusterVersion extends AbstractCommand {
     private long newClusterVersion;
@@ -41,7 +44,6 @@ public class SetClusterVersion extends AbstractCommand {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        System.out.println("Start set cluster version...");
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         for (KineticDevice device : devices) {
             threads.add(new setClusterVersionThread(device, newClusterVersion));
@@ -74,6 +76,19 @@ public class SetClusterVersion extends AbstractCommand {
         try {
             setClusterVersion();
         } catch (Exception e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    @Override
+    public void done() throws KineticToolsException {
+        super.done();
+        RestResponseWithStatus response = new RestResponseWithStatus();
+        try {
+            report.persistReport(response,
+                    "setclusterversion_" + System.currentTimeMillis(),
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } catch (IOException e) {
             throw new KineticToolsException(e);
         }
     }

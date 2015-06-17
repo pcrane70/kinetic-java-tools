@@ -22,9 +22,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.lockdevice.UnLockDeviceResponse;
 
 public class UnLockDevice extends AbstractCommand {
     private byte[] unLockPin;
@@ -84,6 +87,18 @@ public class UnLockDevice extends AbstractCommand {
         } catch (Exception e) {
             throw new KineticToolsException(e);
         }
+    }
 
+    @Override
+    public void done() throws KineticToolsException {
+        super.done();
+        UnLockDeviceResponse response = new UnLockDeviceResponse();
+        try {
+            report.persistReport(response,
+                    "unlockdevice_" + System.currentTimeMillis(),
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } catch (IOException e) {
+            throw new KineticToolsException(e);
+        }
     }
 }

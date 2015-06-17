@@ -32,6 +32,7 @@ import kinetic.admin.KineticAdminClientFactory;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 
 abstract class AbstractCommand implements Command {
     protected static final int BATCH_THREAD_NUMBER = 20;
@@ -110,6 +111,19 @@ abstract class AbstractCommand implements Command {
         } catch (Exception e) {
             throw new KineticToolsException(e);
         }
+    }
+
+    protected DeviceId initDevice(KineticDevice kineticDevice) {
+        DeviceId device;
+        String[] ips;
+        device = new DeviceId();
+        device.setPort(kineticDevice.getPort());
+        device.setTlsPort(kineticDevice.getTlsPort());
+        device.setWwn(kineticDevice.getWwn());
+        ips = new String[kineticDevice.getInet4().size()];
+        ips = kineticDevice.getInet4().toArray(ips);
+        device.setIps(ips);
+        return device;
     }
 
     protected void poolExecuteThreadsInGroups(List<AbstractWorkThread> threads)

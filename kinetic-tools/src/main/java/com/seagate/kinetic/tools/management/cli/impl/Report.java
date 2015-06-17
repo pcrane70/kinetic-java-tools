@@ -17,10 +17,18 @@
  */
 package com.seagate.kinetic.tools.management.cli.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.seagate.kinetic.tools.management.common.util.MessageUtil;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
+import com.seagate.kinetic.tools.management.rest.message.DeviceStatus;
+import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
 
 public class Report {
     private static final String EMPTY = "";
@@ -36,8 +44,6 @@ public class Report {
     public synchronized void reportFailure(KineticDevice device, String msg) {
         if (msg != null) {
             failed.put(device, msg);
-            System.out.println("[Failed]" + KineticDevice.toJson(device) + "\n"
-                    + msg);
         } else {
             failed.put(device, EMPTY);
         }
@@ -46,7 +52,6 @@ public class Report {
     public synchronized void reportSuccess(KineticDevice device, String msg) {
         if (msg != null) {
             succeed.put(device, msg);
-            System.out.println("[Succeed]" + KineticDevice.toJson(device));
         } else {
             failed.put(device, EMPTY);
         }
@@ -82,27 +87,68 @@ public class Report {
         additionMessages.put(device, msg);
     }
 
+    private DeviceId initDevice(KineticDevice kineticDevice) {
+        DeviceId device;
+        String[] ips;
+        device = new DeviceId();
+        device.setPort(kineticDevice.getPort());
+        device.setTlsPort(kineticDevice.getTlsPort());
+        device.setWwn(kineticDevice.getWwn());
+        ips = new String[kineticDevice.getInet4().size()];
+        ips = kineticDevice.getInet4().toArray(ips);
+        device.setIps(ips);
+        return device;
+    }
+
+    public void persistReport(String reportAsString, String dst)
+            throws IOException {
+        FileOutputStream fos = new FileOutputStream(new File(dst));
+        fos.write(reportAsString.getBytes());
+        fos.flush();
+        fos.close();
+
+        System.out.println("Result has been persisted to " + dst);
+    }
+
+    public void persistReport(RestResponseWithStatus response, String dst,
+            int failureRespCode) throws IOException {
+        persistReport(formatReportAsRestOutput(response, failureRespCode), dst);
+    }
+
+    public String formatReportAsRestOutput(RestResponseWithStatus response,
+            int failureRespCode) {
+        List<DeviceStatus> respDevices = new ArrayList<DeviceStatus>();
+        DeviceId device = null;
+        DeviceStatus dstatus = null;
+
+        for (KineticDevice kineticDevice : getSucceedDevices()) {
+            device = initDevice(kineticDevice);
+            dstatus = new DeviceStatus();
+            dstatus.setDevice(device);
+            respDevices.add(dstatus);
+        }
+
+        for (KineticDevice kineticDevice : getFailedDevices()) {
+            device = initDevice(kineticDevice);
+            dstatus = new DeviceStatus();
+            dstatus.setDevice(device);
+            dstatus.setStatus(failureRespCode);
+            respDevices.add(dstatus);
+        }
+
+        response.setDevices(respDevices);
+
+        return MessageUtil.toJson(response);
+    }
+
     void printSummary() {
         int failedDevices = failed.size();
         int succeedDevices = succeed.size();
         int totalDevices = (null == devices ? (failedDevices + succeedDevices)
                 : devices.size());
 
-        if (succeedDevices > 0) {
-            System.out.println("\nSucceed:");
-            for (KineticDevice device : succeed.keySet()) {
-                System.out.println(KineticDevice.toJson(device));
-            }
-        }
-
-        if (failedDevices > 0) {
-            System.out.println("\nFailed:");
-            for (KineticDevice device : failed.keySet()) {
-                System.out.println(KineticDevice.toJson(device));
-            }
-        }
-
         System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
                 + succeedDevices + "/" + failedDevices + ")\n");
     }
+
 }
