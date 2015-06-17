@@ -81,6 +81,8 @@ import urwid   # python console user interface library
 #https://github.com/Seagate/kinetic-py-tools/blob/master/scripts/update.py
 
 
+SHELL_NAME                 = "bash"
+
 PATH_DISCOVERED_FILES      = "discovered_drives.txt"
 
 PROGRAM_NAME               = "Kinetic Tool"
@@ -269,7 +271,7 @@ def display_output_lines(title, output_lines):
 #####################################################################
 def drive_ping(drive):
     #TODO: change this to use NOOP
-    cmd = "sh %s/kineticAdmin.sh -getlog -type limits -host %s" % (path_kinetic_java_client, drive)
+    cmd = "%s %s/kineticAdmin.sh -getlog -type limits -host %s" % (SHELL_NAME, path_kinetic_java_client, drive)
     rc, output = run_command(cmd, "Drive Ping")
     if rc == 0 and len(output) > 0:
         return True
@@ -626,7 +628,7 @@ def log_capacity(button):
             return
 
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -getlog -type capacity -host %s" % (path_kinetic_java_client, host)
+        cmd = "%s %s/kineticAdmin.sh -getlog -type capacity -host %s" % (SHELL_NAME, path_kinetic_java_client, host)
         rc, output = run_command(cmd, "Drive Capacity")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -651,7 +653,7 @@ def log_config(button):
             return
 
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -getlog -type configuration -host %s" % (path_kinetic_java_client, host)
+        cmd = "%s %s/kineticAdmin.sh -getlog -type configuration -host %s" % (SHELL_NAME, path_kinetic_java_client, host)
         rc, output = run_command(cmd, "Drive Config")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -676,7 +678,7 @@ def log_limits(button):
             return
 
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -getlog -type limits -host %s" % (path_kinetic_java_client, host)
+        cmd = "%s %s/kineticAdmin.sh -getlog -type limits -host %s" % (SHELL_NAME, path_kinetic_java_client, host)
         rc, output = run_command(cmd, "Drive Limits")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -701,7 +703,7 @@ def log_messages(button):
             return
 
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -getlog -type message -host %s" % (path_kinetic_java_client, host)
+        cmd = "%s %s/kineticAdmin.sh -getlog -type message -host %s" % (SHELL_NAME, path_kinetic_java_client, host)
         rc, output = run_command(cmd, "Drive Messages")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -726,7 +728,7 @@ def log_statistics(button):
             return
 
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -getlog -type statistic -host %s" % (path_kinetic_java_client, host)
+        cmd = "%s %s/kineticAdmin.sh -getlog -type statistic -host %s" % (SHELL_NAME, path_kinetic_java_client, host)
         rc, output = run_command(cmd, "Drive Stats")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -751,7 +753,7 @@ def log_temperatures(button):
             return
 
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -getlog -type temperature -host %s" % (path_kinetic_java_client, host)
+        cmd = "%s %s/kineticAdmin.sh -getlog -type temperature -host %s" % (SHELL_NAME, path_kinetic_java_client, host)
         rc, output = run_command(cmd, "Drive Temperatures")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -776,7 +778,7 @@ def log_utilizations(button):
             return
 
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -getlog -type utilization -host %s" % (path_kinetic_java_client, host)
+        cmd = "%s %s/kineticAdmin.sh -getlog -type utilization -host %s" % (SHELL_NAME, path_kinetic_java_client, host)
         rc, output = run_command(cmd, "Drive Utilizations")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -931,7 +933,7 @@ def admin_lock_device(button):
 
         lock_pin = form_values[fld_pin]
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -lockdevice -host %s -pin %s" % (path_kinetic_java_client, host, lock_pin)
+        cmd = "%s %s/kineticAdmin.sh -lockdevice -host %s -pin %s" % (SHELL_NAME, path_kinetic_java_client, host, lock_pin)
         rc, output = run_command(cmd, "Lock Device")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -960,7 +962,7 @@ def admin_unlock_device(button):
 
         unlock_pin = form_values[fld_pin]
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -unlockdevice -host %s -pin %s" % (path_kinetic_java_client, host, unlock_pin)
+        cmd = "%s %s/kineticAdmin.sh -unlockdevice -host %s -pin %s" % (SHELL_NAME, path_kinetic_java_client, host, unlock_pin)
         rc, output = run_command(cmd, "Unlock Device")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -989,7 +991,7 @@ def admin_instant_erase(button):
 
         erase_pin = form_values[fld_pin]
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -instanterase -host %s -pin %s" % (path_kinetic_java_client, host, erase_pin)
+        cmd = "%s %s/kineticAdmin.sh -instanterase -host %s -pin %s" % (SHELL_NAME, path_kinetic_java_client, host, erase_pin)
         rc, output = run_command(cmd, "Drive Instant Erase")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -1018,7 +1020,7 @@ def admin_secure_erase(button):
 
         erase_pin = form_values[fld_pin]
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -secureerase -host %s -pin %s" % (path_kinetic_java_client, host, erase_pin)
+        cmd = "%s %s/kineticAdmin.sh -secureerase -host %s -pin %s" % (SHELL_NAME, path_kinetic_java_client, host, erase_pin)
         rc, output = run_command(cmd, "Drive Secure Erase")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -1047,7 +1049,7 @@ def admin_set_cluster_version(button):
 
         new_version = form_values[fld_version]
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -setclusterversion -host %s -newclversion %s" % (path_kinetic_java_client, host, new_version)
+        cmd = "%s %s/kineticAdmin.sh -setclusterversion -host %s -newclversion %s" % (SHELL_NAME, path_kinetic_java_client, host, new_version)
         rc, output = run_command(cmd, "Drive Set Cluster Version")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -1078,7 +1080,7 @@ def admin_update_firmware(button):
         host = form_values[fld_host]
 
         # we also have a python utility for firmware updates
-        cmd = "sh %s/kineticAdmin.sh -firmware %s -host %s" % (path_kinetic_java_client, firmware_file, host)
+        cmd = "%s %s/kineticAdmin.sh -firmware %s -host %s" % (SHELL_NAME, path_kinetic_java_client, firmware_file, host)
 
         rc, output = run_command(cmd, "Update Drive Firmware")
         if rc == 0 and len(output) > 0:
@@ -1108,7 +1110,7 @@ def sec_set_acl(button):
 
         sec_file = form_values[fld_sec_file]
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -security %s -host %s" % (path_kinetic_java_client, sec_file, host)
+        cmd = "%s %s/kineticAdmin.sh -security %s -host %s" % (SHELL_NAME, path_kinetic_java_client, sec_file, host)
         rc, output = run_command(cmd, "Set Drive Security")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -1140,7 +1142,7 @@ def sec_set_erase_pin(button):
         old_pin = form_values[fld_old_pin]
         new_pin = form_values[fld_new_pin]
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -seterasepin -host %s -olderasepin %s -newerasepin %s" % (path_kinetic_java_client, host, old_pin, new_pin)
+        cmd = "%s %s/kineticAdmin.sh -seterasepin -host %s -olderasepin %s -newerasepin %s" % (SHELL_NAME, path_kinetic_java_client, host, old_pin, new_pin)
         rc, output = run_command(cmd, "Set Erase PIN")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -1173,7 +1175,7 @@ def sec_set_lock_pin(button):
         old_pin = form_values[fld_old_pin]
         new_pin = form_values[fld_new_pin]
         host = form_values[fld_host]
-        cmd = "sh %s/kineticAdmin.sh -setlockpin -host %s -oldlockpin %s -newlockpin %s" % (path_kinetic_java_client, host, old_pin, new_pin)
+        cmd = "%s %s/kineticAdmin.sh -setlockpin -host %s -oldlockpin %s -newlockpin %s" % (SHELL_NAME, path_kinetic_java_client, host, old_pin, new_pin)
         rc, output = run_command(cmd, "Set Lock PIN")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -1198,7 +1200,7 @@ def clstr_discover(button):
         tmp_prefix = ""
 
     drives_file = tmp_prefix + PATH_DISCOVERED_FILES 
-    cmd = "sh %s/ktool.sh -discover -out %s" % (path_kinetic_java_tools, drives_file)
+    cmd = "%s %s/ktool.sh -discover -out %s" % (SHELL_NAME, path_kinetic_java_tools, drives_file)
     rc, output = run_command(cmd, "Discover Drives")
     if rc == 0 and len(output) > 0:
         output_lines = filter_java_output(output.split('\n'))
@@ -1292,7 +1294,7 @@ def clstr_firmware_ver(button):
             return
 
         firm_ver = form_values[fld_firm_ver]
-        cmd = "sh %s/ktool.sh -checkversion -v %s -in %s" % (path_kinetic_java_tools, firm_ver, cluster_drive_file)
+        cmd = "%s %s/ktool.sh -checkversion -v %s -in %s" % (SHELL_NAME, path_kinetic_java_tools, firm_ver, cluster_drive_file)
         rc, output = run_command(cmd, "Check Cluster Firmware")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -1339,7 +1341,7 @@ def clstr_set_version(button):
 
         #TODO: add optional arguments for setclusterversion
 
-        cmd = "sh %s/ktool.sh -setclusterversion -clversion %s -in %s" % (path_kinetic_java_tools, new_ver, cluster_drive_file)
+        cmd = "%s %s/ktool.sh -setclusterversion -clversion %s -in %s" % (SHELL_NAME, path_kinetic_java_tools, new_ver, cluster_drive_file)
         rc, output = run_command(cmd, "Set Cluster Version")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
@@ -1380,7 +1382,7 @@ def clstr_instant_erase(button):
         #TODO: add optional arguments for cluster instanterase
         timeout_millis = 180000
 
-        cmd = "sh %s/ktool.sh -instanterase -pin %s -in %s -reqtimeout %d" % (path_kinetic_java_tools, erase_pin, cluster_drive_file, timeout_millis)
+        cmd = "%s %s/ktool.sh -instanterase -pin %s -in %s -reqtimeout %d" % (SHELL_NAME, path_kinetic_java_tools, erase_pin, cluster_drive_file, timeout_millis)
         rc, output = run_command(cmd, "Cluster Instant Erase")
         if rc == 0 and len(output) > 0:
             output_lines = filter_java_output(output.split('\n'))
