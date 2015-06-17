@@ -17,17 +17,19 @@
  */
 package com.seagate.kinetic.tools.management.cli.impl;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import kinetic.admin.Device;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
 import com.seagate.kinetic.tools.management.common.util.MessageUtil;
+import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
 
 public class GetVendorSpecificDeviceLog extends AbstractCommand {
     private byte[] vendorSpecificName;
@@ -82,13 +84,6 @@ public class GetVendorSpecificDeviceLog extends AbstractCommand {
         return sb.toString();
     }
 
-    private void persist2File(String sb) throws IOException {
-        FileOutputStream fos = new FileOutputStream(outputFilePath);
-        fos.write(sb.getBytes("UTF-8"));
-        fos.flush();
-        fos.close();
-    }
-
     class getVendorSpecificDeviceLogThread extends AbstractWorkThread {
         private byte[] vendorSpecificName;
 
@@ -128,11 +123,12 @@ public class GetVendorSpecificDeviceLog extends AbstractCommand {
     @Override
     public void done() throws KineticToolsException {
         super.done();
+        RestResponseWithStatus response = new RestResponseWithStatus();
         try {
-            persist2File(sb.toString());
+            report.persistReport(response, outputFilePath,
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } catch (IOException e) {
             throw new KineticToolsException(e);
         }
-        System.out.println("Save logs to " + outputFilePath + " completed.");
     }
 }

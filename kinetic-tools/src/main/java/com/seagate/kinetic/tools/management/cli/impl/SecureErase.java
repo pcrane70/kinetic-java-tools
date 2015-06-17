@@ -22,9 +22,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
 
 public class SecureErase extends AbstractCommand {
     private byte[] erasePin;
@@ -49,7 +52,6 @@ public class SecureErase extends AbstractCommand {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        System.out.println("Start secure erase...");
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         for (KineticDevice device : devices) {
             threads.add(new secureEraseThread(device, erasePin));
@@ -82,6 +84,19 @@ public class SecureErase extends AbstractCommand {
         try {
             secureErase();
         } catch (Exception e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    @Override
+    public void done() throws KineticToolsException {
+        super.done();
+        SetErasePinResponse response = new SetErasePinResponse();
+        try {
+            report.persistReport(response,
+                    "secureerase_" + System.currentTimeMillis(),
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } catch (IOException e) {
             throw new KineticToolsException(e);
         }
     }

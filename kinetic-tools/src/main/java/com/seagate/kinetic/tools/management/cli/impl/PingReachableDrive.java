@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.admin.KineticAdminClientFactory;
 import kinetic.client.ConnectionListener;
 import kinetic.client.KineticException;
@@ -35,6 +37,7 @@ import com.seagate.kinetic.common.lib.KineticMessage;
 import com.seagate.kinetic.proto.Kinetic.Command.GetLog.Configuration;
 import com.seagate.kinetic.proto.Kinetic.Command.GetLog.Configuration.Interface;
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
 
 public class PingReachableDrive extends AbstractCommand {
     private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -250,49 +253,28 @@ public class PingReachableDrive extends AbstractCommand {
     @Override
     public void done() throws KineticToolsException {
         List<KineticDevice> reachableDevices = report.getSucceedDevices();
+
         if (null == subnetPrefix) {
-            int totalDevices = devices.size();
-            int failedDevices = report.getFailedDevices().size();
-            int succeedDevices = reachableDevices.size();
-
-            assert (failedDevices + succeedDevices == totalDevices);
-
-            if (failedDevices > 0) {
-                System.out.println("\nThe following devices ping failed:");
-                for (KineticDevice device : report.getFailedDevices()) {
-                    System.out.println(KineticDevice.toJson(device));
-                }
+            super.done();
+            try {
+                PingResponse response = new PingResponse();
+                report.persistReport(response,
+                        "ping_" + System.currentTimeMillis(),
+                        HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            } catch (IOException e) {
+                throw new KineticToolsException(e);
             }
-
-            if (succeedDevices > 0) {
-                System.out.println("\nThe following devices ping succeed:");
-                for (KineticDevice device : reachableDevices) {
-                    System.out.println(KineticDevice.toJson(device));
-                }
-
-                System.out.println("\nDiscovered " + succeedDevices
-                        + " drives online, persist drives info in "
-                        + driveListOutputFile);
-            }
-
-            System.out.println("\nTotal(Succeed/Failed): " + totalDevices + "("
-                    + succeedDevices + "/" + failedDevices + ")\n");
         } else {
             if (reachableDevices.size() > 0) {
-                for (KineticDevice device : reachableDevices) {
-                    System.out.println(KineticDevice.toJson(device));
-                }
-
                 System.out.println("\nDiscovered " + reachableDevices.size()
                         + " drives via subnet: " + subnetPrefix
                         + ", persist drives info in " + driveListOutputFile);
             }
-        }
-
-        try {
-            persistToFile(reachableDevices, driveListOutputFile);
-        } catch (Exception e) {
-            throw new KineticToolsException(e);
+            try {
+                persistToFile(reachableDevices, driveListOutputFile);
+            } catch (Exception e) {
+                throw new KineticToolsException(e);
+            }
         }
     }
 }

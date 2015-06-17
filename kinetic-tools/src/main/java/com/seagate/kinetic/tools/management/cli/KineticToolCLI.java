@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,6 +81,9 @@ public class KineticToolCLI {
     private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+    private static final Logger logger = Logger.getLogger(KineticToolCLI.class
+            .getName());
+
     private final Map<String, List<String>> legalArguments = new HashMap<String, List<String>>();
 
     public KineticToolCLI() throws KineticException {
@@ -367,10 +371,8 @@ public class KineticToolCLI {
                     System.out.println("Discovering devices..., please wait "
                             + timeout + "s" + "\n");
                     TimeUnit.SECONDS.sleep(timeout);
-                    System.out
-                            .println(DeviceDiscovery.persistToFile(
-                                    deviceDiscovery.listDevices(),
-                                    driveListOutputFile));
+                    logger.info(DeviceDiscovery.persistToFile(
+                            deviceDiscovery.listDevices(), driveListOutputFile));
 
                     System.out.println("Discovered "
                             + deviceDiscovery.listDevices().size()
@@ -489,9 +491,6 @@ public class KineticToolCLI {
                 logOutputFile = logOutputFile == null ? DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE
                         + "_" + String.valueOf(System.currentTimeMillis())
                         : logOutputFile;
-
-                String logType = kineticToolCLI.getArgValue("-type", args);
-                logType = logType == null ? DEFAULT_GET_LOG_TYPE : logType;
 
                 invoker.execute(new GetVendorSpecificDeviceLog(
                         vendorspecificname, driveListInputFile, logOutputFile,

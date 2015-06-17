@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.admin.Capacity;
 import kinetic.admin.Configuration;
 import kinetic.admin.KineticAdminClient;
@@ -36,6 +38,10 @@ import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
 import com.seagate.kinetic.tools.management.common.util.MessageUtil;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
+import com.seagate.kinetic.tools.management.rest.message.DeviceStatus;
+import com.seagate.kinetic.tools.management.rest.message.getlog.DeviceLog;
+import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
 
 public class GetLog extends AbstractCommand {
     private static final String ALL = "all";
@@ -48,6 +54,7 @@ public class GetLog extends AbstractCommand {
     private static final String LIMITS = "limits";
     private String logOutFile;
     private String logType;
+    private KineticLogType kineticLogType;
 
     public GetLog(String nodesLogFile, String logOutFile, String logType,
             boolean useSsl, long clusterVersion, long identity, String key,
@@ -63,8 +70,6 @@ public class GetLog extends AbstractCommand {
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
-
-        System.out.println("Start getting and storing log......");
 
         sb.append("[\n");
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
@@ -93,21 +98,29 @@ public class GetLog extends AbstractCommand {
         sb.append(",\n");
         sb.append("    \"log\": ");
         if (logType.equalsIgnoreCase(ALL)) {
+            kineticLogType = null;
             MyKineticLog myLog = new MyKineticLog(log);
             jsonLog = MessageUtil.toJson(myLog);
         } else if (logType.equalsIgnoreCase(UTILIZATION)) {
+            kineticLogType = KineticLogType.UTILIZATIONS;
             jsonLog = MessageUtil.toJson(log.getUtilization());
         } else if (logType.equalsIgnoreCase(CAPACITY)) {
+            kineticLogType = KineticLogType.CAPACITIES;
             jsonLog = MessageUtil.toJson(log.getCapacity());
         } else if (logType.equalsIgnoreCase(TEMPERATURE)) {
+            kineticLogType = KineticLogType.TEMPERATURES;
             jsonLog = MessageUtil.toJson(log.getTemperature());
         } else if (logType.equalsIgnoreCase(CONFIGURATION)) {
+            kineticLogType = KineticLogType.CONFIGURATION;
             jsonLog = MessageUtil.toJson(log.getConfiguration());
         } else if (logType.equalsIgnoreCase(MESSAGES)) {
+            kineticLogType = KineticLogType.MESSAGES;
             jsonLog = new String(log.getMessages());
         } else if (logType.equalsIgnoreCase(STATISTICS)) {
+            kineticLogType = KineticLogType.STATISTICS;
             sb.append(MessageUtil.toJson(log.getStatistics()));
         } else if (logType.equalsIgnoreCase(LIMITS)) {
+            kineticLogType = KineticLogType.LIMITS;
             sb.append(MessageUtil.toJson(log.getLimits()));
         } else {
             throw new IllegalArgumentException(
@@ -264,6 +277,95 @@ public class GetLog extends AbstractCommand {
     @Override
     public void done() throws KineticToolsException {
         super.done();
-        System.out.println("Save logs to " + logOutFile + " completed.");
+        GetLogResponse response = new GetLogResponse();
+        List<DeviceLog> deviceLogs = new ArrayList<DeviceLog>();
+        for (KineticDevice kineticDevice : report.getSucceedDevices()) {
+            try {
+                addToDeviceLog(report, deviceLogs, kineticDevice,
+                        kineticLogType, HttpServletResponse.SC_OK);
+            } catch (KineticException e) {
+                throw new KineticToolsException(e);
+            }
+        }
+
+        for (KineticDevice kineticDevice : report.getFailedDevices()) {
+            try {
+                addToDeviceLog(report, deviceLogs, kineticDevice,
+                        kineticLogType,
+                        HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            } catch (KineticException e) {
+                throw new KineticToolsException(e);
+            }
+        }
+
+        response.setDeviceLogs(deviceLogs);
+        try {
+            report.persistReport(MessageUtil.toJson(response), logOutFile);
+        } catch (IOException e) {
+            throw new KineticToolsException(e);
+        }
+    }
+
+    private void addToDeviceLog(Report report, List<DeviceLog> deviceLogs,
+            KineticDevice kineticDevice, KineticLogType type, int responseCode)
+            throws KineticException {
+        DeviceId device;
+        DeviceStatus dstatus;
+        DeviceLog deviceLog;
+        KineticLog myKineticLog = (KineticLog) report
+                .getAdditionMessage(kineticDevice);
+        device = initDevice(kineticDevice);
+        deviceLog = new DeviceLog();
+        dstatus = new DeviceStatus();
+        dstatus.setDevice(device);
+
+        if (null != myKineticLog) {
+            if (null == type) {
+                setAllLogTypes(deviceLog, myKineticLog);
+            } else {
+                switch (type) {
+                case UTILIZATIONS:
+                    deviceLog.setUtilization(myKineticLog.getUtilization());
+                    break;
+                case TEMPERATURES:
+                    deviceLog.setTemperature(myKineticLog.getTemperature());
+                    break;
+                case CAPACITIES:
+                    deviceLog.setCapacity(myKineticLog.getCapacity());
+                    break;
+                case CONFIGURATION:
+                    deviceLog.setConfiguration(myKineticLog.getConfiguration());
+                    break;
+                case STATISTICS:
+                    deviceLog.setStatistics(myKineticLog.getStatistics());
+                    break;
+                case MESSAGES:
+                    deviceLog.setMessages(myKineticLog.getMessages());
+                    break;
+                case LIMITS:
+                    deviceLog.setLimits(myKineticLog.getLimits());
+                    break;
+                case DEVICE:
+                    break;
+                default:
+                    setAllLogTypes(deviceLog, myKineticLog);
+                }
+            }
+        }
+
+        deviceLog.setDeviceStatus(dstatus);
+        deviceLogs.add(deviceLog);
+    }
+
+    private void setAllLogTypes(DeviceLog deviceLog, KineticLog myKineticLog)
+            throws KineticException {
+        deviceLog.setCapacity(myKineticLog.getCapacity());
+        deviceLog.setConfiguration(myKineticLog.getConfiguration());
+        deviceLog.setLimits(myKineticLog.getLimits());
+        deviceLog.setMessages(myKineticLog.getMessages());
+        deviceLog.setStatistics(myKineticLog.getStatistics());
+        deviceLog.setContainedLogTypes(myKineticLog.getContainedLogTypes());
+        deviceLog.setTemperature(myKineticLog.getTemperature());
+        deviceLog.setUtilization(myKineticLog.getUtilization());
     }
 }

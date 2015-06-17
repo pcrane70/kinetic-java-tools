@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.admin.ACL;
 import kinetic.admin.Domain;
 import kinetic.client.KineticException;
@@ -33,6 +35,7 @@ import com.seagate.kinetic.admin.impl.JsonUtil;
 import com.seagate.kinetic.proto.Kinetic.Command.Security;
 import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
 
 public class SetSecurity extends AbstractCommand {
     private String security;
@@ -98,7 +101,6 @@ public class SetSecurity extends AbstractCommand {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        System.out.println("Start set security...");
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         for (KineticDevice device : devices) {
             threads.add(new SetSecurityThread(device, aclList));
@@ -133,6 +135,18 @@ public class SetSecurity extends AbstractCommand {
         } catch (Exception e) {
             throw new KineticToolsException(e);
         }
+    }
 
+    @Override
+    public void done() throws KineticToolsException {
+        super.done();
+        RestResponseWithStatus response = new RestResponseWithStatus();
+        try {
+            report.persistReport(response,
+                    "setsecurity_" + System.currentTimeMillis(),
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } catch (IOException e) {
+            throw new KineticToolsException(e);
+        }
     }
 }

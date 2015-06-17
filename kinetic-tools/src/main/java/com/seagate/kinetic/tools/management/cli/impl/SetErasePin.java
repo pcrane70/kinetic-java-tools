@@ -22,9 +22,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
 
 public class SetErasePin extends AbstractCommand {
     private byte[] oldErasePin;
@@ -55,7 +58,6 @@ public class SetErasePin extends AbstractCommand {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        System.out.println("Start set erase pin...");
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         for (KineticDevice device : devices) {
             threads.add(new SetErasePinThread(device, oldErasePin, newErasePin));
@@ -92,6 +94,18 @@ public class SetErasePin extends AbstractCommand {
         } catch (Exception e) {
             throw new KineticToolsException(e);
         }
+    }
 
+    @Override
+    public void done() throws KineticToolsException {
+        super.done();
+        SetErasePinResponse response = new SetErasePinResponse();
+        try {
+            report.persistReport(response,
+                    "seterasepin_" + System.currentTimeMillis(),
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        } catch (IOException e) {
+            throw new KineticToolsException(e);
+        }
     }
 }
