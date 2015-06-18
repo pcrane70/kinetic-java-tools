@@ -135,6 +135,9 @@ public class DefaultRestBridgeService implements RestBridgeService {
                 break;
             default:
                 response = new ErrorResponse();
+                ((ErrorResponse) response)
+                        .setErrorCode(HttpServletResponse.SC_NOT_FOUND);
+                response.setOverallStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (NumberFormatException e) {
             response = new ErrorResponse();

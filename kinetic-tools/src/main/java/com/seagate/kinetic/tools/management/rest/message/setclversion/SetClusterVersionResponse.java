@@ -15,16 +15,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message;
+package com.seagate.kinetic.tools.management.rest.message.setclversion;
 
-/**
- * Rest messaging message type definition.
- * 
- * @author chiaming
- *
- */
-public enum MessageType {
+import com.seagate.kinetic.tools.management.rest.message.MessageType;
+import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
 
-    DISCOVER, DISCOVER_REPLY, PING, PING_REPLY, GETLOG, GETLOG_REPLY, CHECKVERSION, CHECKVERSION_REPLY, SET_ERASEPIN, SET_ERASEPIN_REPLY, SET_LOCKPIN, SET_LOCKPIN_REPLY, INSTANT_ERASE, INSTANT_ERASE_REPLY, SECURE_ERASE, SECURE_ERASE_REPLY, LOCK_DEVICE, LOCK_DEVICE_REPLY, UNLOCK_DEVICE, UNLOCK_DEVICE_REPLY, SET_CLVERSION, SET_CLVERSION_REPLY, ERROR;
+public class SetClusterVersionResponse extends RestResponseWithStatus {
+
+    public SetClusterVersionResponse() {
+        setMessageType(MessageType.SET_CLVERSION_REPLY);
+    }
 
 }

@@ -63,6 +63,8 @@ public class HandlerMap {
 
     public static final String UNLOCKDEVICE = "/unlockdevice";
 
+    public static final String SETCLUSTERVERSION = "/setclusterversion";
+
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
     
@@ -83,6 +85,8 @@ public class HandlerMap {
         hmap.put(LOCKDEVICE, new LockDeviceHandler());
 
         hmap.put(UNLOCKDEVICE, new UnLockDeviceHandler());
+
+        hmap.put(SETCLUSTERVERSION, new SetClusterVersionHandler());
     }
 
     /**

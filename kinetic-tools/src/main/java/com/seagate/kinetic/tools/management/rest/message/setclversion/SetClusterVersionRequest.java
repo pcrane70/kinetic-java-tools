@@ -15,41 +15,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message;
+package com.seagate.kinetic.tools.management.rest.message.setclversion;
 
-import javax.servlet.http.HttpServletResponse;
+import com.seagate.kinetic.tools.management.rest.message.MessageType;
+import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 
-/**
- * Error response message.
- * 
- * @author chiaming
- *
- */
-public class ErrorResponse extends RestResponse {
-    
-    private int errorCode = javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+public class SetClusterVersionRequest extends RestRequest {
 
-    private String errorMessage = "Unsupported request";
+    private int newClversion = 0;
 
-    public ErrorResponse() {
-        setMessageType(MessageType.ERROR);
-        setOverallStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    public SetClusterVersionRequest() {
+        setMessageType(MessageType.SET_CLVERSION);
     }
 
-    public void setErrorCode(int code) {
-        this.errorCode = code;
+    public void setNewClversion(int clversion) {
+        this.newClversion = clversion;
     }
 
-    public int getErrorCode() {
-        return this.errorCode;
-    }
-
-    public void setErrorMessage(String msg) {
-        this.errorMessage = msg;
-    }
-
-    public String getErrorMessage() {
-        return this.errorMessage;
+    public int getNewClversion() {
+        return this.newClversion;
     }
 
 }
