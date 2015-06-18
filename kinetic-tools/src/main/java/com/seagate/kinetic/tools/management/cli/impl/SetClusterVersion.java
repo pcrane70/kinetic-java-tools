@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
-import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
+import com.seagate.kinetic.tools.management.rest.message.setclversion.SetClusterVersionResponse;
 
 public class SetClusterVersion extends AbstractCommand {
     private long newClusterVersion;
@@ -84,7 +84,7 @@ public class SetClusterVersion extends AbstractCommand {
     @Override
     public void done() throws KineticToolsException {
         super.done();
-        RestResponseWithStatus response = new RestResponseWithStatus();
+        SetClusterVersionResponse response = new SetClusterVersionResponse();
         try {
             String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator

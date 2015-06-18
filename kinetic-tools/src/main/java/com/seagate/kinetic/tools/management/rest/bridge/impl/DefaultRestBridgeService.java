@@ -40,6 +40,7 @@ import com.seagate.kinetic.tools.management.cli.impl.LockDevice;
 import com.seagate.kinetic.tools.management.cli.impl.PingReachableDrive;
 import com.seagate.kinetic.tools.management.cli.impl.Report;
 import com.seagate.kinetic.tools.management.cli.impl.SecureErase;
+import com.seagate.kinetic.tools.management.cli.impl.SetClusterVersion;
 import com.seagate.kinetic.tools.management.cli.impl.SetErasePin;
 import com.seagate.kinetic.tools.management.cli.impl.SetLockPin;
 import com.seagate.kinetic.tools.management.cli.impl.UnLockDevice;
@@ -69,6 +70,8 @@ import com.seagate.kinetic.tools.management.rest.message.lockdevice.UnLockDevice
 import com.seagate.kinetic.tools.management.rest.message.lockdevice.UnLockDeviceResponse;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingRequest;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
+import com.seagate.kinetic.tools.management.rest.message.setclversion.SetClusterVersionRequest;
+import com.seagate.kinetic.tools.management.rest.message.setclversion.SetClusterVersionResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinRequest;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinRequest;
@@ -132,6 +135,10 @@ public class DefaultRestBridgeService implements RestBridgeService {
                 break;
             case UNLOCK_DEVICE:
                 response = this.unLockDevice((UnLockDeviceRequest) request);
+                break;
+            case SET_CLVERSION:
+                response = this
+                        .setClusterVersion((SetClusterVersionRequest) request);
                 break;
             default:
                 response = new ErrorResponse();
@@ -394,7 +401,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
         return device;
     }
 
-    public RestResponse checkVersion(CheckVersionRequest request)
+    private RestResponse checkVersion(CheckVersionRequest request)
             throws NumberFormatException, IOException {
         CheckVersionResponse response = new CheckVersionResponse();
 
@@ -545,6 +552,27 @@ public class DefaultRestBridgeService implements RestBridgeService {
         execCommandAndSetResp(
                 response,
                 new UnLockDevice(discoId, request.getPin(),
+                        request.getUseSsl(), request.getClversion(), Long
+                                .parseLong(request.getIdentity()), request
+                                .getKey(), request.getRequestTimeout()),
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+
+        return response;
+    }
+
+    private RestResponse setClusterVersion(SetClusterVersionRequest request)
+            throws NumberFormatException, IOException {
+        SetClusterVersionResponse response = new SetClusterVersionResponse();
+        String discoId = request.getDiscoId();
+        if (discoId == null || discoId.isEmpty()) {
+            response.setDevices(null);
+            return response;
+        }
+
+        execCommandAndSetResp(
+                response,
+                new SetClusterVersion(
+                        String.valueOf(request.getNewClversion()), discoId,
                         request.getUseSsl(), request.getClversion(), Long
                                 .parseLong(request.getIdentity()), request
                                 .getKey(), request.getRequestTimeout()),
