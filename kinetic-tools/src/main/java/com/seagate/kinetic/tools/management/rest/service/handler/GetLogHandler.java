@@ -34,9 +34,14 @@ public class GetLogHandler extends GenericServiceHandler implements
                 request.setUseSsl(Boolean.parseBoolean(useSsl[0]));
             }
 
-            String[] type = params.get("logtype");
+            String[] type = params.get("type");
             if (type != null) {
                 request.setLogType(KineticLogType.valueOf(type[0].toUpperCase()));
+            }
+
+            String[] name = params.get("name");
+            if (name != null) {
+                request.setName((name[0].toUpperCase()));
             }
         }
     }

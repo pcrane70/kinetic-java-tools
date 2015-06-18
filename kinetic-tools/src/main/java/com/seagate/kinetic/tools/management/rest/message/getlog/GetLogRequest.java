@@ -29,7 +29,7 @@ import com.seagate.kinetic.tools.management.rest.message.RestRequest;
  */
 public class GetLogRequest extends RestRequest {
 
-    private KineticLogType logType = null;
+    private KineticLogType type = null;
 
     /**
      * Vendor specific log name. The <code>KineticLogType</code> must be set to
@@ -42,11 +42,11 @@ public class GetLogRequest extends RestRequest {
     }
 
     public void setLogType(KineticLogType type) {
-        this.logType = type;
+        this.type = type;
     }
 
     public KineticLogType getLogType() {
-        return this.logType;
+        return this.type;
     }
 
     public void setName(String name) {
