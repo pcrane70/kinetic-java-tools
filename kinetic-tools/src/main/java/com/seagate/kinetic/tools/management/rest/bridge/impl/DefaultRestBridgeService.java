@@ -168,9 +168,16 @@ public class DefaultRestBridgeService implements RestBridgeService {
             return response;
         }
 
+        String type = null;
+        if (null == request.getLogType()) {
+            type = ALL;
+        } else {
+            type = request.getLogType().toString();
+        }
+
         Invoker invoker = new DefaultCommandInvoker();
         Report report = invoker.execute(new GetLog(discoId,
-                GETLOG_LOG_FILE_PREFIX + System.currentTimeMillis(), ALL,
+                GETLOG_LOG_FILE_PREFIX + System.currentTimeMillis(), type,
                 request.getUseSsl(), request.getClversion(), Long
                         .parseLong(request.getIdentity()), request.getKey(),
                 request.getRequestTimeout()));
@@ -205,35 +212,37 @@ public class DefaultRestBridgeService implements RestBridgeService {
         dstatus = new DeviceStatus();
         dstatus.setDevice(device);
 
-        if (null == type) {
-            setAllLogTypes(deviceLog, myKineticLog);
-        } else {
-            switch (type) {
-            case UTILIZATIONS:
-                deviceLog.setUtilization(myKineticLog.getUtilization());
-                break;
-            case TEMPERATURES:
-                deviceLog.setTemperature(myKineticLog.getTemperature());
-                break;
-            case CAPACITIES:
-                deviceLog.setCapacity(myKineticLog.getCapacity());
-                break;
-            case CONFIGURATION:
-                deviceLog.setConfiguration(myKineticLog.getConfiguration());
-                break;
-            case STATISTICS:
-                deviceLog.setStatistics(myKineticLog.getStatistics());
-                break;
-            case MESSAGES:
-                deviceLog.setMessages(myKineticLog.getMessages());
-                break;
-            case LIMITS:
-                deviceLog.setLimits(myKineticLog.getLimits());
-                break;
-            case DEVICE:
-                break;
-            default:
-                setAllLogTypes(deviceLog, myKineticLog);
+        if (null != myKineticLog) {
+            if (null == type) {
+                setDefaultLogTypes(deviceLog, myKineticLog);
+            } else {
+                switch (type) {
+                case UTILIZATIONS:
+                    deviceLog.setUtilization(myKineticLog.getUtilization());
+                    break;
+                case TEMPERATURES:
+                    deviceLog.setTemperature(myKineticLog.getTemperature());
+                    break;
+                case CAPACITIES:
+                    deviceLog.setCapacity(myKineticLog.getCapacity());
+                    break;
+                case CONFIGURATION:
+                    deviceLog.setConfiguration(myKineticLog.getConfiguration());
+                    break;
+                case STATISTICS:
+                    deviceLog.setStatistics(myKineticLog.getStatistics());
+                    break;
+                case MESSAGES:
+                    deviceLog.setMessages(myKineticLog.getMessages());
+                    break;
+                case LIMITS:
+                    deviceLog.setLimits(myKineticLog.getLimits());
+                    break;
+                case DEVICE:
+                    break;
+                default:
+                    setDefaultLogTypes(deviceLog, myKineticLog);
+                }
             }
         }
 
@@ -241,14 +250,23 @@ public class DefaultRestBridgeService implements RestBridgeService {
         deviceLogs.add(deviceLog);
     }
 
-    private void setAllLogTypes(DeviceLog deviceLog, KineticLog myKineticLog)
+    private void setDefaultLogTypes(DeviceLog deviceLog, KineticLog myKineticLog)
             throws KineticException {
         deviceLog.setCapacity(myKineticLog.getCapacity());
         deviceLog.setConfiguration(myKineticLog.getConfiguration());
         deviceLog.setLimits(myKineticLog.getLimits());
-        deviceLog.setMessages(myKineticLog.getMessages());
         deviceLog.setStatistics(myKineticLog.getStatistics());
-        deviceLog.setContainedLogTypes(myKineticLog.getContainedLogTypes());
+        KineticLogType[] logTypes = myKineticLog.getContainedLogTypes();
+        List<KineticLogType> listOfNewLogType = new ArrayList<KineticLogType>();
+        for (int i = 0; i < logTypes.length; i++) {
+            if (!logTypes[i].equals(KineticLogType.MESSAGES)) {
+                listOfNewLogType.add(logTypes[i]);
+            }
+        }
+        KineticLogType[] arrayOfNewLogType = new KineticLogType[listOfNewLogType
+                .size()];
+        deviceLog.setContainedLogTypes(listOfNewLogType
+                .toArray(arrayOfNewLogType));
         deviceLog.setTemperature(myKineticLog.getTemperature());
         deviceLog.setUtilization(myKineticLog.getUtilization());
     }

@@ -321,7 +321,7 @@ public class GetLog extends AbstractCommand {
 
         if (null != myKineticLog) {
             if (null == type) {
-                setAllLogTypes(deviceLog, myKineticLog);
+                setDefaultLogTypes(deviceLog, myKineticLog);
             } else {
                 switch (type) {
                 case UTILIZATIONS:
@@ -348,7 +348,7 @@ public class GetLog extends AbstractCommand {
                 case DEVICE:
                     break;
                 default:
-                    setAllLogTypes(deviceLog, myKineticLog);
+                    setDefaultLogTypes(deviceLog, myKineticLog);
                 }
             }
         }
@@ -357,14 +357,23 @@ public class GetLog extends AbstractCommand {
         deviceLogs.add(deviceLog);
     }
 
-    private void setAllLogTypes(DeviceLog deviceLog, KineticLog myKineticLog)
+    private void setDefaultLogTypes(DeviceLog deviceLog, KineticLog myKineticLog)
             throws KineticException {
         deviceLog.setCapacity(myKineticLog.getCapacity());
         deviceLog.setConfiguration(myKineticLog.getConfiguration());
         deviceLog.setLimits(myKineticLog.getLimits());
-        deviceLog.setMessages(myKineticLog.getMessages());
         deviceLog.setStatistics(myKineticLog.getStatistics());
-        deviceLog.setContainedLogTypes(myKineticLog.getContainedLogTypes());
+        KineticLogType[] logTypes = myKineticLog.getContainedLogTypes();
+        List<KineticLogType> listOfNewLogType = new ArrayList<KineticLogType>();
+        for (int i = 0; i < logTypes.length; i++) {
+            if (!logTypes[i].equals(KineticLogType.MESSAGES)) {
+                listOfNewLogType.add(logTypes[i]);
+            }
+        }
+        KineticLogType[] arrayOfNewLogType = new KineticLogType[listOfNewLogType
+                .size()];
+        deviceLog.setContainedLogTypes(listOfNewLogType
+                .toArray(arrayOfNewLogType));
         deviceLog.setTemperature(myKineticLog.getTemperature());
         deviceLog.setUtilization(myKineticLog.getUtilization());
     }
