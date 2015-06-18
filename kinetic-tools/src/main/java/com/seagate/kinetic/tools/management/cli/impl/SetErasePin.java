@@ -17,6 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.cli.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -101,8 +102,11 @@ public class SetErasePin extends AbstractCommand {
         super.done();
         SetErasePinResponse response = new SetErasePinResponse();
         try {
-            report.persistReport(response,
-                    "seterasepin_" + System.currentTimeMillis(),
+            String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+            String rootDir = toolHome + File.separator + "out" + File.separator
+                    + "seterasepin_" + System.currentTimeMillis();
+
+            report.persistReport(response, rootDir,
                     HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } catch (IOException e) {
             throw new KineticToolsException(e);

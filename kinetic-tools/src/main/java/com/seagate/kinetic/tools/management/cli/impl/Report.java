@@ -102,7 +102,12 @@ public class Report {
 
     public void persistReport(String reportAsString, String dst)
             throws IOException {
-        FileOutputStream fos = new FileOutputStream(new File(dst));
+        File file = new File(dst);
+        if (file.getParentFile() != null && !file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        FileOutputStream fos = new FileOutputStream(file);
         fos.write(reportAsString.getBytes());
         fos.flush();
         fos.close();

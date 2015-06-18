@@ -64,7 +64,12 @@ public class DeviceDiscovery {
         assert (filePath != null);
         assert (deviceList != null);
 
-        FileOutputStream fos = new FileOutputStream(new File(filePath));
+        File file = new File(filePath);
+        if (file.getParentFile() != null && !file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        FileOutputStream fos = new FileOutputStream(file);
         StringBuffer sb = new StringBuffer();
         for (KineticDevice device : deviceList) {
             sb.append(KineticDevice.toJson(device));

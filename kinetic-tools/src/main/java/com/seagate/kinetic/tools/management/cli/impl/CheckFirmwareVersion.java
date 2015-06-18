@@ -17,6 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.cli.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,10 +125,12 @@ public class CheckFirmwareVersion extends AbstractCommand {
         }
 
         response.setDevices(respDevices);
+        String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+        String rootDir = toolHome + File.separator + "out"
+                + File.separator + "checkversion_" + System.currentTimeMillis();
 
         try {
-            report.persistReport(MessageUtil.toJson(response), "checkversion_"
-                    + System.currentTimeMillis());
+            report.persistReport(MessageUtil.toJson(response), rootDir);
         } catch (IOException e) {
             throw new KineticToolsException(e);
         }

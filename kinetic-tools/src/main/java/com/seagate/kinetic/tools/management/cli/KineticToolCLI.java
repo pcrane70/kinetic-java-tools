@@ -17,6 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.cli;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +82,10 @@ public class KineticToolCLI {
     private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+    private static final String TOOL_HOME = System.getProperty(
+            "KINETIC_TOOLS_HOME", ".");
+    private static final String OUT_PUT_ROOT_DIR = TOOL_HOME + File.separator
+            + "out" + File.separator;
     private static final Logger logger = Logger.getLogger(KineticToolCLI.class
             .getName());
 
@@ -354,7 +359,8 @@ public class KineticToolCLI {
                 String driveDefaultName = DEFAULT_DRIVE_OUTPUT_FILE + "_"
                         + String.valueOf(time);
 
-                driveListOutputFile = driveListOutputFile == null ? driveDefaultName
+                driveListOutputFile = driveListOutputFile == null ? OUT_PUT_ROOT_DIR
+                        + driveDefaultName
                         : driveListOutputFile;
 
                 String subnet = kineticToolCLI.getArgValue("-subnet", args);
@@ -392,7 +398,8 @@ public class KineticToolCLI {
 
                 String driveDefaultName = DEFAULT_PING_SUCCESS_DRIVE_OUTPUT_FILE
                         + "_" + String.valueOf(System.currentTimeMillis());
-                driveListOutputFile = driveListOutputFile == null ? driveDefaultName
+                driveListOutputFile = driveListOutputFile == null ? OUT_PUT_ROOT_DIR
+                        + driveDefaultName
                         : driveListOutputFile;
 
                 invoker.execute(new PingReachableDrive(driveInputListFile,
@@ -472,8 +479,9 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
                 String logOutputFile = kineticToolCLI.getArgValue("-out", args);
-                logOutputFile = logOutputFile == null ? DEFAULT_GET_LOG_OUTPUT_FILE
-                        + "_" + String.valueOf(System.currentTimeMillis())
+                logOutputFile = logOutputFile == null ? OUT_PUT_ROOT_DIR
+                        + DEFAULT_GET_LOG_OUTPUT_FILE + "_"
+                        + String.valueOf(System.currentTimeMillis())
                         : logOutputFile;
 
                 String logType = kineticToolCLI.getArgValue("-type", args);
@@ -488,8 +496,9 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
                 String logOutputFile = kineticToolCLI.getArgValue("-out", args);
-                logOutputFile = logOutputFile == null ? DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE
-                        + "_" + String.valueOf(System.currentTimeMillis())
+                logOutputFile = logOutputFile == null ? OUT_PUT_ROOT_DIR
+                        + DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE + "_"
+                        + String.valueOf(System.currentTimeMillis())
                         : logOutputFile;
 
                 invoker.execute(new GetVendorSpecificDeviceLog(

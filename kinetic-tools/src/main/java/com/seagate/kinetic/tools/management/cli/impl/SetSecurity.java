@@ -18,6 +18,7 @@
 package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -142,8 +143,11 @@ public class SetSecurity extends AbstractCommand {
         super.done();
         RestResponseWithStatus response = new RestResponseWithStatus();
         try {
-            report.persistReport(response,
-                    "setsecurity_" + System.currentTimeMillis(),
+            String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+            String rootDir = toolHome + File.separator + "out" + File.separator
+                    + "setsecurity_" + System.currentTimeMillis();
+
+            report.persistReport(response, rootDir,
                     HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } catch (IOException e) {
             throw new KineticToolsException(e);

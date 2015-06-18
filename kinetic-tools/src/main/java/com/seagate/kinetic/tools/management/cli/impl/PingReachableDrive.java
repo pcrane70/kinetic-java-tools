@@ -253,13 +253,16 @@ public class PingReachableDrive extends AbstractCommand {
     @Override
     public void done() throws KineticToolsException {
         List<KineticDevice> reachableDevices = report.getSucceedDevices();
-
+        
         if (null == subnetPrefix) {
             super.done();
             try {
+                String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+                String rootDir = toolHome + File.separator + "out"
+                        + File.separator + "ping_" + System.currentTimeMillis();
+                
                 PingResponse response = new PingResponse();
-                report.persistReport(response,
-                        "ping_" + System.currentTimeMillis(),
+                report.persistReport(response, rootDir,
                         HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             } catch (IOException e) {
                 throw new KineticToolsException(e);
