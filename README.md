@@ -183,7 +183,7 @@ The optional inputs for the script are the same as ping command specified above.
 ktool.sh -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]
    
    For instance:
-   ./ktool.sh -setclusterversion -clversion 0 -in drives.txt
+   ./ktool.sh -setclusterversion -newclversion 1 -clversion 0 -in drives.txt
 ```
 
 ###Set security
