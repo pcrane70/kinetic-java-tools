@@ -15,45 +15,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message.getlog;
-
-import kinetic.admin.KineticLogType;
+package com.seagate.kinetic.tools.management.rest.message.setclversion;
 
 import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 
-/**
- * Get log request message.
- * 
- * @author chiaming
- */
-public class GetLogRequest extends RestRequest {
+public class SetClusterVersionRequest extends RestRequest {
 
-    private KineticLogType type = null;
+    private int newClversion = 0;
 
-    /**
-     * Vendor specific log name. The <code>KineticLogType</code> must be set to
-     * DEVICE.
-     */
-    private String name = null;
-
-    public GetLogRequest() {
-        setMessageType(MessageType.GETLOG);
+    public SetClusterVersionRequest() {
+        setMessageType(MessageType.SET_CLVERSION);
     }
 
-    public void setLogType(KineticLogType type) {
-        this.type = type;
+    public void setNewClversion(int clversion) {
+        this.newClversion = clversion;
     }
 
-    public KineticLogType getLogType() {
-        return this.type;
+    public int getNewClversion() {
+        return this.newClversion;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
-    }
 }

@@ -138,6 +138,14 @@ public class HandlerUtil {
             req.setKey(keys[0]);
         }
 
+        /**
+         * cluster version
+         */
+        String[] clversion = params.get("clversion");
+        if (clversion != null) {
+            req.setClversion(Integer.parseInt(clversion[0]));
+        }
+
         String[] useSsl = params.get("usessl");
         if (useSsl != null) {
             req.setUseSsl(Boolean.parseBoolean(useSsl[0]));

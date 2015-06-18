@@ -17,6 +17,8 @@
  */
 package com.seagate.kinetic.tools.management.rest.message;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Error response message.
  * 
@@ -30,7 +32,8 @@ public class ErrorResponse extends RestResponse {
     private String errorMessage = "Unsupported request";
 
     public ErrorResponse() {
-        super.setMessageType(MessageType.ERROR);
+        setMessageType(MessageType.ERROR);
+        setOverallStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
     public void setErrorCode(int code) {
