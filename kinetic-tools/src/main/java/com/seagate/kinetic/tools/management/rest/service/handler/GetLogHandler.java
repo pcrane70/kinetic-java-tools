@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2014 Seagate Technology.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 package com.seagate.kinetic.tools.management.rest.service.handler;
 
 import java.util.Map;
@@ -8,6 +25,7 @@ import kinetic.admin.KineticLogType;
 
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogRequest;
+import com.seagate.kinetic.tools.management.rest.message.getlog.LogTypeForCliComptibility;
 import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
 
 public class GetLogHandler extends GenericServiceHandler implements
@@ -35,8 +53,11 @@ public class GetLogHandler extends GenericServiceHandler implements
             }
 
             String[] type = params.get("type");
+
+            KineticLogType logType = getLogType(type);
+
             if (type != null) {
-                request.setLogType(KineticLogType.valueOf(type[0].toUpperCase()));
+                request.setLogType(logType);
             }
 
             String[] name = params.get("name");
@@ -44,6 +65,52 @@ public class GetLogHandler extends GenericServiceHandler implements
                 request.setName((name[0].toUpperCase()));
             }
         }
+    }
+
+    /**
+     * Get log type. Param options also accept those used in CLI options.
+     * <p>
+     * The log type used in the REST request uses the names defined in the
+     * .proto file.
+     * 
+     * @param type
+     *            param options
+     * @return KineticLogType
+     */
+    private static KineticLogType getLogType(String[] type) {
+        KineticLogType logType = null;
+
+        if (type == null) {
+            return null;
+        }
+
+        // try if it is defined in KineticLogType
+        try {
+            logType = KineticLogType.valueOf(type[0].toUpperCase());
+
+            // found logtype
+            return logType;
+        } catch (Exception e) {
+            ;
+        }
+
+        // for backward compatibility, check if it is defined in CLI names
+        try {
+
+            // get from CLI logtype option
+            LogTypeForCliComptibility t = LogTypeForCliComptibility
+                    .valueOf(type[0].toUpperCase());
+            
+            // try plural form of the type
+            String s = t.toString() + "S";
+
+            logType = KineticLogType.valueOf(s);
+            
+        } catch (Exception e) {
+            ;
+        }
+
+        return logType;
     }
 
 }
