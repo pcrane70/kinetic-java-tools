@@ -101,10 +101,20 @@ public class GetLogHandler extends GenericServiceHandler implements
             LogTypeForCliComptibility t = LogTypeForCliComptibility
                     .valueOf(type[0].toUpperCase());
             
-            // try plural form of the type
-            String s = t.toString() + "S";
+            // cli string name
+            String cliString = t.toString();
 
-            logType = KineticLogType.valueOf(s);
+            // param string name
+            String paramString = null;
+
+            if (cliString.equals("CAPACITY")) {
+                paramString = KineticLogType.CAPACITIES.toString();
+            } else {
+                // try plural form of the type
+                paramString = cliString + "S";
+            }
+
+            logType = KineticLogType.valueOf(paramString);
             
         } catch (Exception e) {
             ;
