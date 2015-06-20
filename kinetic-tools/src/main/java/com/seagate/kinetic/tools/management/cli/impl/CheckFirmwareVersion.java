@@ -125,7 +125,7 @@ public class CheckFirmwareVersion extends AbstractCommand {
         }
 
         response.setDevices(respDevices);
-        String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+        String toolHome = System.getProperty("kinetic.toos.out", ".");
         String rootDir = toolHome + File.separator + "out"
                 + File.separator + "checkversion_" + System.currentTimeMillis();
 

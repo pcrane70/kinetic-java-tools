@@ -17,6 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.cli.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -125,7 +126,10 @@ public class GetVendorSpecificDeviceLog extends AbstractCommand {
         super.done();
         RestResponseWithStatus response = new RestResponseWithStatus();
         try {
-            report.persistReport(response, outputFilePath,
+            String toolHome = System.getProperty("kinetic.toos.out", ".");
+            String rootDir = toolHome + File.separator + "out"
+                    + File.separator + outputFilePath;
+            report.persistReport(response, rootDir,
                     HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } catch (IOException e) {
             throw new KineticToolsException(e);

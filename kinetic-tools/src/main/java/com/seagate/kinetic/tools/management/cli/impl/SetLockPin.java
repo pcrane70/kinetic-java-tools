@@ -97,7 +97,7 @@ public class SetLockPin extends AbstractCommand {
         super.done();
         SetLockPinResponse response = new SetLockPinResponse();
         try {
-            String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+            String toolHome = System.getProperty("kinetic.toos.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator
                     + "setlockpin_" + System.currentTimeMillis();
 

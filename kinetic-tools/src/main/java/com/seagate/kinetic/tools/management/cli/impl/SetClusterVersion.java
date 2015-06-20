@@ -86,7 +86,7 @@ public class SetClusterVersion extends AbstractCommand {
         super.done();
         SetClusterVersionResponse response = new SetClusterVersionResponse();
         try {
-            String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+            String toolHome = System.getProperty("kinetic.toos.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator
                     + "setclusterversion_" + System.currentTimeMillis();
 

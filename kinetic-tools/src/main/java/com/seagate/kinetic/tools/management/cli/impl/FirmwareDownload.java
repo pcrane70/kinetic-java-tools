@@ -114,7 +114,7 @@ public class FirmwareDownload extends AbstractCommand {
         super.done();
         RestResponseWithStatus response = new RestResponseWithStatus();
         try {
-            String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+            String toolHome = System.getProperty("kinetic.toos.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator
                     + "firmwaredownload_" + System.currentTimeMillis();
 

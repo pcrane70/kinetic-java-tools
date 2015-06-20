@@ -94,7 +94,7 @@ public class InstantErase extends AbstractCommand {
         super.done();
         InstantEraseResponse response = new InstantEraseResponse();
         try {
-            String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+            String toolHome = System.getProperty("kinetic.toos.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator
                     + "instanterase_" + System.currentTimeMillis();
             report.persistReport(response, rootDir,

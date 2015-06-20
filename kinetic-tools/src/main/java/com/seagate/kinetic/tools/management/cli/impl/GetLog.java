@@ -45,13 +45,20 @@ import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
 
 public class GetLog extends AbstractCommand {
     private static final String ALL = "all";
+    private static final String TEMPERATURES = "temperatures";
+    private static final String CAPACITIES = "capacities";
+    private static final String UTILIZATIONS = "utilizations";
+    private static final String CONFIGURATIONS = "configurations";
+    private static final String MESSAGES = "messages";
+    private static final String STATISTICS = "statistics";
+    private static final String LIMITS = "limits";
     private static final String TEMPERATURE = "temperature";
     private static final String CAPACITY = "capacity";
     private static final String UTILIZATION = "utilization";
     private static final String CONFIGURATION = "configuration";
-    private static final String MESSAGES = "message";
-    private static final String STATISTICS = "statistic";
-    private static final String LIMITS = "limits";
+    private static final String MESSAGE = "message";
+    private static final String STATISTIC = "statistic";
+    private static final String LIMIT = "limit";
     private String logOutFile;
     private String logType;
     private KineticLogType kineticLogType;
@@ -101,33 +108,41 @@ public class GetLog extends AbstractCommand {
             kineticLogType = null;
             MyKineticLog myLog = new MyKineticLog(log);
             jsonLog = MessageUtil.toJson(myLog);
-        } else if (logType.equalsIgnoreCase(UTILIZATION)) {
+        } else if (logType.equalsIgnoreCase(UTILIZATIONS)
+                || logType.equalsIgnoreCase(UTILIZATION)) {
             kineticLogType = KineticLogType.UTILIZATIONS;
             jsonLog = MessageUtil.toJson(log.getUtilization());
-        } else if (logType.equalsIgnoreCase(CAPACITY)) {
+        } else if (logType.equalsIgnoreCase(CAPACITIES)
+                || logType.equalsIgnoreCase(CAPACITY)) {
             kineticLogType = KineticLogType.CAPACITIES;
             jsonLog = MessageUtil.toJson(log.getCapacity());
-        } else if (logType.equalsIgnoreCase(TEMPERATURE)) {
+        } else if (logType.equalsIgnoreCase(TEMPERATURES)
+                || logType.equalsIgnoreCase(TEMPERATURE)) {
             kineticLogType = KineticLogType.TEMPERATURES;
             jsonLog = MessageUtil.toJson(log.getTemperature());
-        } else if (logType.equalsIgnoreCase(CONFIGURATION)) {
+        } else if (logType.equalsIgnoreCase(CONFIGURATIONS)
+                || logType.equalsIgnoreCase(CONFIGURATION)) {
             kineticLogType = KineticLogType.CONFIGURATION;
             jsonLog = MessageUtil.toJson(log.getConfiguration());
-        } else if (logType.equalsIgnoreCase(MESSAGES)) {
+        } else if (logType.equalsIgnoreCase(MESSAGES)
+                || logType.equalsIgnoreCase(MESSAGE)) {
             kineticLogType = KineticLogType.MESSAGES;
             jsonLog = new String(log.getMessages());
-        } else if (logType.equalsIgnoreCase(STATISTICS)) {
+        } else if (logType.equalsIgnoreCase(STATISTICS)
+                || logType.equalsIgnoreCase(STATISTIC)) {
             kineticLogType = KineticLogType.STATISTICS;
             sb.append(MessageUtil.toJson(log.getStatistics()));
-        } else if (logType.equalsIgnoreCase(LIMITS)) {
+        } else if (logType.equalsIgnoreCase(LIMITS)
+                || logType.equalsIgnoreCase(LIMIT)) {
             kineticLogType = KineticLogType.LIMITS;
             sb.append(MessageUtil.toJson(log.getLimits()));
         } else {
             throw new IllegalArgumentException(
-                    "Type should be utilization, capacity, temperature, configuration, message, statistic, limits or all");
+                    "Type should be utilization/utilizations, capacity/capacities, temperature/temperatures, configuration/configurations, message/messages, statistic/statistics, limit/limits or all");
         }
 
-        if (logType.equalsIgnoreCase(MESSAGES)) {
+        if (logType.equalsIgnoreCase(MESSAGES)
+                || logType.equalsIgnoreCase(MESSAGE)) {
             sb.append("{\"messages\":");
             sb.append("\"");
             sb.append(jsonLog);
@@ -147,16 +162,23 @@ public class GetLog extends AbstractCommand {
             throw new IllegalArgumentException("Type can not be empty");
         }
 
-        if (!logType.equalsIgnoreCase(CAPACITY)
+        if (!logType.equalsIgnoreCase(CAPACITIES)
+                && !logType.equalsIgnoreCase(CAPACITY)
+                && !logType.equalsIgnoreCase(TEMPERATURES)
                 && !logType.equalsIgnoreCase(TEMPERATURE)
+                && !logType.equalsIgnoreCase(UTILIZATIONS)
                 && !logType.equalsIgnoreCase(UTILIZATION)
+                && !logType.equalsIgnoreCase(CONFIGURATIONS)
                 && !logType.equalsIgnoreCase(CONFIGURATION)
                 && !logType.equalsIgnoreCase(MESSAGES)
+                && !logType.equalsIgnoreCase(MESSAGE)
                 && !logType.equalsIgnoreCase(STATISTICS)
+                && !logType.equalsIgnoreCase(STATISTIC)
                 && !logType.equalsIgnoreCase(LIMITS)
+                && !logType.equalsIgnoreCase(LIMIT)
                 && !logType.equalsIgnoreCase(ALL)) {
             throw new IllegalArgumentException(
-                    "Type should be utilization, capacity, temperature, configuration, message, statistic, limits or all");
+                    "Type should be utilization/utilizations, capacity/capacities, temperature/temperatures, configuration/configurations, message/messages, statistic/statistics, limit/limits or all");
         }
     }
 
@@ -168,19 +190,26 @@ public class GetLog extends AbstractCommand {
 
         if (logType.equalsIgnoreCase(ALL)) {
             return kineticAdminClient.getLog();
-        } else if (logType.equalsIgnoreCase(UTILIZATION)) {
+        } else if (logType.equalsIgnoreCase(UTILIZATIONS)
+                || logType.equalsIgnoreCase(UTILIZATION)) {
             listOfLogType.add(KineticLogType.UTILIZATIONS);
-        } else if (logType.equalsIgnoreCase(CAPACITY)) {
+        } else if (logType.equalsIgnoreCase(CAPACITIES)
+                || logType.equalsIgnoreCase(CAPACITY)) {
             listOfLogType.add(KineticLogType.CAPACITIES);
-        } else if (logType.equalsIgnoreCase(TEMPERATURE)) {
+        } else if (logType.equalsIgnoreCase(TEMPERATURES)
+                || logType.equalsIgnoreCase(TEMPERATURE)) {
             listOfLogType.add(KineticLogType.TEMPERATURES);
-        } else if (logType.equalsIgnoreCase(CONFIGURATION)) {
+        } else if (logType.equalsIgnoreCase(CONFIGURATIONS)
+                || logType.equalsIgnoreCase(CONFIGURATION)) {
             listOfLogType.add(KineticLogType.CONFIGURATION);
-        } else if (logType.equalsIgnoreCase(MESSAGES)) {
+        } else if (logType.equalsIgnoreCase(MESSAGES)
+                || logType.equalsIgnoreCase(MESSAGE)) {
             listOfLogType.add(KineticLogType.MESSAGES);
-        } else if (logType.equalsIgnoreCase(STATISTICS)) {
+        } else if (logType.equalsIgnoreCase(STATISTICS)
+                || logType.equalsIgnoreCase(STATISTIC)) {
             listOfLogType.add(KineticLogType.STATISTICS);
-        } else if (logType.equalsIgnoreCase(LIMITS)) {
+        } else if (logType.equalsIgnoreCase(LIMITS)
+                || logType.equalsIgnoreCase(LIMIT)) {
             listOfLogType.add(KineticLogType.LIMITS);
         } else {
             throw new IllegalArgumentException(
@@ -300,7 +329,10 @@ public class GetLog extends AbstractCommand {
 
         response.setDeviceLogs(deviceLogs);
         try {
-            report.persistReport(MessageUtil.toJson(response), logOutFile);
+            String toolHome = System.getProperty("kinetic.toos.out", ".");
+            String rootDir = toolHome + File.separator + "out" + File.separator
+                    + logOutFile;
+            report.persistReport(MessageUtil.toJson(response), rootDir);
         } catch (IOException e) {
             throw new KineticToolsException(e);
         }

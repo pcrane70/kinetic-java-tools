@@ -95,7 +95,7 @@ public class LockDevice extends AbstractCommand {
         super.done();
         LockDeviceResponse response = new LockDeviceResponse();
         try {
-            String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
+            String toolHome = System.getProperty("kinetic.toos.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator
                     + "lockdevice_" + System.currentTimeMillis();
             report.persistReport(response, rootDir,

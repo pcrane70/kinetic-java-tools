@@ -82,10 +82,6 @@ public class KineticToolCLI {
     private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
-    private static final String TOOL_HOME = System.getProperty(
-            "KINETIC_TOOLS_HOME", ".");
-    private static final String OUT_PUT_ROOT_DIR = TOOL_HOME + File.separator
-            + "out" + File.separator;
     private static final Logger logger = Logger.getLogger(KineticToolCLI.class
             .getName());
 
@@ -359,8 +355,7 @@ public class KineticToolCLI {
                 String driveDefaultName = DEFAULT_DRIVE_OUTPUT_FILE + "_"
                         + String.valueOf(time);
 
-                driveListOutputFile = driveListOutputFile == null ? OUT_PUT_ROOT_DIR
-                        + driveDefaultName
+                driveListOutputFile = driveListOutputFile == null ? driveDefaultName
                         : driveListOutputFile;
 
                 String subnet = kineticToolCLI.getArgValue("-subnet", args);
@@ -369,6 +364,7 @@ public class KineticToolCLI {
                         throw new Exception(
                                 "Invalid subnet format, for instance: \"-subnet 192.168.10\"");
                     }
+
                     invoker.execute(new PingReachableDrive(subnet,
                             driveListOutputFile, useSsl, clusterVersion,
                             identity, key, requestTimeout));
@@ -377,13 +373,18 @@ public class KineticToolCLI {
                     System.out.println("Discovering devices..., please wait "
                             + timeout + "s" + "\n");
                     TimeUnit.SECONDS.sleep(timeout);
+
+                    String toolHome = System.getProperty("kinetic.toos.out",
+                            ".");
+                    String rootDir = toolHome + File.separator + "out"
+                            + File.separator;
+                    String outPath = rootDir + driveListOutputFile;
                     logger.info(DeviceDiscovery.persistToFile(
-                            deviceDiscovery.listDevices(), driveListOutputFile));
+                            deviceDiscovery.listDevices(), outPath));
 
                     System.out.println("Discovered "
                             + deviceDiscovery.listDevices().size()
-                            + " drives, persist drives info in "
-                            + driveListOutputFile);
+                            + " drives, persist drives info in " + outPath);
                 }
 
             } else if (args[0].equalsIgnoreCase("-ping")) {
@@ -398,8 +399,7 @@ public class KineticToolCLI {
 
                 String driveDefaultName = DEFAULT_PING_SUCCESS_DRIVE_OUTPUT_FILE
                         + "_" + String.valueOf(System.currentTimeMillis());
-                driveListOutputFile = driveListOutputFile == null ? OUT_PUT_ROOT_DIR
-                        + driveDefaultName
+                driveListOutputFile = driveListOutputFile == null ? driveDefaultName
                         : driveListOutputFile;
 
                 invoker.execute(new PingReachableDrive(driveInputListFile,
@@ -479,9 +479,8 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
                 String logOutputFile = kineticToolCLI.getArgValue("-out", args);
-                logOutputFile = logOutputFile == null ? OUT_PUT_ROOT_DIR
-                        + DEFAULT_GET_LOG_OUTPUT_FILE + "_"
-                        + String.valueOf(System.currentTimeMillis())
+                logOutputFile = logOutputFile == null ? DEFAULT_GET_LOG_OUTPUT_FILE
+                        + "_" + String.valueOf(System.currentTimeMillis())
                         : logOutputFile;
 
                 String logType = kineticToolCLI.getArgValue("-type", args);
@@ -496,9 +495,8 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
                 String logOutputFile = kineticToolCLI.getArgValue("-out", args);
-                logOutputFile = logOutputFile == null ? OUT_PUT_ROOT_DIR
-                        + DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE + "_"
-                        + String.valueOf(System.currentTimeMillis())
+                logOutputFile = logOutputFile == null ? DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE
+                        + "_" + String.valueOf(System.currentTimeMillis())
                         : logOutputFile;
 
                 invoker.execute(new GetVendorSpecificDeviceLog(

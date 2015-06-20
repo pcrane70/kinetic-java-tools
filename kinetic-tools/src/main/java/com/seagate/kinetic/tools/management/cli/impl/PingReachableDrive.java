@@ -123,7 +123,12 @@ public class PingReachableDrive extends AbstractCommand {
         assert (filePath != null);
         assert (deviceList != null);
 
-        FileOutputStream fos = new FileOutputStream(new File(filePath));
+        File file = new File(filePath);
+        if (file.getParentFile() != null && !file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        FileOutputStream fos = new FileOutputStream(file);
         StringBuffer sb = new StringBuffer();
         for (KineticDevice device : deviceList) {
             sb.append(KineticDevice.toJson(device));
@@ -253,14 +258,14 @@ public class PingReachableDrive extends AbstractCommand {
     @Override
     public void done() throws KineticToolsException {
         List<KineticDevice> reachableDevices = report.getSucceedDevices();
-        
+        String toolHome = System.getProperty("kinetic.toos.out", ".");
+
         if (null == subnetPrefix) {
             super.done();
             try {
-                String toolHome = System.getProperty("KINETIC_TOOLS_HOME", ".");
                 String rootDir = toolHome + File.separator + "out"
                         + File.separator + "ping_" + System.currentTimeMillis();
-                
+
                 PingResponse response = new PingResponse();
                 report.persistReport(response, rootDir,
                         HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -268,13 +273,17 @@ public class PingReachableDrive extends AbstractCommand {
                 throw new KineticToolsException(e);
             }
         } else {
+            String rootDir = toolHome + File.separator + "out" + File.separator
+                    + driveListOutputFile;
+
             if (reachableDevices.size() > 0) {
                 System.out.println("\nDiscovered " + reachableDevices.size()
                         + " drives via subnet: " + subnetPrefix
-                        + ", persist drives info in " + driveListOutputFile);
+                        + ", persist drives info in " + rootDir);
             }
             try {
-                persistToFile(reachableDevices, driveListOutputFile);
+
+                persistToFile(reachableDevices, rootDir);
             } catch (Exception e) {
                 throw new KineticToolsException(e);
             }

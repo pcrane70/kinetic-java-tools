@@ -17,6 +17,7 @@
  */
 package com.seagate.kinetic.tools.management.rest.bridge.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,8 @@ public class DefaultRestBridgeService implements RestBridgeService {
     private static final String PING_FILE_PREFIX = "ping_";
     private static final String GETLOG_LOG_FILE_PREFIX = "getlog_";
     private static final String ALL = "all";
+    private static final String TOOL_HOME = System.getProperty(
+            "kinetic.toos.out", ".");
 
     public DefaultRestBridgeService() {
         // TODO Auto-generated constructor stub
@@ -303,7 +306,10 @@ public class DefaultRestBridgeService implements RestBridgeService {
 
     private String discoverDevices(int timeout) {
         String discoId = DRIVES_FILE_PREFIX + System.currentTimeMillis();
-        return discoverDevices(null, timeout, discoId);
+        String rootDir = TOOL_HOME + File.separator + "out" + File.separator
+                + discoId;
+
+        return discoverDevices(null, timeout, rootDir);
     }
 
     private RestResponse discover(DiscoverRequest request)
@@ -314,8 +320,11 @@ public class DefaultRestBridgeService implements RestBridgeService {
 
         String discoId = request.getDiscoId();
 
-        discoId = discoId == null ? DRIVES_FILE_PREFIX
-                + System.currentTimeMillis() : discoId;
+        String defaultDiscoId = DRIVES_FILE_PREFIX + System.currentTimeMillis();
+        String rootDir = TOOL_HOME + File.separator + "out" + File.separator
+                + defaultDiscoId;
+
+        discoId = discoId == null ? rootDir : discoId;
 
         if (request.getSubnet() == null) {
             kineticDevices = new ArrayList<KineticDevice>();
