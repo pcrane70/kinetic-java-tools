@@ -7,15 +7,19 @@ public class KineticStatDemo {
 		KineticStatModel kineticStatModel = new KineticStatModel();
 		KineticStatView kineticStatView = new KineticStatView(
 				"Kinetic Statistics");
-		KineticOverviewView kineticOverviewView = new KineticOverviewView(
-				"Kinetic Drives Snapshot");
+		KineticOpsOverviewView kineticOpsOverviewView = new KineticOpsOverviewView(
+				"Kinetic Drives Ops Snapshot");
+		KineticBytesOverviewView kineticBytesOverviewView = new KineticBytesOverviewView(
+				"Kinetic Drives Bytes Snapshot");
 		KineticStatController kineticStatController = new KineticStatController(
-				kineticStatModel, kineticStatView, kineticOverviewView);
+				kineticStatModel, kineticStatView, kineticOpsOverviewView,
+				kineticBytesOverviewView);
 
 		kineticStatController.startCollectDataAndUpdateView();
 
 		TimeUnit.SECONDS.sleep(2);
 		kineticStatView.render();
-		kineticOverviewView.render();
+		kineticOpsOverviewView.render();
+		kineticBytesOverviewView.render();
 	}
 }

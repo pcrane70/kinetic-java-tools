@@ -19,13 +19,13 @@ import org.jfree.ui.GradientPaintTransformType;
 import org.jfree.ui.RefineryUtilities;
 import org.jfree.ui.StandardGradientPaintTransformer;
 
-public class KineticOverviewView extends ApplicationFrame {
+public class KineticBytesOverviewView extends ApplicationFrame {
 	private static final long serialVersionUID = 1L;
 	private DefaultCategoryDataset defaultcategorydataset = new DefaultCategoryDataset();
 	private GroupedStackedBarRenderer groupedstackedbarrenderer = new GroupedStackedBarRenderer();
 	private KeyToGroupMap keytogroupmap = new KeyToGroupMap("G1");
 
-	public KineticOverviewView(String s) {
+	public KineticBytesOverviewView(String s) {
 		super(s);
 		JPanel jpanel = new ChartPanel(createChart(defaultcategorydataset));
 		jpanel.setPreferredSize(new Dimension(590, 350));
@@ -38,18 +38,18 @@ public class KineticOverviewView extends ApplicationFrame {
 		this.setVisible(true);
 	}
 
-	public synchronized void updateDataSet(String node, double putOps,
-			double getOps, double deleteOps) {
+	public synchronized void updateDataSet(String node, double putMBs,
+			double getMBs, double deleteMBs) {
 		String ipPlusPort = node.substring(0, node.indexOf("("));
-		defaultcategorydataset.addValue(getOps, "Get", ipPlusPort);
-		defaultcategorydataset.addValue(putOps, "Put", ipPlusPort);
-		defaultcategorydataset.addValue(deleteOps, "Delete", ipPlusPort);
+		defaultcategorydataset.addValue(getMBs, "Get", ipPlusPort);
+		defaultcategorydataset.addValue(putMBs, "Put", ipPlusPort);
+		defaultcategorydataset.addValue(deleteMBs, "Delete", ipPlusPort);
 	}
 
 	private JFreeChart createChart(CategoryDataset categorydataset) {
-		JFreeChart jfreechart = ChartFactory.createStackedBarChart("",
-				"", "Total Ops/s", categorydataset,
-				PlotOrientation.HORIZONTAL, true, true, false);
+		JFreeChart jfreechart = ChartFactory.createStackedBarChart("", "",
+				"Total MB/s", categorydataset, PlotOrientation.HORIZONTAL,
+				true, true, false);
 		keytogroupmap = new KeyToGroupMap("G1");
 		keytogroupmap.mapKeyToGroup("Get", "G1");
 		keytogroupmap.mapKeyToGroup("Put", "G1");
