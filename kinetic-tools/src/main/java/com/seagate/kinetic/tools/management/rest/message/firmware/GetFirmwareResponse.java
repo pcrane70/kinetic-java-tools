@@ -15,41 +15,31 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message;
+package com.seagate.kinetic.tools.management.rest.message.firmware;
+
+import java.util.List;
+
+import com.seagate.kinetic.tools.management.rest.message.MessageType;
+import com.seagate.kinetic.tools.management.rest.message.RestMessage;
 
 /**
- * Rest messaging message type definition.
+ * Get log request message.
  * 
  * @author chiaming
- *
  */
-public enum MessageType {
+public class GetFirmwareResponse extends RestMessage {
 
-    DISCOVER,
-    DISCOVER_REPLY,
-    PING,
-    PING_REPLY,
-    GETLOG,
-    GETLOG_REPLY,
-    CHECKVERSION,
-    CHECKVERSION_REPLY,
-    SET_ERASEPIN,
-    SET_ERASEPIN_REPLY,
-    SET_LOCKPIN,
-    SET_LOCKPIN_REPLY,
-    INSTANT_ERASE,
-    INSTANT_ERASE_REPLY,
-    SECURE_ERASE,
-    SECURE_ERASE_REPLY,
-    LOCK_DEVICE,
-    LOCK_DEVICE_REPLY,
-    UNLOCK_DEVICE,
-    UNLOCK_DEVICE_REPLY,
-    SET_CLVERSION,
-    SET_CLVERSION_REPLY,
-    SET_SECURITY,
-    SET_SECURITY_REPLY,
-    GET_FIRMWARE,
-    GET_FIRMWARE_REPLY,
-    ERROR;
+    private List<String> firmwareList = null;
+    
+    public GetFirmwareResponse() {
+        super.setMessageType(MessageType.GET_FIRMWARE_REPLY);
+    }
+
+    public void setFirmwareList(List<String> firmwareList) {
+        this.firmwareList = firmwareList;
+    }
+
+    public List<String> getFirmwareList() {
+        return this.firmwareList;
+    }
 }

@@ -19,10 +19,27 @@ package com.seagate.kinetic.tools.management.rest.service;
 
 import java.util.logging.Logger;
 
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 /**
  * Rest service boot-strap class.
+ * <p>
+ * A self-signed certificate is used for the https service.
+ * <p>
+ * The clients must trust this self-signed certificate and establish HTTPS
+ * connection.
+ * <p>
+ * For example, the following command uses HTTPS connection to ping the drives.
+ * 
+ * curl -X POST -k --insecure -v "https://127.0.0.1:8081/ping?discoid=321"
+ * <p>
  * 
  * @author chiaming
  *
@@ -45,7 +62,7 @@ public class KineticRestService {
      *            service configuration
      * @throws Exception
      */
-    public void init(ServiceConfiguration config) throws Exception {
+    public void init(ServiceConfiguration config) {
 
         this.config = config;
 
@@ -53,9 +70,42 @@ public class KineticRestService {
             throw new java.lang.NullPointerException("config cannot be null");
         }
 
-        this.server = new Server(config.getPort());
+        // new server
+        server = new Server();
 
+        // set handler
         this.server.setHandler(new RestServiceHandler());
+
+        // http connector
+        ServerConnector connector = new ServerConnector(server);
+        // set http port
+        connector.setPort(config.getPort());
+
+        // https config
+        HttpConfiguration https = new HttpConfiguration();
+
+        https.addCustomizer(new SecureRequestCustomizer());
+
+        SslContextFactory sslContextFactory = new SslContextFactory();
+
+        sslContextFactory
+                .setKeyStorePath(com.seagate.kinetic.simulator.io.provider.nio.ssl.KineticKeyStore.class
+                        .getResource(
+                        "kinetic.jks").toExternalForm());
+
+        sslContextFactory.setKeyStorePassword("secret");
+
+        sslContextFactory.setKeyManagerPassword("secret");
+
+        // https connector
+        ServerConnector sslConnector = new ServerConnector(server,
+        new SslConnectionFactory(sslContextFactory, "http/1.1"),
+        new HttpConnectionFactory(https));
+
+        sslConnector.setPort(config.getHttpsPort());
+
+        // set http/s connectors
+        server.setConnectors(new Connector[] { connector, sslConnector });
     }
 
     /**
@@ -68,7 +118,7 @@ public class KineticRestService {
         this.server.start();
 
         logger.info("kinetic rest service is ready on port: "
-                + config.getPort());
+                + config.getPort() + ", https port: " + config.getHttpsPort());
     }
 
     /**
