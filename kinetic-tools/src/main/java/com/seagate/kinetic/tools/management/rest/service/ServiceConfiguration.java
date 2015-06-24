@@ -28,6 +28,9 @@ public class ServiceConfiguration {
     // service port
     private int port = 8080;
 
+    // https port
+    private int httpsPort = 8081;
+
     /**
      * Get service port
      * 
@@ -45,6 +48,26 @@ public class ServiceConfiguration {
      */
     public void serPort(int port) {
         this.port = port;
+    }
+
+    /**
+     * Set https port
+     * 
+     * @param httpsPort
+     *            service port for https rest service
+     * 
+     */
+    public void setHttpsPort(int httpsPort) {
+        this.httpsPort = httpsPort;
+    }
+
+    /**
+     * Get https service port.
+     * 
+     * @return https service port
+     */
+    public int getHttpsPort() {
+        return this.httpsPort;
     }
 
 }
