@@ -95,7 +95,7 @@ public class UnLockDevice extends AbstractCommand {
         super.done();
         UnLockDeviceResponse response = new UnLockDeviceResponse();
         try {
-            String toolHome = System.getProperty("kinetic.toos.out", ".");
+            String toolHome = System.getProperty("kinetic.tools.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator
                     + "unlockdevice_" + System.currentTimeMillis();
 

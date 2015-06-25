@@ -38,7 +38,7 @@ public class SmokeTestRunner extends AbstractCommand {
     }
 
     private void runSmokeTests() {
-        String toolHome = System.getProperty("kinetic.toos.out", ".");
+        String toolHome = System.getProperty("kinetic.tools.out", ".");
         rootDir = toolHome + File.separator + "SmokeTest-Result"
                 + File.separator + "Result-" + System.currentTimeMillis();
         for (KineticDevice device : devices) {

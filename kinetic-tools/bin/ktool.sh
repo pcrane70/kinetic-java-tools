@@ -36,9 +36,9 @@ getName $@
 
 if [[ "$DEBUG" = "true" ]]; then
     echo "Turn on kinetic-tools debug mode: "
-    exec "$JAVA" -Dkinetic.toos.out="$BASE_DIR" -classpath "$CLASSPATH" -Dkinetic.io.in=true -Dkinetic.io.out=true com.seagate.kinetic.tools.management.cli.KineticToolCLI "${@/-Dkinetic.debug*}"
+    exec "$JAVA" -Dkinetic.tools.out="$BASE_DIR" -classpath "$CLASSPATH" -Dkinetic.io.in=true -Dkinetic.io.out=true com.seagate.kinetic.tools.management.cli.KineticToolCLI "${@/-Dkinetic.debug*}"
 else
-    exec "$JAVA" -Dkinetic.toos.out="$BASE_DIR" -Djava.util.logging.config.file="$BASE_DIR"/config/kinetic.logging.properties -classpath "$CLASSPATH" com.seagate.kinetic.tools.management.cli.KineticToolCLI "${@/-Dkinetic.debug*}"
+    exec "$JAVA" -Dkinetic.tools.out="$BASE_DIR" -Djava.util.logging.config.file="$BASE_DIR"/config/kinetic.logging.properties -classpath "$CLASSPATH" com.seagate.kinetic.tools.management.cli.KineticToolCLI "${@/-Dkinetic.debug*}"
 fi
 
 

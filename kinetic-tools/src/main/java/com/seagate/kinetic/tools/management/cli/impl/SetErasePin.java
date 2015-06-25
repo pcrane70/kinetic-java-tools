@@ -102,7 +102,7 @@ public class SetErasePin extends AbstractCommand {
         super.done();
         SetErasePinResponse response = new SetErasePinResponse();
         try {
-            String toolHome = System.getProperty("kinetic.toos.out", ".");
+            String toolHome = System.getProperty("kinetic.tools.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator
                     + "seterasepin_" + System.currentTimeMillis();
 

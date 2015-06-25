@@ -213,7 +213,7 @@ public class GetLog extends AbstractCommand {
             listOfLogType.add(KineticLogType.LIMITS);
         } else {
             throw new IllegalArgumentException(
-                    "Type should be utilization, capacity, temperature, configuration, message, statistic, limits or all");
+                    "Type should be utilization/utilizations, capacity/capacites, temperature/temperatures, configuration/configurations, message/messages, statistic/statistics, limit/limits or all");
         }
 
         return kineticAdminClient.getLog(listOfLogType);
@@ -329,7 +329,7 @@ public class GetLog extends AbstractCommand {
 
         response.setDeviceLogs(deviceLogs);
         try {
-            String toolHome = System.getProperty("kinetic.toos.out", ".");
+            String toolHome = System.getProperty("kinetic.tools.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator
                     + logOutFile;
             report.persistReport(MessageUtil.toJson(response), rootDir);

@@ -258,7 +258,7 @@ public class PingReachableDrive extends AbstractCommand {
     @Override
     public void done() throws KineticToolsException {
         List<KineticDevice> reachableDevices = report.getSucceedDevices();
-        String toolHome = System.getProperty("kinetic.toos.out", ".");
+        String toolHome = System.getProperty("kinetic.tools.out", ".");
 
         if (null == subnetPrefix) {
             super.done();
