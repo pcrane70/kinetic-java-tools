@@ -47,7 +47,7 @@ public class DeviceLog {
 
     private Capacity capacity = null;
 
-    private Configuration configuration = null;
+    private DefaultConfiguration configuration = null;
 
     private List<Statistics> statistics = null;
 
@@ -130,7 +130,7 @@ public class DeviceLog {
     }
 
     public void setConfiguration(Configuration c) {
-        this.configuration = c;
+        this.configuration = (DefaultConfiguration) c;
     }
 
     /**
