@@ -19,12 +19,14 @@ package com.seagate.kinetic.tools.management.rest.bridge.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletResponse;
 
+import kinetic.admin.Device;
 import kinetic.admin.KineticLog;
 import kinetic.admin.KineticLogType;
 import kinetic.client.KineticException;
@@ -34,6 +36,7 @@ import com.seagate.kinetic.tools.management.cli.impl.Command;
 import com.seagate.kinetic.tools.management.cli.impl.DefaultCommandInvoker;
 import com.seagate.kinetic.tools.management.cli.impl.DeviceDiscovery;
 import com.seagate.kinetic.tools.management.cli.impl.GetLog;
+import com.seagate.kinetic.tools.management.cli.impl.GetVendorSpecificDeviceLog;
 import com.seagate.kinetic.tools.management.cli.impl.InstantErase;
 import com.seagate.kinetic.tools.management.cli.impl.Invoker;
 import com.seagate.kinetic.tools.management.cli.impl.KineticDevice;
@@ -91,7 +94,9 @@ public class DefaultRestBridgeService implements RestBridgeService {
     private static final String DRIVES_FILE_PREFIX = "drives_";
     private static final String PING_FILE_PREFIX = "ping_";
     private static final String GETLOG_LOG_FILE_PREFIX = "getlog_";
+    private static final String GETLOG_VENDOR_DEVICE_PREFIX = "getvendorspecificdevicelog_";
     private static final String ALL = "all";
+    private static final String DEVICE = "device";
     private static final String TOOL_HOME = System.getProperty(
             "kinetic.toos.out", ".");
 
@@ -184,6 +189,12 @@ public class DefaultRestBridgeService implements RestBridgeService {
         String type = null;
         if (null == request.getLogType()) {
             type = ALL;
+        }
+        if (KineticLogType.DEVICE == request.getLogType()) {
+            type = DEVICE;
+            response = (GetLogResponse) getVendorSpecificLog(request);
+            return response;
+
         } else {
             type = request.getLogType().toString();
         }
@@ -210,6 +221,73 @@ public class DefaultRestBridgeService implements RestBridgeService {
         response.setDeviceLogs(deviceLogs);
 
         return response;
+    }
+
+    private RestResponse getVendorSpecificLog(GetLogRequest request)
+            throws NumberFormatException, IOException {
+        GetLogResponse response = new GetLogResponse();
+
+        String discoId = request.getDiscoId();
+        if (discoId == null || discoId.isEmpty()) {
+            response.setDeviceLogs(null);
+            return response;
+        }
+
+        String name = request.getName();
+        if (name == null || name.isEmpty()) {
+            response.setDeviceLogs(null);
+            return response;
+        }
+
+        Invoker invoker = new DefaultCommandInvoker();
+        Report report = invoker.execute(new GetVendorSpecificDeviceLog(name,
+                discoId, GETLOG_VENDOR_DEVICE_PREFIX
+                        + System.currentTimeMillis(), request.getUseSsl(),
+                request.getClversion(), Long.parseLong(request.getIdentity()),
+                request.getKey(), request.getRequestTimeout()));
+
+        List<DeviceLog> deviceLogs = new ArrayList<DeviceLog>();
+        for (KineticDevice kineticDevice : report.getSucceedDevices()) {
+            addToSpecificDeviceLog(report, deviceLogs, kineticDevice,
+                    HttpServletResponse.SC_OK, response);
+        }
+
+        for (KineticDevice kineticDevice : report.getFailedDevices()) {
+            addToSpecificDeviceLog(report, deviceLogs, kineticDevice,
+                    HttpServletResponse.SC_SERVICE_UNAVAILABLE, response);
+        }
+
+        response.setDeviceLogs(deviceLogs);
+
+        return response;
+
+    }
+
+    private void addToSpecificDeviceLog(Report report,
+            List<DeviceLog> deviceLogs, KineticDevice kineticDevice,
+            int responseCode, GetLogResponse response)
+            throws UnsupportedEncodingException {
+        DeviceId device;
+        DeviceStatus dstatus;
+        DeviceLog deviceLog;
+        Device deviceSpecificLog = (Device) report
+                .getAdditionMessage(kineticDevice);
+
+        device = initDevice(kineticDevice);
+        deviceLog = new DeviceLog();
+        dstatus = new DeviceStatus();
+
+        dstatus.setDevice(device);
+        if (null != deviceSpecificLog && null != deviceSpecificLog.getName()) {
+            dstatus.setMessage(new String(deviceSpecificLog.getName(), "UTF-8"));
+        }
+
+        deviceLog.setDeviceStatus(dstatus);
+        deviceLogs.add(deviceLog);
+
+        if (null != deviceSpecificLog && null != deviceSpecificLog.getValue()) {
+            response.setValue(deviceSpecificLog.getValue());
+        }
     }
 
     private void addToDeviceLog(Report report, List<DeviceLog> deviceLogs,
