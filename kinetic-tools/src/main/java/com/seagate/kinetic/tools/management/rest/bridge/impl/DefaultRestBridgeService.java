@@ -102,7 +102,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
     private static final String ALL = "all";
     private static final String DEVICE = "device";
     private static final String TOOL_HOME = System.getProperty(
-            "kinetic.toos.out", ".");
+            "kinetic.tools.out", ".");
 
     public DefaultRestBridgeService() {
         // TODO Auto-generated constructor stub
