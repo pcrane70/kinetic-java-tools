@@ -62,7 +62,7 @@ public class GetLogHandler extends GenericServiceHandler implements
 
             String[] name = params.get("name");
             if (name != null) {
-                request.setName((name[0].toUpperCase()));
+                request.setName((name[0]));
             }
         }
     }

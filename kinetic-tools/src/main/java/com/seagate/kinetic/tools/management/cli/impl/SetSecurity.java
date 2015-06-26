@@ -36,7 +36,7 @@ import com.seagate.kinetic.admin.impl.JsonUtil;
 import com.seagate.kinetic.proto.Kinetic.Command.Security;
 import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
-import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
+import com.seagate.kinetic.tools.management.rest.message.setsecurity.SetSecurityResponse;
 
 public class SetSecurity extends AbstractCommand {
     private String security;
@@ -50,6 +50,14 @@ public class SetSecurity extends AbstractCommand {
                 drivesInputFile);
         this.security = security;
         loadSecurity();
+    }
+
+    public SetSecurity(List<ACL> acls, String drivesInputFile, boolean useSsl,
+            long clusterVersion, long identity, String key, long requestTimeout)
+            throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout,
+                drivesInputFile);
+        this.aclList = acls;
     }
 
     private void loadSecurity() throws IOException {
@@ -141,7 +149,7 @@ public class SetSecurity extends AbstractCommand {
     @Override
     public void done() throws KineticToolsException {
         super.done();
-        RestResponseWithStatus response = new RestResponseWithStatus();
+        SetSecurityResponse response = new SetSecurityResponse();
         try {
             String toolHome = System.getProperty("kinetic.tools.out", ".");
             String rootDir = toolHome + File.separator + "out" + File.separator

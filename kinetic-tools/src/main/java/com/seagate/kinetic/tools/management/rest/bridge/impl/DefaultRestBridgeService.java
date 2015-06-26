@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletResponse;
 
+import kinetic.admin.ACL;
 import kinetic.admin.Device;
 import kinetic.admin.KineticLog;
 import kinetic.admin.KineticLogType;
@@ -47,6 +48,7 @@ import com.seagate.kinetic.tools.management.cli.impl.SecureErase;
 import com.seagate.kinetic.tools.management.cli.impl.SetClusterVersion;
 import com.seagate.kinetic.tools.management.cli.impl.SetErasePin;
 import com.seagate.kinetic.tools.management.cli.impl.SetLockPin;
+import com.seagate.kinetic.tools.management.cli.impl.SetSecurity;
 import com.seagate.kinetic.tools.management.cli.impl.UnLockDevice;
 import com.seagate.kinetic.tools.management.rest.bridge.RestBridgeService;
 import com.seagate.kinetic.tools.management.rest.message.DeviceId;
@@ -80,6 +82,8 @@ import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinReque
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinRequest;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinResponse;
+import com.seagate.kinetic.tools.management.rest.message.setsecurity.SetSecurityRequest;
+import com.seagate.kinetic.tools.management.rest.message.setsecurity.SetSecurityResponse;
 
 /**
  * 
@@ -148,6 +152,9 @@ public class DefaultRestBridgeService implements RestBridgeService {
                 response = this
                         .setClusterVersion((SetClusterVersionRequest) request);
                 break;
+
+            case SET_SECURITY:
+                response = this.setSecurity((SetSecurityRequest) request);
             default:
                 response = new ErrorResponse();
                 ((ErrorResponse) response)
@@ -663,6 +670,26 @@ public class DefaultRestBridgeService implements RestBridgeService {
                         request.getUseSsl(), request.getClversion(), Long
                                 .parseLong(request.getIdentity()), request
                                 .getKey(), request.getRequestTimeout()),
+                HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+
+        return response;
+    }
+
+    private RestResponse setSecurity(SetSecurityRequest request)
+            throws NumberFormatException, IOException {
+        SetSecurityResponse response = new SetSecurityResponse();
+        String discoId = request.getDiscoId();
+        if (discoId == null || discoId.isEmpty()) {
+            response.setDevices(null);
+            return response;
+        }
+
+        List<ACL> acls = request.getAcl();
+        execCommandAndSetResp(
+                response,
+                new SetSecurity(acls, discoId, request.getUseSsl(), request
+                        .getClversion(), Long.parseLong(request.getIdentity()),
+                        request.getKey(), request.getRequestTimeout()),
                 HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 
         return response;
