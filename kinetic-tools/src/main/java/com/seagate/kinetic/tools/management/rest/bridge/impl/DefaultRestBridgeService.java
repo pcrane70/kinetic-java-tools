@@ -155,6 +155,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
 
             case SET_SECURITY:
                 response = this.setSecurity((SetSecurityRequest) request);
+                break;
             default:
                 response = new ErrorResponse();
                 ((ErrorResponse) response)

@@ -24,7 +24,6 @@ import kinetic.admin.ACL;
 import kinetic.admin.Domain;
 
 import com.seagate.kinetic.tools.management.rest.client.KineticRestClient;
-import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.RestResponse;
 import com.seagate.kinetic.tools.management.rest.message.setsecurity.SetSecurityRequest;
 
@@ -44,25 +43,27 @@ public class SetSecurityClientExample {
 
         SetSecurityRequest request = new SetSecurityRequest();
 
-        List<DeviceId> devices = new ArrayList<DeviceId>();
+        // List<DeviceId> devices = new ArrayList<DeviceId>();
+        //
+        // DeviceId deviceId = new DeviceId();
+        //
+        // deviceId.setWwn("1234");
+        // String[] ips = { "127.0.0.1" };
+        // deviceId.setIps(ips);
+        //
+        // devices.add(deviceId);
 
-        DeviceId deviceId = new DeviceId();
+        // request.setDevices(devices);
 
-        deviceId.setWwn("1234");
-        String[] ips = { "127.0.0.1" };
-        deviceId.setIps(ips);
-
-        devices.add(deviceId);
-
-        request.setDevices(devices);
+        request.setDiscoId("321");
 
         List<ACL> acls = new ArrayList<ACL>();
 
         // acl
         ACL acl = new ACL();
-        acl.setUserId(2);
-        acl.setKey("123");
-        acl.setAlgorithm("SHA1");
+        acl.setUserId(1);
+        acl.setKey("asdfasdf");
+        acl.setAlgorithm("HmacSHA1");
 
         List<Domain> domains = new ArrayList<Domain>();
 
@@ -71,6 +72,7 @@ public class SetSecurityClientExample {
         List<kinetic.admin.Role> roles = new ArrayList<kinetic.admin.Role>();
         roles.add(kinetic.admin.Role.DELETE);
         roles.add(kinetic.admin.Role.WRITE);
+        roles.add(kinetic.admin.Role.SECURITY);
 
         domains.add(domain);
 

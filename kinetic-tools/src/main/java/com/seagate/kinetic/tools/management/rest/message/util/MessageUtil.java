@@ -28,6 +28,7 @@ import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinResponse;
+import com.seagate.kinetic.tools.management.rest.message.setsecurity.SetSecurityResponse;
 
 /**
  * Rest Json message utilities.
@@ -88,6 +89,9 @@ public class MessageUtil {
             break;
         case SECURE_ERASE:
             response = new SecureEraseResponse();
+            break;
+        case SET_SECURITY:
+            response = new SetSecurityResponse();
             break;
         default:
             throw new java.lang.UnsupportedOperationException(mtype.name());
