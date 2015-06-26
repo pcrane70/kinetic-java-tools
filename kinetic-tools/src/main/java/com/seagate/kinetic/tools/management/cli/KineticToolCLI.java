@@ -374,7 +374,7 @@ public class KineticToolCLI {
                             + timeout + "s" + "\n");
                     TimeUnit.SECONDS.sleep(timeout);
 
-                    String toolHome = System.getProperty("kinetic.toos.out",
+                    String toolHome = System.getProperty("kinetic.tools.out",
                             ".");
                     String rootDir = toolHome + File.separator + "out"
                             + File.separator;

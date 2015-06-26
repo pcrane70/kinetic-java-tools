@@ -30,7 +30,7 @@ import com.seagate.kinetic.tools.management.common.KineticToolsException;
 
 public class PerfRunner extends AbstractCommand {
     private static final String KINETIC_TOOLS_HOME = System.getProperty(
-            "kinetic.toos.out", ".");
+            "kinetic.tools.out", ".");
     private static final String DEFAULT_WORKLOAD_KINETIC_PATH = "workloadkinetic";
     private static final int ZERO = 0;
     private String valueSize;
