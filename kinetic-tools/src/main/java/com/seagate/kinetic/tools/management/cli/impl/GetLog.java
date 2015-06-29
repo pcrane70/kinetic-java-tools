@@ -18,7 +18,6 @@
 package com.seagate.kinetic.tools.management.cli.impl;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,29 +69,18 @@ public class GetLog extends AbstractCommand {
                 nodesLogFile);
         this.logType = logType;
         this.logOutFile = logOutFile;
-        this.sb = new StringBuffer();
     }
 
-    private void getAndStoreLog() throws Exception {
+    private void getLogFromDevices() throws Exception {
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
         }
 
-        sb.append("[\n");
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         for (KineticDevice device : devices) {
             threads.add(new GetLogThread(logType, device));
         }
         poolExecuteThreadsInGroups(threads);
-        sb.append("\n]");
-        persistToFile(sb.toString());
-    }
-
-    private void persistToFile(String log) throws IOException {
-        FileOutputStream fos = new FileOutputStream(new File(logOutFile));
-        fos.write(log.getBytes("UTF-8"));
-        fos.flush();
-        fos.close();
     }
 
     private String logToJson(KineticDevice device, KineticLog log,
@@ -297,7 +285,7 @@ public class GetLog extends AbstractCommand {
     @Override
     public void execute() throws KineticToolsException {
         try {
-            getAndStoreLog();
+            getLogFromDevices();
         } catch (Exception e) {
             throw new KineticToolsException(e);
         }

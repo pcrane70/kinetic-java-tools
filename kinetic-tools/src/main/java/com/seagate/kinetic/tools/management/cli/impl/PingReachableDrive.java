@@ -259,13 +259,12 @@ public class PingReachableDrive extends AbstractCommand {
     public void done() throws KineticToolsException {
         List<KineticDevice> reachableDevices = report.getSucceedDevices();
         String toolHome = System.getProperty("kinetic.tools.out", ".");
+        String rootDir = toolHome + File.separator + "out" + File.separator
+                + driveListOutputFile;
 
         if (null == subnetPrefix) {
             super.done();
             try {
-                String rootDir = toolHome + File.separator + "out"
-                        + File.separator + "ping_" + System.currentTimeMillis();
-
                 PingResponse response = new PingResponse();
                 report.persistReport(response, rootDir,
                         HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -273,9 +272,6 @@ public class PingReachableDrive extends AbstractCommand {
                 throw new KineticToolsException(e);
             }
         } else {
-            String rootDir = toolHome + File.separator + "out" + File.separator
-                    + driveListOutputFile;
-
             if (reachableDevices.size() > 0) {
                 System.out.println("\nDiscovered " + reachableDevices.size()
                         + " drives via subnet: " + subnetPrefix

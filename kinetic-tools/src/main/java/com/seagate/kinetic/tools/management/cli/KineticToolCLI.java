@@ -355,15 +355,15 @@ public class KineticToolCLI {
                 String driveDefaultName = DEFAULT_DRIVE_OUTPUT_FILE + "_"
                         + String.valueOf(time);
 
-                driveListOutputFile = driveListOutputFile == null ? driveDefaultName
-                        : driveListOutputFile;
-
                 String subnet = kineticToolCLI.getArgValue("-subnet", args);
                 if (null != subnet) {
                     if (!kineticToolCLI.validateSubnet(subnet)) {
                         throw new Exception(
                                 "Invalid subnet format, for instance: \"-subnet 192.168.10\"");
                     }
+
+                    driveListOutputFile = driveListOutputFile == null ? driveDefaultName
+                            : driveListOutputFile;
 
                     invoker.execute(new PingReachableDrive(subnet,
                             driveListOutputFile, useSsl, clusterVersion,
@@ -378,13 +378,17 @@ public class KineticToolCLI {
                             ".");
                     String rootDir = toolHome + File.separator + "out"
                             + File.separator;
-                    String outPath = rootDir + driveListOutputFile;
+
+                    driveListOutputFile = driveListOutputFile == null ? rootDir
+                            + driveDefaultName : rootDir + driveListOutputFile;
+
                     logger.info(DeviceDiscovery.persistToFile(
-                            deviceDiscovery.listDevices(), outPath));
+                            deviceDiscovery.listDevices(), driveListOutputFile));
 
                     System.out.println("Discovered "
                             + deviceDiscovery.listDevices().size()
-                            + " drives, persist drives info in " + outPath);
+                            + " drives, persist drives info in "
+                            + driveListOutputFile);
                 }
 
             } else if (args[0].equalsIgnoreCase("-ping")) {

@@ -100,8 +100,18 @@ public class Report {
         return device;
     }
 
+    private boolean isReportDisabled() {
+        String disableReport = (String) System.getenv("KINETIC_TOOL_DISABLE_REPORT");
+        return (disableReport != null && disableReport.equalsIgnoreCase("true"));
+    }
+
     public void persistReport(String reportAsString, String dst)
             throws IOException {
+        if (isReportDisabled()) {
+            System.out.println("Report disabled\n");
+            return;
+        }
+
         File file = new File(dst);
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
@@ -117,6 +127,11 @@ public class Report {
 
     public void persistReport(RestResponseWithStatus response, String dst,
             int failureRespCode) throws IOException {
+        if (isReportDisabled()) {
+            System.out.println("Report disabled\n");
+            return;
+        }
+
         persistReport(formatReportAsRestOutput(response, failureRespCode), dst);
     }
 
