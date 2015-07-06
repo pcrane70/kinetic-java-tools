@@ -32,6 +32,7 @@ import kinetic.admin.KineticLog;
 import kinetic.admin.KineticLogType;
 import kinetic.client.KineticException;
 
+import com.seagate.kinetic.tools.management.cli.impl.AdminClientRegister;
 import com.seagate.kinetic.tools.management.cli.impl.CheckFirmwareVersion;
 import com.seagate.kinetic.tools.management.cli.impl.Command;
 import com.seagate.kinetic.tools.management.cli.impl.DefaultCommandInvoker;
@@ -103,6 +104,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
     private static final String DEVICE = "device";
     private static final String TOOL_HOME = System.getProperty(
             "kinetic.tools.out", ".");
+    private static final AdminClientRegister adminClientRegister = new AdminClientRegister();
 
     public DefaultRestBridgeService() {
         // TODO Auto-generated constructor stub
@@ -208,11 +210,12 @@ public class DefaultRestBridgeService implements RestBridgeService {
         }
 
         Invoker invoker = new DefaultCommandInvoker();
-        Report report = invoker.execute(new GetLog(discoId,
-                GETLOG_LOG_FILE_PREFIX + System.currentTimeMillis(), type,
-                request.getUseSsl(), request.getClversion(), Long
-                        .parseLong(request.getIdentity()), request.getKey(),
-                request.getRequestTimeout()));
+        Command getLogCommand = new GetLog(discoId, GETLOG_LOG_FILE_PREFIX
+                + System.currentTimeMillis(), type, request.getUseSsl(),
+                request.getClversion(), Long.parseLong(request.getIdentity()),
+                request.getKey(), request.getRequestTimeout());
+        getLogCommand.setAdminClientRegister(adminClientRegister);
+        Report report = invoker.execute(getLogCommand);
 
         List<DeviceLog> deviceLogs = new ArrayList<DeviceLog>();
         for (KineticDevice kineticDevice : report.getSucceedDevices()) {

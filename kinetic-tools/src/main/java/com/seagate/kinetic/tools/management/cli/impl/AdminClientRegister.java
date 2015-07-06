@@ -17,16 +17,33 @@
  */
 package com.seagate.kinetic.tools.management.cli.impl;
 
-import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public interface Command {
-    void init() throws KineticToolsException;
+import kinetic.admin.KineticAdminClient;
 
-    void execute() throws KineticToolsException;
+public class AdminClientRegister {
+    private Map<String, KineticAdminClient> adminClientRegMap;
 
-    void done() throws KineticToolsException;
+    public AdminClientRegister() {
+        adminClientRegMap = new ConcurrentHashMap<String, KineticAdminClient>();
+    }
 
-    void setAdminClientRegister(AdminClientRegister adminClientRegister);
+    public void register(String device, KineticAdminClient adminClient) {
+        if (null == device) {
+            return;
+        }
+        adminClientRegMap.put(device, adminClient);
+    }
 
-    Report getReport();
+    public void deRegister(String device) {
+        if (null == device) {
+            return;
+        }
+        adminClientRegMap.remove(device);
+    }
+
+    public KineticAdminClient getKineticAdminClient(String device) {
+        return device == null ? null : adminClientRegMap.get(device);
+    }
 }

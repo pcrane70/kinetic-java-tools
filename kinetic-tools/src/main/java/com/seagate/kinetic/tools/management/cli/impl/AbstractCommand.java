@@ -41,6 +41,8 @@ abstract class AbstractCommand implements Command {
     protected BasicSettings basicSettings = new BasicSettings();
     protected StringBuffer sb = new StringBuffer();
 
+    protected AdminClientRegister adminClientRegister = null;
+
     public AbstractCommand(boolean useSsl, long clusterVersion, long identity,
             String key, long requestTimeout, String drivesLogFile) {
         basicSettings.setClusterVersion(clusterVersion)
@@ -191,8 +193,21 @@ abstract class AbstractCommand implements Command {
         @Override
         public void run() {
             try {
-                adminClient = KineticAdminClientFactory
-                        .createInstance(adminClientConfig);
+                if (null == adminClientRegister) {
+                    adminClient = KineticAdminClientFactory
+                            .createInstance(adminClientConfig);
+                } else {
+                    String hostAndPort = adminClientConfig.getHost() + ":"
+                            + adminClientConfig.getPort();
+                    adminClient = adminClientRegister
+                            .getKineticAdminClient(hostAndPort);
+                    if (null == adminClient) {
+                        adminClient = KineticAdminClientFactory
+                                .createInstance(adminClientConfig);
+                        adminClientRegister.register(hostAndPort, adminClient);
+                    }
+                }
+
                 runTask();
             } catch (KineticException e) {
                 report.reportFailure(device, e.getMessage());
@@ -200,7 +215,7 @@ abstract class AbstractCommand implements Command {
                 report.reportFailure(device, e.getMessage());
             } finally {
                 try {
-                    if (null != adminClient) {
+                    if (null != adminClient && null == adminClientRegister) {
                         adminClient.close();
                     }
                 } catch (KineticException e) {
@@ -223,5 +238,10 @@ abstract class AbstractCommand implements Command {
     @Override
     public Report getReport() {
         return report;
+    }
+
+    @Override
+    public void setAdminClientRegister(AdminClientRegister adminClientRegister) {
+        this.adminClientRegister = adminClientRegister;
     }
 }
