@@ -47,5 +47,6 @@
 		<module>kinetic-monitor</module>
 		<module>kinetic-tools</module>
 		<module>kinetic-performance</module>
+                <module>kinetic-swift</module>
 	</modules>
 </project>
