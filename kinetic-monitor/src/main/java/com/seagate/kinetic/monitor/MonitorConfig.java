@@ -1,3 +1,22 @@
+/**
+ * 
+ * Copyright (C) 2014 Seagate Technology.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ */
 package com.seagate.kinetic.monitor;
 
 import java.io.FileInputStream;
@@ -8,8 +27,9 @@ import java.util.List;
 import java.util.Properties;
 
 public final class MonitorConfig {
+	private static final String DEFAULT_REST_SERVICE_URL = "127.0.0.1:8080";
 	public static final int DEFAULT_DATA_COLLECT_INTERVAL = 1;
-	public static final String DEFAULT_NODE_DISCOVER_METHOD = "listener";
+	public static final String DEFAULT_NODE_DISCOVER_METHOD = "broadcast";
 	private static final String configFilePath = "conf/monitor.conf";
 	private static Properties prop = new Properties();
 
@@ -50,6 +70,12 @@ public final class MonitorConfig {
 
 		return prop.getProperty("nodeDiscoverMethod",
 				DEFAULT_NODE_DISCOVER_METHOD);
+	}
+
+	public static String getRestServiceUrl() throws Exception {
+		checkProp();
+
+		return prop.getProperty("restServiceUrl", DEFAULT_REST_SERVICE_URL);
 	}
 
 	public static int getDataCollectInterval() throws Exception {
@@ -116,6 +142,7 @@ public final class MonitorConfig {
 		System.out.println(MonitorConfig.listMonitorNodes().toString());
 		System.out.println(MonitorConfig.getDataCollectInterval());
 		System.out.println(MonitorConfig.getNodeDiscoveryMethod());
+		System.out.println(MonitorConfig.getRestServiceUrl());
 	}
 
 }
