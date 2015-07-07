@@ -5,17 +5,13 @@
 /.idea
 *.iml
 
-# eclipse
-/kinetic-client/.settings
-/kinetic-simlator/.settings
-/kinetic-test/.settings
+# eclips
 
 # build products
 /*/doc
 /*/target
 /*/test-output
 /test-output
-/*/kinetic_log
 
 /tmp
 *.pid
@@ -23,4 +19,4 @@
 *.log
 *.result
 /target
-/bin
+
