@@ -18,6 +18,7 @@
 package com.seagate.kinetic.tools.management.rest.message.util;
 
 import com.google.gson.Gson;
+import com.seagate.kinetic.tools.external.ExternalResponse;
 import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestResponse;
 import com.seagate.kinetic.tools.management.rest.message.checkversion.CheckVersionResponse;
@@ -92,6 +93,9 @@ public class MessageUtil {
             break;
         case SET_SECURITY:
             response = new SetSecurityResponse();
+            break;
+        case EXTERNAL_REQUEST:
+            response = new ExternalResponse();
             break;
         default:
             throw new java.lang.UnsupportedOperationException(mtype.name());

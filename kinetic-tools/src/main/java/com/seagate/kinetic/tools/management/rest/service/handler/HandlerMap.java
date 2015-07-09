@@ -69,6 +69,8 @@ public class HandlerMap {
     // set security (acl)
     public static final String SETSECURITY = "/setsecurity";
 
+    public static final String EXTERNAL = "/external";
+
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
     
@@ -93,6 +95,8 @@ public class HandlerMap {
         hmap.put(SETCLUSTERVERSION, new SetClusterVersionHandler());
 
         hmap.put(SETSECURITY, new SetSecurityHandler());
+
+        hmap.put(EXTERNAL, new ExternalCommandHandler());
     }
 
     /**

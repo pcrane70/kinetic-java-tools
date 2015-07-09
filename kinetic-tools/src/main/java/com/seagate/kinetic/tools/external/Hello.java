@@ -15,43 +15,30 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.management.rest.message;
+package com.seagate.kinetic.tools.external;
+
 
 /**
- * Rest messaging message type definition.
+ * Hello world kinetic tools swift example.
  * 
  * @author chiaming
  *
  */
-public enum MessageType {
+public class Hello implements ExternalCommandService {
 
-    DISCOVER,
-    DISCOVER_REPLY,
-    PING,
-    PING_REPLY,
-    GETLOG,
-    GETLOG_REPLY,
-    CHECKVERSION,
-    CHECKVERSION_REPLY,
-    SET_ERASEPIN,
-    SET_ERASEPIN_REPLY,
-    SET_LOCKPIN,
-    SET_LOCKPIN_REPLY,
-    INSTANT_ERASE,
-    INSTANT_ERASE_REPLY,
-    SECURE_ERASE,
-    SECURE_ERASE_REPLY,
-    LOCK_DEVICE,
-    LOCK_DEVICE_REPLY,
-    UNLOCK_DEVICE,
-    UNLOCK_DEVICE_REPLY,
-    SET_CLVERSION,
-    SET_CLVERSION_REPLY,
-    SET_SECURITY,
-    SET_SECURITY_REPLY,
-    GET_FIRMWARE,
-    GET_FIRMWARE_REPLY,
-    EXTERNAL_REQUEST,
-    EXTERNAL_REPLY,
-    ERROR;
+    public Hello() {
+        ;
+    }
+
+    @Override
+    public ExternalResponse execute(ExternalRequest request) {
+
+        System.out.println("** received request: " + request.toJson());
+
+        ExternalResponse resp = new ExternalResponse();
+        resp.setResponseMessage("hello swift");
+
+        return resp;
+    }
+
 }
