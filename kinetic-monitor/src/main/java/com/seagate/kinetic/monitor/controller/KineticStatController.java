@@ -1,4 +1,23 @@
-package com.seagate.kinetic.monitor;
+/**
+ * 
+ * Copyright (C) 2014 Seagate Technology.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ */
+package com.seagate.kinetic.monitor.controller;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -29,26 +48,45 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.seagate.kinetic.heartbeat.HeartbeatMessage;
 import com.seagate.kinetic.heartbeat.KineticNetworkInterface;
-import com.seagate.kinetic.monitor.KineticStatModel.NodeStatItem;
+import com.seagate.kinetic.monitor.HeartbeatListener;
+import com.seagate.kinetic.monitor.MonitorConfig;
+import com.seagate.kinetic.monitor.model.KineticStatModel;
+import com.seagate.kinetic.monitor.model.NodeStatItem;
+import com.seagate.kinetic.monitor.view.KineticBytesOverviewView;
+import com.seagate.kinetic.monitor.view.KineticOpsOverviewView;
+import com.seagate.kinetic.monitor.view.KineticSpecifiedNodeView;
+import com.seagate.kinetic.tools.management.rest.client.KineticRestClient;
+import com.seagate.kinetic.tools.management.rest.client.RestClientException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
+import com.seagate.kinetic.tools.management.rest.message.DeviceInfo;
+import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverRequest;
+import com.seagate.kinetic.tools.management.rest.message.discover.DiscoverResponse;
+import com.seagate.kinetic.tools.management.rest.message.getlog.DeviceLog;
+import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogRequest;
+import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
 
 public class KineticStatController {
 	private static final String NODE_DISCOVER_METHOD_LISTENER = "listener";
 	private static final String NODE_DISCOVER_METHOD_BROADCAST = "broadcast";
 	private static final String NODE_DISCOVER_METHOD_CONFIGURATION = "configuration";
+	private static final String NODE_DISCOVER_METHOD_REST = "rest";
 	private static final String DEFAULT_MC_DESTNATION = "239.1.2.3";
 	private static final double BYTES_PER_MB = 1048576; // 1024*1024
 	private StatDataCollectThread dcThread;
 	private boolean stop = false;
 	private boolean cleanChartWhenChooseNode = true;
 	private String nodeDiscoverMethod = MonitorConfig.DEFAULT_NODE_DISCOVER_METHOD;
+	private KineticRestClient restClient = null;
+	private String discoId = "";
+	private String restServiceUrl = MonitorConfig.getRestServiceUrl();
 
 	public KineticStatController(KineticStatModel kineticStatModel,
-			KineticStatView kineticStatView,
+			KineticSpecifiedNodeView kineticStatView,
 			KineticOpsOverviewView kineticOverviewView,
-			KineticBytesOverviewView kineticBytesOverviewView)
-			throws KineticException, IOException {
+			KineticBytesOverviewView kineticBytesOverviewView) throws Exception {
 		dcThread = new StatDataCollectThread(kineticStatModel, kineticStatView,
 				kineticOverviewView, kineticBytesOverviewView);
+		restClient = new KineticRestClient();
 	}
 
 	private void broadcastToDiscoverNodes(StatDataCollectThread dcThread)
@@ -91,10 +129,12 @@ public class KineticStatController {
 		} else if (nodeDiscoverMethod
 				.equals(NODE_DISCOVER_METHOD_CONFIGURATION)) {
 			discoverNodesFromConfiguration(this.dcThread);
+		} else if (nodeDiscoverMethod.equals(NODE_DISCOVER_METHOD_REST)) {
+			discoverNodesFromRestService();
 		}
 	}
 
-	public void discoverNodesFromConfiguration(StatDataCollectThread dcThread)
+	private void discoverNodesFromConfiguration(StatDataCollectThread dcThread)
 			throws Exception {
 		List<String> nodes = MonitorConfig.listMonitorNodes();
 		List<String> inet4;
@@ -109,11 +149,25 @@ public class KineticStatController {
 		}
 	}
 
+	private void discoverNodesFromRestService() throws Exception {
+		DiscoverRequest restRequest = new DiscoverRequest();
+		DiscoverResponse resp = (DiscoverResponse) restClient.send(
+				restServiceUrl + "/discover", restRequest);
+		discoId = resp.getDiscoId();
+		for (DeviceInfo deviceInfo : resp.getDevices()) {
+			dcThread.registerNode(new KineticNode(deviceInfo.getDevice()
+					.getInet4(), deviceInfo.getDevice().getPort(), deviceInfo
+					.getDevice().getTlsPort(), deviceInfo.getDevice().getWwn(),
+					""));
+			dcThread.registerWwn(deviceInfo.getDevice().getWwn());
+		}
+	}
+
 	public void stopCollectDataAndUpdateView() {
 		this.stop = true;
 	}
 
-	public class MyHeartbeatListner extends HeartbeatListener {
+	private class MyHeartbeatListner extends HeartbeatListener {
 		private StatDataCollectThread dcThread;
 
 		public MyHeartbeatListner(StatDataCollectThread dcThread)
@@ -151,7 +205,7 @@ public class KineticStatController {
 		}
 	}
 
-	public class NodeDiscoveryThread extends Thread {
+	private class NodeDiscoveryThread extends Thread {
 		private StatDataCollectThread dcThread;
 		private MulticastSocket multicastSocket;
 
@@ -212,11 +266,22 @@ public class KineticStatController {
 		}
 	}
 
-	public class StatDataCollectThread extends Thread {
+	private KineticNode toKineticNode(DeviceId deviveId)
+			throws KineticException {
+		List<String> inet4 = new ArrayList<String>();
+		for (String ip : deviveId.getIps()) {
+			inet4.add(ip);
+		}
+
+		return new KineticNode(inet4, deviveId.getPort(),
+				deviveId.getTlsPort(), deviveId.getWwn(), "");
+	}
+
+	private class StatDataCollectThread extends Thread {
 		private static final double AXIS_RANGE_PEAK_HIGH_WATER_MARK_RATIO = 1.5;
 		private static final double AXIS_RANGE_PEAK_LOW_WATER_MARK_RATIO = 1.2;
 		private KineticStatModel kineticStatModel;
-		private KineticStatView kineticStatView;
+		private KineticSpecifiedNodeView kineticStatView;
 		private KineticOpsOverviewView kineticOverviewView;
 		private KineticBytesOverviewView kineticBytesOverviewView;
 		private Map<String, KineticNode> nodes;
@@ -224,7 +289,7 @@ public class KineticStatController {
 		private int dataCollectInterval = MonitorConfig.DEFAULT_DATA_COLLECT_INTERVAL;
 
 		public StatDataCollectThread(KineticStatModel kineticStatModel,
-				KineticStatView kineticStatView,
+				KineticSpecifiedNodeView kineticStatView,
 				KineticOpsOverviewView kineticOverviewView,
 				KineticBytesOverviewView kineticBytesOverviewView)
 				throws KineticException, IOException {
@@ -240,10 +305,6 @@ public class KineticStatController {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-
-		public NodeStatItem getNodeStat(String node) {
-			return null;
 		}
 
 		public synchronized void registerWwn(String wwn) {
@@ -271,25 +332,116 @@ public class KineticStatController {
 			while (!stop) {
 				synchronized (this) {
 					NodeStatItem nodeStatItem = null;
-					for (String node : nodes.keySet()) {
-						try {
-							kineticStatModel.updateNodeStat(node,
-									nodes.get(node).getLatestNodeStat());
-						} catch (Exception e) {
-							e.printStackTrace();
-							nodes.get(node).clientReconnect();
-						}
 
-						nodeStatItem = kineticStatModel.getAvgNodeStat(node);
-						kineticOverviewView.updateDataSet(node,
-								nodeStatItem.getTotalPutTimes(),
-								nodeStatItem.getTotalGetTimes(),
-								nodeStatItem.getTotalDeleteTimes());
-						kineticBytesOverviewView.updateDataSet(node,
-								nodeStatItem.getTotalPutBytes() / BYTES_PER_MB,
-								nodeStatItem.getTotalGetBytes() / BYTES_PER_MB,
-								nodeStatItem.getTotalDeleteBytes()
-										/ BYTES_PER_MB);
+					if (nodeDiscoverMethod.equals(NODE_DISCOVER_METHOD_REST)) {
+						GetLogRequest getLogRequst = new GetLogRequest();
+						getLogRequst.setDiscoId(discoId);
+						getLogRequst.setLogType(KineticLogType.STATISTICS);
+						try {
+							GetLogResponse getLogResponse = (GetLogResponse) restClient
+									.send(restServiceUrl + "/getlog",
+											getLogRequst);
+							KineticNode node = null;
+							NodeStatItem internalNoteStatItem = null;
+							for (DeviceLog deviceLog : getLogResponse
+									.getDeviceLogs()) {
+								if (null != deviceLog) {
+									double totalPutTimes = 0;
+									double totalPutBytes = 0;
+									double totalGetTimes = 0;
+									double totalGetBytes = 0;
+									double totalDeleteTimes = 0;
+									double totalDeleteBytes = 0;
+									if (null != deviceLog.getStatistics()) {
+										for (Statistics stat : deviceLog
+												.getStatistics()) {
+
+											MessageType messageType = stat
+													.getMessageType();
+											if (null != messageType) {
+												switch (messageType) {
+												case PUT:
+													totalPutTimes = stat
+															.getCount();
+													totalPutBytes = stat
+															.getBytes();
+													break;
+												case GET:
+													totalGetTimes = stat
+															.getCount();
+													totalGetBytes = stat
+															.getBytes();
+													break;
+												case DELETE:
+													totalDeleteTimes = stat
+															.getCount();
+													totalDeleteBytes = stat
+															.getBytes();
+													break;
+												default:
+													continue;
+												}
+											}
+										}
+									}
+
+									internalNoteStatItem = new NodeStatItem(
+											totalPutTimes, totalPutBytes,
+											totalGetTimes, totalGetBytes,
+											totalDeleteTimes, totalDeleteBytes);
+									node = toKineticNode(deviceLog
+											.getDeviceStatus().getDevice());
+									kineticStatModel.updateNodeStat(
+											node.toString(),
+											internalNoteStatItem);
+
+									nodeStatItem = kineticStatModel
+											.getAvgNodeStat(node.toString());
+									kineticOverviewView.updateDataSet(
+											node.toString(),
+											nodeStatItem.getTotalPutTimes(),
+											nodeStatItem.getTotalGetTimes(),
+											nodeStatItem.getTotalDeleteTimes());
+									kineticBytesOverviewView.updateDataSet(
+											node.toString(),
+											nodeStatItem.getTotalPutBytes()
+													/ BYTES_PER_MB,
+											nodeStatItem.getTotalGetBytes()
+													/ BYTES_PER_MB,
+											nodeStatItem.getTotalDeleteBytes()
+													/ BYTES_PER_MB);
+								}
+
+							}
+						} catch (RestClientException e) {
+							e.printStackTrace();
+						} catch (KineticException e) {
+							e.printStackTrace();
+						}
+					} else {
+						for (String node : nodes.keySet()) {
+							try {
+								kineticStatModel.updateNodeStat(node, nodes
+										.get(node).getLatestNodeStat());
+							} catch (Exception e) {
+								e.printStackTrace();
+								nodes.get(node).clientReconnect();
+							}
+
+							nodeStatItem = kineticStatModel
+									.getAvgNodeStat(node);
+							kineticOverviewView.updateDataSet(node,
+									nodeStatItem.getTotalPutTimes(),
+									nodeStatItem.getTotalGetTimes(),
+									nodeStatItem.getTotalDeleteTimes());
+							kineticBytesOverviewView.updateDataSet(node,
+									nodeStatItem.getTotalPutBytes()
+											/ BYTES_PER_MB,
+									nodeStatItem.getTotalGetBytes()
+											/ BYTES_PER_MB,
+									nodeStatItem.getTotalDeleteBytes()
+											/ BYTES_PER_MB);
+						}
 					}
 
 					if (!choosenNode.equals(kineticStatView.getChoosenNode())) {
@@ -300,7 +452,7 @@ public class KineticStatController {
 					}
 
 					if (choosenNode
-							.equals(KineticStatView.SYSTEM_TOTAL_IOPS_AND_THROUGHPUT_STATISTICS)) {
+							.equals(KineticSpecifiedNodeView.SYSTEM_TOTAL_IOPS_AND_THROUGHPUT_STATISTICS)) {
 						nodeStatItem = kineticStatModel.getAvgSystemStat();
 					} else {
 						nodeStatItem = kineticStatModel
@@ -342,6 +494,7 @@ public class KineticStatController {
 					kineticStatView.addTimeSeriesItem(putOps, putTrg, getOps,
 							getTrg, deleteOps, deleteTrg);
 				}
+
 				try {
 					TimeUnit.SECONDS.sleep(dataCollectInterval);
 				} catch (InterruptedException e) {
@@ -403,8 +556,7 @@ class KineticNode {
 		return sb.toString();
 	}
 
-	public KineticStatModel.NodeStatItem getLatestNodeStat()
-			throws KineticException {
+	public NodeStatItem getLatestNodeStat() throws KineticException {
 		List<KineticLogType> listOfLogType = new ArrayList<KineticLogType>();
 		listOfLogType.add(KineticLogType.STATISTICS);
 		KineticLog kineticLog = adminClient.getLog(listOfLogType);

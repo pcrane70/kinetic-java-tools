@@ -36,7 +36,7 @@
 							</archive>
 							<manifest>
 								<addClasspath>true</addClasspath>
-								<mainClass>com.seagate.kinetic.demo.stat.KineticStatDemo</mainClass>
+								<mainClass>com.seagate.kinetic.monitor.KineticStatDemo</mainClass>
 							</manifest>
 							<finalName>kinetic-monitor-${project.version}</finalName>
 							<outputDirectory>${project.build.directory}</outputDirectory>
@@ -44,6 +44,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
@@ -86,8 +87,13 @@
 		</dependency>
 		<dependency>
 			<groupId>com.seagate.kinetic</groupId>
+			<artifactId>kinetic-tools</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.seagate.kinetic</groupId>
 			<artifactId>kinetic-client</artifactId>
-			<version>0.8.0.2</version>
+			<version>0.8.0.4</version>
 		</dependency>
 	</dependencies>
 </project>

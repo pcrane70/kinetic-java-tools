@@ -1,4 +1,23 @@
-package com.seagate.kinetic.monitor;
+/**
+ * 
+ * Copyright (C) 2014 Seagate Technology.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ */
+package com.seagate.kinetic.monitor.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,42 +33,36 @@ import org.jfree.chart.renderer.category.GroupedStackedBarRenderer;
 import org.jfree.data.KeyToGroupMap;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.GradientPaintTransformType;
-import org.jfree.ui.RefineryUtilities;
 import org.jfree.ui.StandardGradientPaintTransformer;
 
-public class KineticBytesOverviewView extends ApplicationFrame {
-	private static final long serialVersionUID = 1L;
-	private DefaultCategoryDataset defaultcategorydataset = new DefaultCategoryDataset();
-	private GroupedStackedBarRenderer groupedstackedbarrenderer = new GroupedStackedBarRenderer();
-	private KeyToGroupMap keytogroupmap = new KeyToGroupMap("G1");
+public class DefaultKineticOverviewView extends AbstractKineticStatView {
+	private static final long serialVersionUID = -2822683433579140662L;
+	protected DefaultCategoryDataset defaultcategorydataset = new DefaultCategoryDataset();
+	protected GroupedStackedBarRenderer groupedstackedbarrenderer = new GroupedStackedBarRenderer();
+	protected KeyToGroupMap keytogroupmap = new KeyToGroupMap("G1");
+	protected String unitName;
 
-	public KineticBytesOverviewView(String s) {
-		super(s);
+	public DefaultKineticOverviewView(String title, String unitName) {
+		super(title);
+		this.unitName = unitName;
 		JPanel jpanel = new ChartPanel(createChart(defaultcategorydataset));
 		jpanel.setPreferredSize(new Dimension(590, 350));
 		setContentPane(jpanel);
 	}
 
-	public void render() {
-		this.pack();
-		RefineryUtilities.centerFrameOnScreen(this);
-		this.setVisible(true);
-	}
-
-	public synchronized void updateDataSet(String node, double putMBs,
-			double getMBs, double deleteMBs) {
+	public synchronized void updateDataSet(String node, double put, double get,
+			double delete) {
 		String ipPlusPort = node.substring(0, node.indexOf("("));
-		defaultcategorydataset.addValue(getMBs, "Get", ipPlusPort);
-		defaultcategorydataset.addValue(putMBs, "Put", ipPlusPort);
-		defaultcategorydataset.addValue(deleteMBs, "Delete", ipPlusPort);
+		defaultcategorydataset.addValue(get, "Get", ipPlusPort);
+		defaultcategorydataset.addValue(put, "Put", ipPlusPort);
+		defaultcategorydataset.addValue(delete, "Delete", ipPlusPort);
 	}
 
 	private JFreeChart createChart(CategoryDataset categorydataset) {
 		JFreeChart jfreechart = ChartFactory.createStackedBarChart("", "",
-				"Total MB/s", categorydataset, PlotOrientation.HORIZONTAL,
-				true, true, false);
+				"Total " + unitName, categorydataset,
+				PlotOrientation.HORIZONTAL, true, true, false);
 		keytogroupmap = new KeyToGroupMap("G1");
 		keytogroupmap.mapKeyToGroup("Get", "G1");
 		keytogroupmap.mapKeyToGroup("Put", "G1");

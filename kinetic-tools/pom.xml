@@ -149,7 +149,7 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>kinetic-test</artifactId>
 			<type>test-jar</type>
-			<version>0.8.0.3</version>
+			<version>0.8.0.4</version>
 		</dependency>
 		 
 		 <dependency>
