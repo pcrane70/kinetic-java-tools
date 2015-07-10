@@ -37,6 +37,7 @@ import com.seagate.kinetic.common.lib.KineticMessage;
 import com.seagate.kinetic.proto.Kinetic.Command.GetLog.Configuration;
 import com.seagate.kinetic.proto.Kinetic.Command.GetLog.Configuration.Interface;
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
 
 public class PingReachableDrive extends AbstractCommand {
@@ -62,6 +63,13 @@ public class PingReachableDrive extends AbstractCommand {
         if (validateSubnet(subnetPrefixOrDriveInputFilePath)) {
             this.subnetPrefix = subnetPrefixOrDriveInputFilePath;
         }
+    }
+
+    public PingReachableDrive(List<DeviceId> deviceIds,
+            String driveListOutputFile, boolean useSsl, long clusterVersion,
+            long identity, String key, long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
+        this.driveListOutputFile = driveListOutputFile;
     }
 
     private void waitUnSolicitedMesesages(int maxWaitMilliSeconds) {

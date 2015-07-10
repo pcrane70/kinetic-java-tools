@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.lockdevice.LockDeviceResponse;
 
 public class LockDevice extends AbstractCommand {
@@ -38,6 +39,14 @@ public class LockDevice extends AbstractCommand {
             long requestTimeout) throws IOException {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
                 driveInputFile);
+        this.lockPin = null;
+        parsePin(lockPinInString);
+    }
+
+    public LockDevice(List<DeviceId> deviceIds, String lockPinInString,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
         this.lockPin = null;
         parsePin(lockPinInString);
     }

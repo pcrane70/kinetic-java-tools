@@ -30,6 +30,7 @@ import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
 import com.seagate.kinetic.tools.management.common.util.MessageUtil;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
 
 public class GetVendorSpecificDeviceLog extends AbstractCommand {
@@ -42,6 +43,16 @@ public class GetVendorSpecificDeviceLog extends AbstractCommand {
             throws IOException {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
                 drivesInputFile);
+        this.outputFilePath = outputFilePath;
+        this.vendorSpecificName = null;
+        parseVendorSpecificDeviceName(vendorSpecificNameInString);
+    }
+
+    public GetVendorSpecificDeviceLog(String vendorSpecificNameInString,
+            List<DeviceId> deviceIds, String outputFilePath, boolean useSsl,
+            long clusterVersion, long identity, String key, long requestTimeout)
+            throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
         this.outputFilePath = outputFilePath;
         this.vendorSpecificName = null;
         parseVendorSpecificDeviceName(vendorSpecificNameInString);
@@ -127,8 +138,8 @@ public class GetVendorSpecificDeviceLog extends AbstractCommand {
         RestResponseWithStatus response = new RestResponseWithStatus();
         try {
             String toolHome = System.getProperty("kinetic.tools.out", ".");
-            String rootDir = toolHome + File.separator + "out"
-                    + File.separator + outputFilePath;
+            String rootDir = toolHome + File.separator + "out" + File.separator
+                    + outputFilePath;
             report.persistReport(response, rootDir,
                     HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } catch (IOException e) {

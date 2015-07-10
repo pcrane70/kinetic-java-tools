@@ -45,6 +45,13 @@ public class CheckFirmwareVersion extends AbstractCommand {
         this.expectedFirewareVersion = expectedFirewareVersion;
     }
 
+    public CheckFirmwareVersion(String expectedFirewareVersion,
+            List<DeviceId> deviceIds, boolean useSsl, long clusterVersion,
+            long identity, String key, long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
+        this.expectedFirewareVersion = expectedFirewareVersion;
+    }
+
     private void checkFirmwareVersion() throws Exception {
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
@@ -76,6 +83,7 @@ public class CheckFirmwareVersion extends AbstractCommand {
                 String version = null;
                 if (null != kineticLog && null != kineticLog.getConfiguration()) {
                     version = kineticLog.getConfiguration().getVersion();
+                    device.setFirmwareVersion(version);
                 }
 
                 if (version.equals(expectedFirewareVersion)) {
@@ -108,14 +116,14 @@ public class CheckFirmwareVersion extends AbstractCommand {
         List<DeviceStatus> respDevices = new ArrayList<DeviceStatus>();
 
         for (KineticDevice kineticDevice : report.getSucceedDevices()) {
-            device = initDevice(kineticDevice);
+            device = toDeviceId(kineticDevice);
             dstatus = new DeviceStatus();
             dstatus.setDevice(device);
             respDevices.add(dstatus);
         }
 
         for (KineticDevice kineticDevice : report.getFailedDevices()) {
-            device = initDevice(kineticDevice);
+            device = toDeviceId(kineticDevice);
             dstatus = new DeviceStatus();
             dstatus.setDevice(device);
             dstatus.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
@@ -126,8 +134,8 @@ public class CheckFirmwareVersion extends AbstractCommand {
 
         response.setDevices(respDevices);
         String toolHome = System.getProperty("kinetic.tools.out", ".");
-        String rootDir = toolHome + File.separator + "out"
-                + File.separator + "checkversion_" + System.currentTimeMillis();
+        String rootDir = toolHome + File.separator + "out" + File.separator
+                + "checkversion_" + System.currentTimeMillis();
 
         try {
             report.persistReport(MessageUtil.toJson(response), rootDir);

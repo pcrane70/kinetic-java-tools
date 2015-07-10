@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.setclversion.SetClusterVersionResponse;
 
 public class SetClusterVersion extends AbstractCommand {
@@ -37,6 +38,13 @@ public class SetClusterVersion extends AbstractCommand {
             long identity, String key, long requestTimeout) throws IOException {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
                 drivesInputFile);
+        this.newClusterVersion = Long.parseLong(clusterVersionInString);
+    }
+
+    public SetClusterVersion(String clusterVersionInString,
+            List<DeviceId> deviceIds, boolean useSsl, long clusterVersion,
+            long identity, String key, long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
         this.newClusterVersion = Long.parseLong(clusterVersionInString);
     }
 

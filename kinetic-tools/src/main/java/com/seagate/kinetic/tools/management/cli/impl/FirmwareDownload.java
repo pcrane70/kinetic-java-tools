@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
 
 public class FirmwareDownload extends AbstractCommand {
@@ -42,6 +43,13 @@ public class FirmwareDownload extends AbstractCommand {
             long requestTimeout) throws IOException {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
                 drivesLogFile);
+        this.firmware = firmware;
+    }
+
+    public FirmwareDownload(String firmware, List<DeviceId> deviceIds,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
         this.firmware = firmware;
     }
 

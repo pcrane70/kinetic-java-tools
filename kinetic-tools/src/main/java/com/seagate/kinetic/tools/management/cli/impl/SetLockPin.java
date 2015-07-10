@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinResponse;
 
 public class SetLockPin extends AbstractCommand {
@@ -39,6 +40,15 @@ public class SetLockPin extends AbstractCommand {
             long identity, String key, long requestTimeout) throws IOException {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
                 drivesInputFile);
+        this.oldLockPin = null;
+        this.newLockPin = null;
+        parsePin(oldLockPinInString, newLockPinInString);
+    }
+
+    public SetLockPin(String oldLockPinInString, String newLockPinInString,
+            List<DeviceId> deviceIds, boolean useSsl, long clusterVersion,
+            long identity, String key, long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
         this.oldLockPin = null;
         this.newLockPin = null;
         parsePin(oldLockPinInString, newLockPinInString);

@@ -71,6 +71,14 @@ public class GetLog extends AbstractCommand {
         this.logOutFile = logOutFile;
     }
 
+    public GetLog(List<DeviceId> deviceIds, String logOutFile, String logType,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
+        this.logType = logType;
+        this.logOutFile = logOutFile;
+    }
+
     private void getLogFromDevices() throws Exception {
         if (null == devices || devices.isEmpty()) {
             throw new Exception("Drives get from input file are null or empty.");
@@ -334,7 +342,7 @@ public class GetLog extends AbstractCommand {
         DeviceLog deviceLog;
         KineticLog myKineticLog = (KineticLog) report
                 .getAdditionMessage(kineticDevice);
-        device = initDevice(kineticDevice);
+        device = toDeviceId(kineticDevice);
         deviceLog = new DeviceLog();
         dstatus = new DeviceStatus();
         dstatus.setDevice(device);

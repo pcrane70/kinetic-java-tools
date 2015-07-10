@@ -27,6 +27,7 @@ import com.seagate.kinetic.tools.management.rest.message.erasedevice.InstantEras
 import com.seagate.kinetic.tools.management.rest.message.erasedevice.SecureEraseResponse;
 import com.seagate.kinetic.tools.management.rest.message.getlog.GetLogResponse;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
+import com.seagate.kinetic.tools.management.rest.message.setclversion.SetClusterVersionResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetLockPinResponse;
 import com.seagate.kinetic.tools.management.rest.message.setsecurity.SetSecurityResponse;
@@ -93,6 +94,9 @@ public class MessageUtil {
             break;
         case SET_SECURITY:
             response = new SetSecurityResponse();
+            break;
+        case SET_CLVERSION:
+            response = new SetClusterVersionResponse();
             break;
         case EXTERNAL_REQUEST:
             response = new ExternalResponse();

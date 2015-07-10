@@ -36,6 +36,7 @@ import com.seagate.kinetic.admin.impl.JsonUtil;
 import com.seagate.kinetic.proto.Kinetic.Command.Security;
 import com.seagate.kinetic.proto.Kinetic.Command.Security.ACL.Permission;
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.setsecurity.SetSecurityResponse;
 
 public class SetSecurity extends AbstractCommand {
@@ -50,6 +51,13 @@ public class SetSecurity extends AbstractCommand {
                 drivesInputFile);
         this.security = security;
         loadSecurity();
+    }
+
+    public SetSecurity(List<ACL> acls, List<DeviceId> deviceIds,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
+        this.aclList = acls;
     }
 
     public SetSecurity(List<ACL> acls, String drivesInputFile, boolean useSsl,

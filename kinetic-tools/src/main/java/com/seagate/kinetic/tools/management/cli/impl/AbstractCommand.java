@@ -35,11 +35,13 @@ import com.seagate.kinetic.tools.management.common.KineticToolsException;
 import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 
 abstract class AbstractCommand implements Command {
+    private static final String UNKNOWN = "unknown";
     protected static final int BATCH_THREAD_NUMBER = 20;
     protected List<KineticDevice> devices = new ArrayList<KineticDevice>();
     protected Report report = new Report();
     protected BasicSettings basicSettings = new BasicSettings();
     protected StringBuffer sb = new StringBuffer();
+    protected List<DeviceId> deviceIds = null;
 
     protected AdminClientRegister adminClientRegister = null;
 
@@ -51,24 +53,43 @@ abstract class AbstractCommand implements Command {
                 .setUseSsl(useSsl);
     }
 
+    public AbstractCommand(boolean useSsl, long clusterVersion, long identity,
+            String key, long requestTimeout, List<DeviceId> deviceIds) {
+        basicSettings.setClusterVersion(clusterVersion).setDrivesLogFile(null)
+                .setIdentity(identity).setKey(key)
+                .setRequestTimeout(requestTimeout).setUseSsl(useSsl);
+        this.deviceIds = deviceIds;
+    }
+
     public AbstractCommand(String drivesLogFile) {
         basicSettings.setDrivesLogFile(drivesLogFile);
     }
 
-    protected void loadDevices(String drivesInputFile) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(
-                drivesInputFile));
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            if (line.isEmpty()) {
-                continue;
+    protected void loadDevices(String drivesInputFile) throws IOException,
+            KineticToolsException {
+        if (null == drivesInputFile) {
+            if (null == deviceIds) {
+                throw new KineticToolsException("No dirves input information");
+            } else {
+                for (DeviceId deviceId : deviceIds) {
+                    devices.add(toKineticDevice(deviceId));
+                }
             }
-            devices.add(KineticDevice.fromJson(line));
-        }
+        } else {
+            BufferedReader reader = new BufferedReader(new FileReader(
+                    drivesInputFile));
 
-        reader.close();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
+                devices.add(KineticDevice.fromJson(line));
+            }
+
+            reader.close();
+        }
 
         report.registerDevices(devices);
     }
@@ -115,10 +136,26 @@ abstract class AbstractCommand implements Command {
         }
     }
 
-    protected DeviceId initDevice(KineticDevice kineticDevice) {
-        DeviceId device;
+    protected KineticDevice toKineticDevice(DeviceId deviceId) {
+        KineticDevice kineticDevice = new KineticDevice();
+        kineticDevice.setFirmwareVersion(UNKNOWN);
+        List<String> ips = new ArrayList<String>();
+        for (String ip : deviceId.getIps()) {
+            ips.add(ip);
+        }
+        kineticDevice.setInet4(ips);
+        kineticDevice.setModel(UNKNOWN);
+        kineticDevice.setPort(deviceId.getPort());
+        kineticDevice.setSerialNumber(UNKNOWN);
+        kineticDevice.setTlsPort(deviceId.getTlsPort());
+        kineticDevice.setWwn(deviceId.getWwn());
+
+        return kineticDevice;
+    }
+
+    protected DeviceId toDeviceId(KineticDevice kineticDevice) {
+        DeviceId device = new DeviceId();
         String[] ips;
-        device = new DeviceId();
         device.setPort(kineticDevice.getPort());
         device.setTlsPort(kineticDevice.getTlsPort());
         device.setWwn(kineticDevice.getWwn());

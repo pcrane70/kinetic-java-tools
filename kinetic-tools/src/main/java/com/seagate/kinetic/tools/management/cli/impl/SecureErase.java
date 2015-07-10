@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import kinetic.client.KineticException;
 
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.setpin.SetErasePinResponse;
 
 public class SecureErase extends AbstractCommand {
@@ -38,6 +39,14 @@ public class SecureErase extends AbstractCommand {
             long requestTimeout) throws IOException {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
                 drivesInputFile);
+        this.erasePin = null;
+        parsePin(erasePinInString);
+    }
+
+    public SecureErase(String erasePinInString, List<DeviceId> deviceIds,
+            boolean useSsl, long clusterVersion, long identity, String key,
+            long requestTimeout) throws IOException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, deviceIds);
         this.erasePin = null;
         parsePin(erasePinInString);
     }
