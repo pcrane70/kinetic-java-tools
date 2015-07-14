@@ -41,4 +41,9 @@ public class ExternalResponse extends RestResponse {
         return this.msg;
     }
 
+    @Override
+    public String toString() {
+        return this.msg;
+    }
+
 }

@@ -68,6 +68,8 @@ public class SetSecurityRequestExample {
 
         System.out.println(request2);
 
+        System.out.println("toString: " + req2.toString());
+
     }
 
 }

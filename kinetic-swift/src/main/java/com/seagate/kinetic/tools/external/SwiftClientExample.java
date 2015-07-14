@@ -46,7 +46,7 @@ public class SwiftClientExample {
             RestResponse response = client.send(url, request);
 
             // print response
-            System.out.println(response.toJson());
+            System.out.println(response.toString());
 
         } finally {
             if (client != null) {

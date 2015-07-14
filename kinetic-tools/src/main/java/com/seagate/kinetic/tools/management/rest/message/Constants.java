@@ -17,36 +17,10 @@
  */
 package com.seagate.kinetic.tools.management.rest.message;
 
-import com.google.gson.Gson;
+public class Constants {
 
-/**
- * Rest message super class.
- * 
- * @author chiaming
- *
- */
-public class RestMessage {
+    public static final String JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 
-    private MessageType messageType = MessageType.PING;
-
-    public void setMessageType(MessageType command) {
-        this.messageType = command;
-    }
-
-    public MessageType getMessageType() {
-        return this.messageType;
-    }
-
-    public String toJson() {
-
-        Gson gson = new Gson();
-
-        return gson.toJson(this);
-    }
-
-    @Override
-    public String toString() {
-        return this.toJson();
-    }
+    public static final String PLAIN_CONTENT_TYPE = "text/plain; charset=utf-8";
 
 }

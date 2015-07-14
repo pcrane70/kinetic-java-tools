@@ -60,7 +60,7 @@ public class PingClientExample2 {
         KineticRestClient client = new KineticRestClient();
 
         // default url
-        String url = "http://localhost:8888/ping";
+        String url = "http://localhost:8080/ping";
 
         // override with arg[0]
         if (args.length > 0) {

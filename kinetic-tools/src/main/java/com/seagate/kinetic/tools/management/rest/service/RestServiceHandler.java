@@ -26,7 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import com.seagate.kinetic.tools.management.rest.message.Constants;
 import com.seagate.kinetic.tools.management.rest.message.ErrorResponse;
+import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestResponse;
 import com.seagate.kinetic.tools.management.rest.service.handler.HandlerMap;
 
@@ -58,11 +60,22 @@ public class RestServiceHandler extends AbstractHandler {
         // get response message
         RestResponse resp = context.getResponseMessage();
 
-        // convert to json
-        String body = resp.toJson();
+        // get response message as string
+        String body = resp.toString();
 
-        // write response message
-        response.setContentType("application/json; charset=utf-8");
+        MessageType mtype = resp.getMessageType();
+        if (MessageType.EXTERNAL_REPLY == mtype) {
+            /**
+             * for external service message, the response content is set to
+             * plain text even though the format could be Json.
+             */
+            response.setContentType(Constants.PLAIN_CONTENT_TYPE);
+        } else {
+            /**
+             * For Kinetic service, the content is in Json format.
+             */
+            response.setContentType(Constants.JSON_CONTENT_TYPE);
+        }
 
         // set http response status code
         if (resp instanceof ErrorResponse) {

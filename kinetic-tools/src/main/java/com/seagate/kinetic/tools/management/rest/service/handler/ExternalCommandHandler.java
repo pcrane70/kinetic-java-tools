@@ -95,7 +95,7 @@ public class ExternalCommandHandler implements ServiceHandler {
 
             response = ecs.execute((ExternalRequest) req);
 
-            logger.info("sending response message: " + response.toJson());
+            logger.info("sending response message: " + response.toString());
 
         } catch (Exception e) {
 
