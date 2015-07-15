@@ -4,13 +4,25 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.logging.Logger;
+
+import com.seagate.kinetic.tools.management.rest.service.KineticRestService;
 
 
 
 public class CommandFilter {
+	public static final Logger logger = Logger.getLogger(CommandFilter.class.getName());
+	
+	private static  void UpdateSwiftDir()
+	{
+		String value = System.getenv(Globals.SWIFT_ENV_DIR);
+		if (value != null) Globals.SWIFT_DIR = value;
+		logger.info("Using swift dir....." + Globals.SWIFT_DIR);
+	}
 	
 	private CommandFilter() 
 	{
+		UpdateSwiftDir();
 		// Update the configuration filter
 		ConfigMap.put("proxy", "swift-config,proxy");
 		ConfigMap.put("account", "swift-config,account");
@@ -92,7 +104,7 @@ public class CommandFilter {
 					
 					output.append(line + "\n");
 					}
-				System.out.println("Sending Response " + output.toString());
+				logger.info("Sending Response " + output.toString());
 				
 				rc =  output.toString();
 			} catch (Exception e) {

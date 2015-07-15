@@ -8,6 +8,7 @@ package com.seagate.kinetic.tools.external;
  *
  */
 public class Globals {
-	static public final String SWIFT_DIR = "/etc/swift";
+	static public String SWIFT_DIR = "/etc/swift";
+	static public final String SWIFT_ENV_DIR = "SWIFT_DIR";
 
 }

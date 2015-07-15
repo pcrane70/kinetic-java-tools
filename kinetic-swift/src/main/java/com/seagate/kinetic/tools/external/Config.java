@@ -3,7 +3,7 @@
  */
 package com.seagate.kinetic.tools.external;
 
-
+import java.util.logging.Logger;
 
 /**
  * @author mshafiq

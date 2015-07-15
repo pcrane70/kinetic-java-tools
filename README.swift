@@ -1,3 +1,8 @@
+Environment Variables:
+SWIFT_DIR: This variable change the default Swift Dir from /etc/swift to user
+defined values.
+Example:
+ export SWIFT_DIR =/mydir
 
 For extracting configurations use Config class. 
 Examples:
