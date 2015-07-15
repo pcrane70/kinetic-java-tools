@@ -19,10 +19,19 @@
  */
 package com.seagate.kinetic.tools.management.client;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import kinetic.client.ClientConfiguration;
+import kinetic.client.Entry;
+import kinetic.client.KineticClient;
+import kinetic.client.KineticClientFactory;
+import kinetic.client.KineticException;
+
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.seagate.kinetic.tools.management.IntegrationTestCase;
@@ -42,11 +51,30 @@ public class SetErasePinAndSecureEraseTest extends IntegrationTestCase {
     private final static String URL_INSTATNT_ERASE = "http://localhost:8080/secureerase";
     private final static String OLD_PIN = "";
     private final static String NEW_PIN = "123";
+    private final static String PREIX_KEY = "key";
+    private final static String PREIX_VALUE = "value";
+    private final static int PREPARE_KEY_NUMBER = 100;
+    private static KineticClient client = null;
+
+    @BeforeMethod
+    public void beforeMethod() throws KineticException {
+        ClientConfiguration config = new ClientConfiguration();
+        client = KineticClientFactory.createInstance(config);
+    }
+
+    @AfterMethod
+    public void afterMethod() throws KineticException {
+        if (null != client) {
+            client.close();
+        }
+    }
 
     @Test
     public void test_SetErasePinAndInstantEraseViaDiscoId() {
         KineticRestClient client = null;
         try {
+            prePutData();
+
             client = new KineticRestClient();
 
             SetErasePinRequest request = new SetErasePinRequest();
@@ -81,6 +109,8 @@ public class SetErasePinAndSecureEraseTest extends IntegrationTestCase {
                 client.close();
             }
         }
+
+        checkData();
     }
 
     @Test
@@ -88,6 +118,8 @@ public class SetErasePinAndSecureEraseTest extends IntegrationTestCase {
         KineticRestClient client = null;
 
         try {
+            prePutData();
+
             client = new KineticRestClient();
 
             SetErasePinRequest request = new SetErasePinRequest();
@@ -126,10 +158,46 @@ public class SetErasePinAndSecureEraseTest extends IntegrationTestCase {
         } catch (RestClientException e) {
             Assert.fail("rest client throw exception: " + e.getMessage());
         } catch (Exception e) {
-            Assert.fail("set erase pin or instant erase throw exception: " + e.getMessage());
+            Assert.fail("set erase pin or instant erase throw exception: "
+                    + e.getMessage());
         } finally {
             if (client != null) {
                 client.close();
+            }
+        }
+
+        checkData();
+    }
+
+    /**
+     * @throws KineticException
+     */
+    private void prePutData() {
+        for (int i = 0; i < PREPARE_KEY_NUMBER; i++) {
+            Entry entry = new Entry();
+            byte[] key = (PREIX_KEY + i).getBytes(Charset.forName("UTF-8"));
+            byte[] value = (PREIX_VALUE + i).getBytes(Charset.forName("UTF-8"));
+            entry.setKey(key);
+            entry.setValue(value);
+            try {
+                client.putForced(entry);
+            } catch (KineticException e) {
+                Assert.fail("put prepare data throw exception: "
+                        + e.getMessage());
+            }
+        }
+    }
+
+    private void checkData() {
+        for (int i = 0; i < PREPARE_KEY_NUMBER; i++) {
+            byte[] key = (PREIX_KEY + i).getBytes(Charset.forName("UTF-8"));
+            try {
+                Entry entry = client.get(key);
+                Assert.assertNull(entry);
+
+            } catch (KineticException e) {
+                Assert.fail("check data clean or not throw exception: "
+                        + e.getMessage());
             }
         }
     }
