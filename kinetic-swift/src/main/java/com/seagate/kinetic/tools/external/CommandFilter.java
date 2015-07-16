@@ -44,7 +44,9 @@ public class CommandFilter {
 		ReconMap.put("account", "swift-recon,account,--all");
 		ReconMap.put("container", "swift-recon,container,--all");
 		
-		DispersionMap.put("all", "swift-dispersion-report,-d,-j");
+		DispersionMap.put("populate", "swift-dispersion-populate");
+		DispersionMap.put("report", "swift-dispersion-report,-d,-j");
+		 
 		
 	}
 	
