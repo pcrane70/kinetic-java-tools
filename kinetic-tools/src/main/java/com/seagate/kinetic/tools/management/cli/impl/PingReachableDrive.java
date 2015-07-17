@@ -44,24 +44,66 @@ public class PingReachableDrive extends AbstractCommand {
     private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+    private static final String SCOPE_IP_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
     private static final int UNSOLICITED_MSG_MAX_WAIT_MS = 5000;
     private static final int SUB_NET_LENGTH = 255;
     private static final int TLS_PORT = 8443;
     private static final int PORT = 8123;
     private String driveListOutputFile;
     private String subnetPrefix = null;
+    private int from = -1;
+    private int to = -1;
     private AtomicInteger unSolicitedCounter = new AtomicInteger(0);
     private AtomicInteger reqCounter = new AtomicInteger(0);
 
     public PingReachableDrive(String subnetPrefixOrDriveInputFilePath,
             String driveListOutputFile, boolean useSsl, long clusterVersion,
-            long identity, String key, long requestTimeout) throws IOException {
+            long identity, String key, long requestTimeout) {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
                 subnetPrefixOrDriveInputFilePath);
         this.driveListOutputFile = driveListOutputFile;
 
         if (validateSubnet(subnetPrefixOrDriveInputFilePath)) {
             this.subnetPrefix = subnetPrefixOrDriveInputFilePath;
+        }
+    }
+
+    public PingReachableDrive(String start, String end,
+            String driveListOutputFile, boolean useSsl, long clusterVersion,
+            long identity, String key, long requestTimeout)
+            throws KineticToolsException {
+        super(useSsl, clusterVersion, identity, key, requestTimeout, "");
+        this.driveListOutputFile = driveListOutputFile;
+
+        if (!validateScope(start, end)) {
+            throw new KineticToolsException(
+                    "Invalid start or end, they should set as an valid IP.");
+        }
+
+        String start_sub_24 = start.substring(0, start.lastIndexOf("."));
+        String end_sub_24 = end.substring(0, end.lastIndexOf("."));
+        if (!start_sub_24.equals(end_sub_24)) {
+            throw new KineticToolsException(
+                    "start and end should be in a same subnet(/24).");
+        }
+
+        this.subnetPrefix = start_sub_24;
+
+        int tFrom = -1, tTo = -1;
+        tFrom = Integer.parseInt(start.substring(start.lastIndexOf(".") + 1,
+                start.length()));
+        tTo = Integer.parseInt(end.substring(end.lastIndexOf(".") + 1,
+                end.length()));
+
+        if (tTo >= tFrom) {
+            this.from = tFrom;
+            this.to = tTo;
+        } else {
+            this.to = tFrom;
+            this.from = tTo;
         }
     }
 
@@ -95,16 +137,31 @@ public class PingReachableDrive extends AbstractCommand {
         List<AbstractWorkThread> threads = new ArrayList<AbstractWorkThread>();
         List<String> inet4 = null;
         KineticDevice device = null;
-        for (int i = 0; i < SUB_NET_LENGTH; i++) {
-            inet4 = new ArrayList<String>();
-            inet4.add(subnetPrefix + "." + i);
-            device = new KineticDevice();
-            device.setInet4(inet4);
-            device.setPort(PORT);
-            device.setTlsPort(TLS_PORT);
 
-            threads.add(new PingReachableDriveThread(device, listener));
+        if (from == -1 || to == -1) {
+            for (int i = 0; i < SUB_NET_LENGTH; i++) {
+                inet4 = new ArrayList<String>();
+                inet4.add(subnetPrefix + "." + i);
+                device = new KineticDevice();
+                device.setInet4(inet4);
+                device.setPort(PORT);
+                device.setTlsPort(TLS_PORT);
+
+                threads.add(new PingReachableDriveThread(device, listener));
+            }
+        } else {
+            for (int i = from; i <= to; i++) {
+                inet4 = new ArrayList<String>();
+                inet4.add(subnetPrefix + "." + i);
+                device = new KineticDevice();
+                device.setInet4(inet4);
+                device.setPort(PORT);
+                device.setTlsPort(TLS_PORT);
+
+                threads.add(new PingReachableDriveThread(device, listener));
+            }
         }
+
         poolExecuteThreadsInGroups(threads);
 
         waitUnSolicitedMesesages(UNSOLICITED_MSG_MAX_WAIT_MS);
@@ -154,6 +211,17 @@ public class PingReachableDrive extends AbstractCommand {
         Matcher matcher = pattern.matcher(subnet);
 
         return matcher.matches();
+    }
+
+    private boolean validateScope(String start, String end) {
+        if (start == null || end == null)
+            return false;
+
+        Pattern pattern = Pattern.compile(SCOPE_IP_PATTERN);
+        Matcher matcher1 = pattern.matcher(start);
+        Matcher matcher2 = pattern.matcher(end);
+
+        return matcher1.matches() && matcher2.matches();
     }
 
     class PingReachableDriveThread extends AbstractWorkThread {
@@ -241,9 +309,12 @@ public class PingReachableDrive extends AbstractCommand {
             super.init();
             reqCounter = new AtomicInteger(devices.size());
         } else {
-            reqCounter = new AtomicInteger(SUB_NET_LENGTH);
+            if (from == -1 || to == -1) {
+                reqCounter = new AtomicInteger(SUB_NET_LENGTH);
+            } else {
+                reqCounter = new AtomicInteger(to - from + 1);
+            }
         }
-
     }
 
     @Override

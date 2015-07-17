@@ -101,6 +101,9 @@ public class KineticToolCLI {
         subArgs.add("-timeout");
         subArgs.add("-out");
         subArgs.add("-subnet");
+        subArgs.add("-scope");
+        subArgs.add("-start");
+        subArgs.add("-end");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-ping";
@@ -206,7 +209,7 @@ public class KineticToolCLI {
         StringBuffer sb = new StringBuffer();
         sb.append("Usage: ktool <-discover|-firmwaredownload|-checkversion|-setclusterversion|-setsecurity|-seterasepin|-instanterase|-runsmoketest>\n");
         sb.append("ktool -h|-help\n");
-        sb.append("ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-scope] [-start <start>] [-end <end>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -ping <-in <driveListInputFile>> [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
@@ -249,6 +252,20 @@ public class KineticToolCLI {
         }
 
         return null;
+    }
+
+    public boolean hasArg(String argName, String args[]) {
+        if (null == argName || argName.isEmpty() || args.length <= 1) {
+            return false;
+        }
+
+        for (String arg : args) {
+            if (arg.equals(argName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void printSuccessResult() {
@@ -356,7 +373,44 @@ public class KineticToolCLI {
                         + String.valueOf(time);
 
                 String subnet = kineticToolCLI.getArgValue("-subnet", args);
-                if (null != subnet) {
+
+                // scope
+                if (kineticToolCLI.hasArg("-scope", args)) {
+                    if (null != subnet) {
+                        throw new Exception(
+                                "Can't set subnet and scope at the same time.");
+                    }
+
+                    String start = kineticToolCLI.getArgValue("-start", args);
+                    String end = kineticToolCLI.getArgValue("-end", args);
+
+                    driveListOutputFile = driveListOutputFile == null ? driveDefaultName
+                            : driveListOutputFile;
+
+                    DeviceDiscovery deviceDiscovery = new DeviceDiscovery(
+                            start, end);
+                    System.out.println("Discovering devices with scope: start="
+                            + start + ", end=" + end + ", please wait "
+                            + timeout + "s" + "\n");
+                    TimeUnit.SECONDS.sleep(timeout);
+
+                    String toolHome = System.getProperty("kinetic.tools.out",
+                            ".");
+                    String rootDir = toolHome + File.separator + "out"
+                            + File.separator;
+
+                    driveListOutputFile = driveListOutputFile == null ? rootDir
+                            + driveDefaultName : rootDir + driveListOutputFile;
+
+                    logger.info(DeviceDiscovery.persistToFile(
+                            deviceDiscovery.listDevices(), driveListOutputFile));
+
+                    System.out.println("Discovered "
+                            + deviceDiscovery.listDevices().size()
+                            + " drives, persist drives info in "
+                            + driveListOutputFile);
+                } else if (null != subnet) {
+
                     if (!kineticToolCLI.validateSubnet(subnet)) {
                         throw new Exception(
                                 "Invalid subnet format, for instance: \"-subnet 192.168.10\"");
@@ -390,7 +444,6 @@ public class KineticToolCLI {
                             + " drives, persist drives info in "
                             + driveListOutputFile);
                 }
-
             } else if (args[0].equalsIgnoreCase("-ping")) {
                 String driveInputListFile = kineticToolCLI.getArgValue("-in",
                         args);

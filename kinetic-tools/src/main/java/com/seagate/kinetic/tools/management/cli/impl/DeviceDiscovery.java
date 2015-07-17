@@ -31,6 +31,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -38,15 +40,87 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.seagate.kinetic.heartbeat.HeartbeatMessage;
 import com.seagate.kinetic.heartbeat.KineticNetworkInterface;
 import com.seagate.kinetic.monitor.HeartbeatListener;
+import com.seagate.kinetic.tools.management.common.KineticToolsException;
 
 public class DeviceDiscovery {
+    private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+    private static final String IP_ADDR_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
     private static final int DEFAULT_MULTICAST_PORT = 8123;
     private Map<String, KineticDevice> devices = new ConcurrentHashMap<String, KineticDevice>();
     private static final String DEFAULT_MC_DESTNATION = "239.1.2.3";
     private boolean useListener = false;
+    private String subnet = null;
+    private int from = -1;
+    private int to = -1;
 
     public DeviceDiscovery() throws Exception {
         startDiscoverNodes();
+    }
+
+    public DeviceDiscovery(String subnet) throws Exception {
+        if (!validateSubnet(subnet))
+            throw new KineticToolsException("Invalid subnet.");
+
+        this.subnet = subnet;
+        startDiscoverNodes();
+    }
+
+    public DeviceDiscovery(String start, String end) throws Exception {
+        if (!validateScope(start, end))
+            throw new KineticToolsException("Invalid start or end.");
+
+        String start_subnet24 = start.substring(0, start.lastIndexOf("."));
+        String end_subnet24 = end.substring(0, end.lastIndexOf("."));
+
+        if (!start_subnet24.equals(end_subnet24))
+            throw new KineticToolsException(
+                    "start and end are not in a same subnet.");
+
+        this.subnet = start_subnet24;
+
+        int tFrom = lastPartOfIp(start);
+        int tTo = lastPartOfIp(end);
+
+        if (tFrom <= tTo) {
+            this.from = tFrom;
+            this.to = tTo;
+        } else {
+            this.from = tTo;
+            this.to = tFrom;
+        }
+
+        startDiscoverNodes();
+    }
+
+    private int lastPartOfIp(String ip) {
+        return Integer.parseInt(ip.substring(ip.lastIndexOf(".") + 1,
+                ip.length()));
+    }
+
+    private boolean validateSubnet(String subnet) {
+        if (subnet == null)
+            return false;
+
+        Pattern pattern = Pattern.compile(SUBNET_PATTERN);
+        Matcher matcher = pattern.matcher(subnet);
+
+        return matcher.matches();
+    }
+
+    private boolean validateScope(String start, String end) {
+        if (start == null || end == null)
+            return false;
+
+        Pattern pattern = Pattern.compile(IP_ADDR_PATTERN);
+        Matcher matcher1 = pattern.matcher(start);
+        Matcher matcher2 = pattern.matcher(end);
+
+        return matcher1.matches() && matcher2.matches();
     }
 
     public List<KineticDevice> listDevices() {
@@ -113,6 +187,34 @@ public class DeviceDiscovery {
         }
     }
 
+    private void addToDeviceList(KineticDevice device, String key) {
+        if (!devices.containsKey(key)) {
+            // not subnet and not scope
+            if (subnet == null) {
+                devices.put(device.toString(), device);
+            } else {
+                int lastPartOfIP = -1;
+                for (String ip : device.getInet4()) {
+                    if (ip.indexOf(subnet) == 0) {
+                        // scope
+                        if (from != -1 && to != -1) {
+                            lastPartOfIP = lastPartOfIp(ip);
+                            if (lastPartOfIP >= from && lastPartOfIP <= to) {
+                                devices.put(device.toString(), device);
+                                return;
+                            }
+                        }
+                        // subnet
+                        else if (from == -1 && to == -1) {
+                            devices.put(device.toString(), device);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     class MyHeartbeatListener extends HeartbeatListener {
 
         public MyHeartbeatListener() throws IOException {
@@ -139,11 +241,8 @@ public class DeviceDiscovery {
 
             KineticDevice device = new KineticDevice(inet4, port, tlsPort, wwn,
                     model, serialNumber, firmwareVersion);
-            if (!devices.containsKey(device.toString())) {
-                devices.put(device.toString(), device);
-            }
+            addToDeviceList(device, device.toString());
         }
-
     }
 
     class NodeDiscoveryThread extends Thread {
@@ -198,7 +297,8 @@ public class DeviceDiscovery {
                     SERIAL_NUMBER).asText(), root.get(FIRMWARE_VERSION)
                     .asText());
 
-            devices.put(wwn, node);
+            // devices.put(wwn, node);
+            addToDeviceList(node, wwn);
             newDiscoveredNodes.add(node);
 
             return newDiscoveredNodes;
