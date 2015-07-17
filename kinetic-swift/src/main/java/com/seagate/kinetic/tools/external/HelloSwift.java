@@ -37,7 +37,10 @@ public class HelloSwift implements ExternalCommandService {
 
         ExternalResponse resp = new ExternalResponse();
 
-        resp.setResponseMessage("hello swift");
+        System.out.println("** set response message: "
+                + request.getRequestMessage());
+
+        resp.setResponseMessage(request.getRequestMessage());
 
         return resp;
     }

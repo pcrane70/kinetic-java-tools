@@ -40,13 +40,14 @@ public class SwiftClientExample {
             // new ping request message
             ExternalRequest request = new ExternalRequest();
 
-            request.setRequestMessage("hello");
+            // set request message
+            request.setRequestMessage("Hello Swift, a=b, c=d");
 
             // send request
             RestResponse response = client.send(url, request);
 
             // print response
-            System.out.println(response.toString());
+            System.out.println(response.toJson());
 
         } finally {
             if (client != null) {

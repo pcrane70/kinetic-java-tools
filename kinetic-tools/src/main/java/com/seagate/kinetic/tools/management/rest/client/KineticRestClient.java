@@ -27,6 +27,7 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 
+import com.seagate.kinetic.tools.external.ExternalResponse;
 import com.seagate.kinetic.tools.management.rest.message.MessageType;
 import com.seagate.kinetic.tools.management.rest.message.RestRequest;
 import com.seagate.kinetic.tools.management.rest.message.RestResponse;
@@ -137,7 +138,7 @@ public class KineticRestClient {
             if (status == 200) {
 
                 // get response content
-                String json = httpresp.getContentAsString();
+                String httpBody = httpresp.getContentAsString();
 
                 // get request message type
                 MessageType mtype = restRequest.getMessageType();
@@ -145,9 +146,14 @@ public class KineticRestClient {
                 // get rest response message
                 restResponse = MessageUtil.getResponseMessage(mtype);
 
-                // convert json to rest response
-                restResponse = (RestResponse) MessageUtil.fromJson(json,
-                        restResponse.getClass());
+                if (MessageType.EXTERNAL_REQUEST != mtype) {
+                    // convert json to rest response
+                    restResponse = (RestResponse) MessageUtil.fromJson(httpBody,
+                            restResponse.getClass());
+                } else {
+                    // set response message body
+                    ((ExternalResponse) restResponse).setResponseMessage(httpBody);
+                }
             } else {
                 // request cannot be processed
                 throw new RestClientException("http response status: " + status

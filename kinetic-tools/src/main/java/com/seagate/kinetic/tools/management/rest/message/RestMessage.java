@@ -18,6 +18,7 @@
 package com.seagate.kinetic.tools.management.rest.message;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Rest message super class.
@@ -39,7 +40,7 @@ public class RestMessage {
 
     public String toJson() {
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
         return gson.toJson(this);
     }
