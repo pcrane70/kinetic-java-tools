@@ -4,6 +4,29 @@ defined values.
 Example:
  export SWIFT_DIR =/mydir
 
+
+Ring Structure 
+
+Let's consider a Swift cluster with 2 storage nodes, with the following IPs 
+addresses: 192.168.0.10 and 192.168.0.11. Each storage node has 
+two devices: sdb1 and sdc1.
+
+An example of table with 3 replicas, 8 partitions and 4 devices would be:
+
+r
+e  |   +-----------------+
+p  | 0 | 0 1 2 3 0 1 2 3 |
+l  | 1 | 1 2 3 0 1 2 3 0 |
+i  | 2 | 2 3 0 1 2 3 0 1 |
+c  v   +-----------------+
+a        0 1 2 3 4 5 6 7
+       ------------------>
+          partition
+
+The table has 3 lines, one for each replica, and 8 columns, one for each partition.
+ To find the device storing the replica number 1 of partition number 2, we select 
+ the line of index 1 and column of index 2. This lead us to the device ID 3.
+
 For extracting configurations use Config class. 
 Examples:
 curl -d '{"msg":"proxy"}' http://localhost:8080/external?class=Config
@@ -38,6 +61,37 @@ curl -d '{"msg":"object"}' http://localhost:8080/external?class=Ring
 
 ============================  SAMPLE OUTPUT========================
 
+curl -d '{"msg":"populate"}' http://localhost:8080/external?class=Dispersion
+Created 10 containers for dispersion reporting, 0s, 0 retries
+Created 10 objects for dispersion reporting, 0s, 0 retries
+----------------------------------------------------------------------------
+curl -d '{"msg":"report"}' http://localhost:8080/external?class=Dispersion
+Created 10 containers for dispersion reporting, 0s, 0 retries
+Created 10 objects for dispersion reporting, 0s, 0 retries
+Queried 11 containers for dispersion reporting, 0s, 0 retries
+100.00% of container copies found (11 of 11)
+Sample represents 1.07% of the container partition space
+Queried 10 objects for dispersion reporting, 0s, 0 retries
+There were 10 partitions missing 0 copy.
+100.00% of object copies found (30 of 30)
+Sample represents 0.98% of the object partition space
+-----------------------------------------------------------
+
+curl -d '{"msg":"container"}' http://localhost:8080/external?class=Init
+container-server running (3647 - /etc/swift/container-server.conf)
+-----------------------------------------------------------------------
+curl -d '{"msg":"proxy"}' http://localhost:8080/external?class=Init
+proxy-server running (3646 - /etc/swift/proxy-server.conf)
+
+------------------------------------------------------------------------
+curl -d '{"msg":"account"}' http://localhost:8080/external?class=Init
+account-server running (3648 - /etc/swift/account-server.conf)
+
+-------------------------------------------------------------------------
+curl -d '{"msg":"object"}' http://localhost:8080/external?class=Init
+
+object-server running (3649 - /etc/swift/object-server.conf)
+----------------------------------------------------------------------------
 curl -d '{"msg":"proxy"}' http://localhost:8080/external?class=Config
 # /etc/swift/proxy-server.conf
 [filter:cname_lookup]
