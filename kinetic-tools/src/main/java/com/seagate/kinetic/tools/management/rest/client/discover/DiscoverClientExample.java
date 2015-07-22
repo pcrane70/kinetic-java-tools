@@ -36,6 +36,10 @@ public class DiscoverClientExample {
         }
 
         DiscoverRequest request = new DiscoverRequest();
+        request.setTimeout(10);
+        request.setScoped(true);
+        request.setStartIp("127.0.0.1");
+        request.setEndIp("127.0.0.100");
 
         // send request
         RestResponse response = client.send(url, request);

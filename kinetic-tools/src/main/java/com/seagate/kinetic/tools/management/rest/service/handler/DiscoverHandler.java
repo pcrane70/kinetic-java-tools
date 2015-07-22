@@ -63,6 +63,30 @@ public class DiscoverHandler extends GenericServiceHandler implements
             if (timeout != null) {
                 request.setTimeout(Integer.parseInt(timeout[0]));
             }
+
+            String[] scopeStr = params.get("scoped");
+
+            boolean scoped = false;
+            if (scopeStr != null) {
+                scoped = Boolean.parseBoolean(scopeStr[0]);
+                request.setScoped(scoped);
+            }
+
+            if (scoped) {
+                // start ip
+                String[] startIp = params.get("startIp");
+                if (startIp != null) {
+                    request.setStartIp(startIp[0]);
+                }
+
+                // end ip
+                String[] endIp = params.get("endIp");
+                if (startIp != null) {
+                    request.setEndIp(endIp[0]);
+                }
+
+            }
+
         }
     }
 

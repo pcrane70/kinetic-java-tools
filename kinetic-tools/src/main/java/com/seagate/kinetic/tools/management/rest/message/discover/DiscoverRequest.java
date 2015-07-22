@@ -31,6 +31,12 @@ public class DiscoverRequest extends RestRequest {
 
     private int timeout = 10;
 
+    private boolean scoped = false;
+
+    private String startIp = null;
+
+    private String endIp = null;
+
     public DiscoverRequest() {
         setMessageType(MessageType.DISCOVER);
     }
@@ -49,6 +55,30 @@ public class DiscoverRequest extends RestRequest {
 
     public int getTimeout() {
         return this.timeout;
+    }
+
+    public void setScoped(boolean scoped) {
+        this.scoped = scoped;
+    }
+
+    public boolean getScoped() {
+        return this.scoped;
+    }
+
+    public void setStartIp(String startIp) {
+        this.startIp = startIp;
+    }
+
+    public String getStartIp() {
+        return this.startIp;
+    }
+
+    public void setEndIp(String endIp) {
+        this.endIp = endIp;
+    }
+
+    public String getEndIp() {
+        return this.endIp;
     }
 
 }
