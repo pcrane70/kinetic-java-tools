@@ -32,7 +32,7 @@ public class CommandFilter {
 		RingMap.put("proxy", "swift-ring-builder,proxy.builder");
 		RingMap.put("object", "swift-ring-builder,object.builder");
 		RingMap.put("account", "swift-ring-builder,account.builder");
-		RingMap.put("conatiner", "swift-ring-builder,container.builder");
+		RingMap.put("container", "swift-ring-builder,container.builder");
 		
 		InitMap.put("proxy", "swift-init,proxy,status");
 		InitMap.put("object", "swift-init,object,status");
@@ -46,6 +46,8 @@ public class CommandFilter {
 		
 		DispersionMap.put("populate", "swift-dispersion-populate");
 		DispersionMap.put("report", "swift-dispersion-report,-d,-j");
+		
+		PartitionMap.put("object", "swift-ring-builder");
 		 
 		
 	}
@@ -84,7 +86,12 @@ public class CommandFilter {
 		return DispersionMap.get(req);
 		
 	}
-	public ExternalResponse ExecCmd(String cmd, String dir)
+	public String GetPartitionCommand(String req)
+	{
+		return PartitionMap.get(req);
+		
+	}
+	public String ExecShellCmd(String cmd, String dir)
 	{
 		String rc;
 		if (cmd != null) {
@@ -116,8 +123,14 @@ public class CommandFilter {
 		}
 		else
 			rc =  "Invalid Request";
+		
+		return rc;
+	}
+	public ExternalResponse ExecCmd(String cmd, String dir)
+	{
+		
 		ExternalResponse resp = new ExternalResponse();
-		resp.setResponseMessage(rc);
+		resp.setResponseMessage(ExecShellCmd(cmd, dir));
 	    return resp;
 	}
 	private  HashMap<String, String> ConfigMap = new HashMap<String, String>();
@@ -125,5 +138,6 @@ public class CommandFilter {
 	private  HashMap<String, String> InitMap = new HashMap<String, String>();
 	private  HashMap<String, String> ReconMap = new HashMap<String, String>();
 	private  HashMap<String, String> DispersionMap = new HashMap<String, String>();
+	private  HashMap<String, String> PartitionMap = new HashMap<String, String>();
 
 }

@@ -27,7 +27,13 @@ import com.seagate.kinetic.tools.management.rest.message.RestRequest;
  */
 public class ExternalRequest extends RestRequest {
 
+	// make all fields optional and let downstream code to valiate the 
+	// parameters
     private String msg = null;
+    transient private String dir = null;
+    transient private String user = null;
+    transient private String key = null;
+    transient private String file = null;
 
     public ExternalRequest() {
         setMessageType(MessageType.EXTERNAL_REQUEST);
@@ -40,5 +46,14 @@ public class ExternalRequest extends RestRequest {
     public String getRequestMessage() {
         return this.msg;
     }
+    
+    public String getDir() { return this.dir; }
+    public void setDir(String dir) { this.dir = dir; }
+    public String getUser() { return this.user; }
+    public void setUser(String user) { this.user = user; }
+    public String getKey() { return this.key; }
+    public void setKey(String key) { this.key = key; }
+    public String getFile() { return this.file; }
+    public void setFile(String file) { this.file = file; }
 
 }
