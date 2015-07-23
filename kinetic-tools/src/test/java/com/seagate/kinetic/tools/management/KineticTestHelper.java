@@ -16,6 +16,10 @@ public class KineticTestHelper {
     public final static int SSL_PORT = 8443;
     private final static String FIRMWARE_VERSION = "2.6.0";
     private final static String UN_KNOWN = "unknown";
+    private static final String TOOL_HOME = System.getProperty(
+            "kinetic.tools.out", ".");
+    private static final String ROOT_DIR = TOOL_HOME + File.separator + "out"
+            + File.separator;
     public final static String FILE_NAME = "devicefortooltest.txt";
 
     public static void generateDeviceFile() throws IOException {
@@ -38,7 +42,7 @@ public class KineticTestHelper {
     }
 
     public static void removeDefaultDeviceFile() {
-        File file = new File(FILE_NAME);
+        File file = new File(ROOT_DIR + FILE_NAME);
         if (file.exists()) {
             file.delete();
         }
@@ -53,7 +57,7 @@ public class KineticTestHelper {
 
     private static void writeToDeviceFile(String deviceJsonContent)
             throws IOException {
-        File file = new File(FILE_NAME);
+        File file = new File(ROOT_DIR + FILE_NAME);
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }

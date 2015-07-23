@@ -104,6 +104,8 @@ public class DefaultRestBridgeService implements RestBridgeService {
     private static final String DEVICE = "device";
     private static final String TOOL_HOME = System.getProperty(
             "kinetic.tools.out", ".");
+    private static final String ROOT_DIR = TOOL_HOME + File.separator + "out"
+            + File.separator;
     private static final AdminClientRegister adminClientRegister = new AdminClientRegister();
 
     public DefaultRestBridgeService() {
@@ -217,10 +219,10 @@ public class DefaultRestBridgeService implements RestBridgeService {
                             .getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         } else {
-            getLogCommand = new GetLog(discoId, GETLOG_LOG_FILE_PREFIX
-                    + System.currentTimeMillis(), type, request.getUseSsl(),
-                    request.getClversion(), Long.parseLong(request
-                            .getIdentity()), request.getKey(),
+            getLogCommand = new GetLog(ROOT_DIR + discoId,
+                    GETLOG_LOG_FILE_PREFIX + System.currentTimeMillis(), type,
+                    request.getUseSsl(), request.getClversion(),
+                    Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         }
 
@@ -433,27 +435,27 @@ public class DefaultRestBridgeService implements RestBridgeService {
         String discoId = request.getDiscoId();
 
         String defaultDiscoId = DRIVES_FILE_PREFIX + System.currentTimeMillis();
-        String rootDir = TOOL_HOME + File.separator + "out" + File.separator
-                + defaultDiscoId;
 
-        discoId = discoId == null ? rootDir : discoId;
+        discoId = discoId == null ? defaultDiscoId : discoId;
+        
+        String inputDiscoIdPath = ROOT_DIR + discoId;
 
         if (request.getSubnet() == null && kineticIds == null) {
             kineticDevices = new ArrayList<KineticDevice>();
             try {
-                discoverDevices(kineticDevices, request.getTimeout(), discoId);
+                discoverDevices(kineticDevices, request.getTimeout(), inputDiscoIdPath);
             } catch (Exception e) {
                 return new ErrorResponse();
             }
         } else {
             Command command = null;
             if (kineticIds != null) {
-                command = new PingReachableDrive(kineticIds, discoId,
+                command = new PingReachableDrive(kineticIds, inputDiscoIdPath,
                         request.getUseSsl(), request.getClversion(),
                         Long.parseLong(request.getIdentity()),
                         request.getKey(), request.getRequestTimeout());
             } else {
-                command = new PingReachableDrive(request.getSubnet(), discoId,
+                command = new PingReachableDrive(request.getSubnet(), inputDiscoIdPath,
                         request.getUseSsl(), request.getClversion(),
                         Long.parseLong(request.getIdentity()),
                         request.getKey(), request.getRequestTimeout());
@@ -492,10 +494,10 @@ public class DefaultRestBridgeService implements RestBridgeService {
                             .getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         } else {
-            command = new PingReachableDrive(discoId, PING_FILE_PREFIX
-                    + System.currentTimeMillis(), request.getUseSsl(),
-                    request.getClversion(), Long.parseLong(request
-                            .getIdentity()), request.getKey(),
+            command = new PingReachableDrive(ROOT_DIR + discoId,
+                    PING_FILE_PREFIX + System.currentTimeMillis(),
+                    request.getUseSsl(), request.getClversion(),
+                    Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         }
         execCommandAndSetResp(response, command,
@@ -564,7 +566,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
                     request.getRequestTimeout());
         } else {
             command = new CheckFirmwareVersion(
-                    request.getExpectFirmwareVersion(), discoId,
+                    request.getExpectFirmwareVersion(), ROOT_DIR + discoId,
                     request.getUseSsl(), request.getClversion(),
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
@@ -614,8 +616,9 @@ public class DefaultRestBridgeService implements RestBridgeService {
                     request.getRequestTimeout());
         } else {
             command = new SetErasePin(request.getOldPin(), request.getNewPin(),
-                    discoId, request.getUseSsl(), request.getClversion(),
-                    Long.parseLong(request.getIdentity()), request.getKey(),
+                    ROOT_DIR + discoId, request.getUseSsl(),
+                    request.getClversion(), Long.parseLong(request
+                            .getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         }
         execCommandAndSetResp(response, command,
@@ -642,8 +645,9 @@ public class DefaultRestBridgeService implements RestBridgeService {
                     request.getRequestTimeout());
         } else {
             command = new SetLockPin(request.getOldPin(), request.getNewPin(),
-                    discoId, request.getUseSsl(), request.getClversion(),
-                    Long.parseLong(request.getIdentity()), request.getKey(),
+                    ROOT_DIR + discoId, request.getUseSsl(),
+                    request.getClversion(), Long.parseLong(request
+                            .getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         }
         execCommandAndSetResp(response, command,
@@ -669,7 +673,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         } else {
-            command = new InstantErase(request.getPin(), discoId,
+            command = new InstantErase(request.getPin(), ROOT_DIR + discoId,
                     request.getUseSsl(), request.getClversion(),
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
@@ -697,7 +701,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         } else {
-            command = new SecureErase(request.getPin(), discoId,
+            command = new SecureErase(request.getPin(), ROOT_DIR + discoId,
                     request.getUseSsl(), request.getClversion(),
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
@@ -725,7 +729,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         } else {
-            command = new LockDevice(discoId, request.getPin(),
+            command = new LockDevice(ROOT_DIR + discoId, request.getPin(),
                     request.getUseSsl(), request.getClversion(),
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
@@ -753,7 +757,7 @@ public class DefaultRestBridgeService implements RestBridgeService {
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         } else {
-            command = new UnLockDevice(discoId, request.getPin(),
+            command = new UnLockDevice(ROOT_DIR + discoId, request.getPin(),
                     request.getUseSsl(), request.getClversion(),
                     Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
@@ -783,9 +787,9 @@ public class DefaultRestBridgeService implements RestBridgeService {
                     request.getRequestTimeout());
         } else {
             command = new SetClusterVersion(String.valueOf(request
-                    .getNewClversion()), discoId, request.getUseSsl(),
-                    request.getClversion(), Long.parseLong(request
-                            .getIdentity()), request.getKey(),
+                    .getNewClversion()), ROOT_DIR + discoId,
+                    request.getUseSsl(), request.getClversion(),
+                    Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         }
         execCommandAndSetResp(response, command,
@@ -812,9 +816,9 @@ public class DefaultRestBridgeService implements RestBridgeService {
                             .getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         } else {
-            command = new SetSecurity(acls, discoId, request.getUseSsl(),
-                    request.getClversion(), Long.parseLong(request
-                            .getIdentity()), request.getKey(),
+            command = new SetSecurity(acls, ROOT_DIR + discoId,
+                    request.getUseSsl(), request.getClversion(),
+                    Long.parseLong(request.getIdentity()), request.getKey(),
                     request.getRequestTimeout());
         }
         execCommandAndSetResp(response, command,
