@@ -155,11 +155,23 @@ public class KineticRestService {
      * main class to start Kinetic rest service.
      * 
      * @param args
+     *            http port and https port
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
 
         ServiceConfiguration config = new ServiceConfiguration();
+
+        if (args.length > 0) {
+            // http port
+            int port = Integer.parseInt(args[0]);
+            config.serPort(port);
+            if (args.length > 1) {
+                // https port
+                port = Integer.parseInt(args[1]);
+                config.setHttpsPort(port);
+            }
+        }
 
         KineticRestService service = new KineticRestService();
 
