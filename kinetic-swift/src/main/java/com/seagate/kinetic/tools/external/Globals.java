@@ -25,5 +25,12 @@ public class Globals {
 	static public final String SWIFT_CONTAINER_BUILDER_FILE = "container.builder";
 	static public final String SWIFT_ACCOUNT_BUILDER_FILE = "account.builder";
 	
+	static public String GetSwiftDir(ExternalRequest request)
+	{
+	        String dir = request.getDir();
+	        if (dir == null ) dir = Globals.SWIFT_DIR;
+	        return dir;
+	}
+	
 	
 }

@@ -17,7 +17,8 @@ public class Dispersion implements ExternalCommandService {
 	        System.out.println("** received request: " + request.toJson());
 	        CommandFilter filt = CommandFilter.getInstance();
 	        logger.info("For Dispersion using Swift Dir Path...." + Globals.SWIFT_DIR);
-        return filt.ExecCmd(filt.GetDispersionCommand(request.getRequestMessage()), Globals.SWIFT_DIR);
+        return filt.ExecCmd(filt.GetDispersionCommand(request.getRequestMessage()),
+        		Globals.GetSwiftDir(request));
 	    }
 	    
 

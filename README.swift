@@ -4,7 +4,14 @@ defined values.
 Example:
  export SWIFT_DIR =/mydir
 
+Alternatively, the following K/V in Json format can be used to change the directory for each REST call
+"dir":"/home/my-swift-dir"
+Example:
+curl -d '{"msg":"proxy", "dir":"/home/my-swift-dir"}' http://localhost:8080/external?class=Config
 
+
+Access Control:
+If swift cluster is started as root make sure to start the REST server with root access.
 Ring Structure 
 
 Let's consider a Swift cluster with 2 storage nodes, with the following IPs 
