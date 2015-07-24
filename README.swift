@@ -5,11 +5,19 @@ Example:
  export SWIFT_DIR =/mydir
 
 Alternatively, the following K/V in Json format can be used to change the directory for each REST call
-"dir":"/home/my-swift-dir"
+"dir":"<dir name>"
 Example:
 curl -d '{"msg":"proxy", "dir":"/home/my-swift-dir"}' http://localhost:8080/external?class=Config
-
-
+------------------------------------------------
+The default ring files are as follows:
+For Objects: object.builder
+For Accounts: account.builder
+For Containers: container.builder
+The default can be overriden by the following K/V
+"file":"<file name>"
+Example:
+ curl -d '{"msg":"object", "file":"object1.builder"}' http://localhost:8080/external?class=Ring
+-----------------------------------------------------
 Access Control:
 If swift cluster is started as root make sure to start the REST server with root access.
 Ring Structure 

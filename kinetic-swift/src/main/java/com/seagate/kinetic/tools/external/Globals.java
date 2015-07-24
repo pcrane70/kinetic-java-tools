@@ -24,12 +24,33 @@ public class Globals {
 	static public final String SWIFT_OBJECT_BUILDER_FILE = "object.builder";
 	static public final String SWIFT_CONTAINER_BUILDER_FILE = "container.builder";
 	static public final String SWIFT_ACCOUNT_BUILDER_FILE = "account.builder";
+	static public final String SWIFT_PROXY_BUILDER_FILE = "proxy.builder";
+	static public final String SWIFT_OBJECT_REQUEST = "object";
+	static public final String SWIFT_CONTAINER_REQUEST = "container";
+	static public final String SWIFT_ACCOUNT_REQUEST = "account";
+	static public final String SWIFT_PROXY_REQUEST = "proxy";
 	
 	static public String GetSwiftDir(ExternalRequest request)
 	{
 	        String dir = request.getDir();
 	        if (dir == null ) dir = Globals.SWIFT_DIR;
 	        return dir;
+	}
+	static public String GetSwiftRingFile(ExternalRequest request)
+	{
+		switch(request.getRequestMessage())
+		{
+		case SWIFT_OBJECT_REQUEST:
+			return SWIFT_OBJECT_BUILDER_FILE;
+		case SWIFT_CONTAINER_REQUEST:
+			return SWIFT_CONTAINER_BUILDER_FILE;
+		case SWIFT_ACCOUNT_REQUEST:
+			return SWIFT_ACCOUNT_BUILDER_FILE;
+		case SWIFT_PROXY_REQUEST:
+			return SWIFT_PROXY_BUILDER_FILE;
+		
+		}
+	     return null;
 	}
 	
 	

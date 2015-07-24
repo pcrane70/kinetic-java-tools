@@ -29,10 +29,10 @@ public class CommandFilter {
 		ConfigMap.put("object", "swift-config,object");
 		ConfigMap.put("container", "swift-config,container");
 		
-		RingMap.put("proxy", "swift-ring-builder,proxy.builder");
-		RingMap.put("object", "swift-ring-builder,object.builder");
-		RingMap.put("account", "swift-ring-builder,account.builder");
-		RingMap.put("container", "swift-ring-builder,container.builder");
+		RingMap.put("proxy", "swift-ring-builder");
+		RingMap.put("object", "swift-ring-builder");
+		RingMap.put("account", "swift-ring-builder");
+		RingMap.put("container", "swift-ring-builder");
 		
 		InitMap.put("proxy", "swift-init,proxy,status");
 		InitMap.put("object", "swift-init,object,status");
