@@ -44,6 +44,14 @@ The table has 3 lines, one for each replica, and 8 columns, one for each partiti
 
 To get the Object Ring:
 curl -d '{"msg":"object"}' http://localhost:8080/external?class=Partitions
+---------------------------------------------------------------------------------
+Detailed Informtaion about specific Object partition can be found by invoking Nodes REST
+API:
+Example:
+ curl -d '{"partition":"1", "file":"object.ring.gz"}' http://localhost:8080/external?class=Nodes
+
+A Sample output is shown later in this file
+--------------------------------------------------------------------------------------------
 
 For extracting configurations use Config class. 
 Examples:
@@ -1545,4 +1553,43 @@ Sample output:
 1022 = 16,33,35
 1023 = 0,10,26
 
+----------------------------------------------------------------------------
+ curl -d '{"partition":"1", "file":"object.ring.gz"}' http://localhost:8080/external?class=Nodes
+
+ Account  	None
+ Container	None
+ Object   	None
+
+
+ Partition	1
+ Hash     	None
+
+ Server:Port Device	127.0.0.1:6000 127.0.0.1:8103
+ Server:Port Device	127.0.0.1:6000 127.0.0.1:8145
+ Server:Port Device	127.0.0.1:6000 127.0.0.1:8101
+ Server:Port Device	127.0.0.1:6000 127.0.0.1:8128	 [Handoff]
+ Server:Port Device	127.0.0.1:6000 127.0.0.1:8134	 [Handoff]
+ Server:Port Device	127.0.0.1:6000 127.0.0.1:8147	 [Handoff]
+
+
+ curl -I -XHEAD "http://127.0.0.1:6000/127.0.0.1:8103/1/None"
+ curl -I -XHEAD "http://127.0.0.1:6000/127.0.0.1:8145/1/None"
+ curl -I -XHEAD "http://127.0.0.1:6000/127.0.0.1:8101/1/None"
+ curl -I -XHEAD "http://127.0.0.1:6000/127.0.0.1:8128/1/None" # [Handoff]
+ curl -I -XHEAD "http://127.0.0.1:6000/127.0.0.1:8134/1/None" # [Handoff]
+ curl -I -XHEAD "http://127.0.0.1:6000/127.0.0.1:8147/1/None" # [Handoff]
+
+
+ Use your own device location of servers:
+ such as "export DEVICE=/srv/node"
+ ssh 127.0.0.1 "ls -lah ${DEVICE:-/srv/node*}/127.0.0.1:8103/objects/1"
+ ssh 127.0.0.1 "ls -lah ${DEVICE:-/srv/node*}/127.0.0.1:8145/objects/1"
+ ssh 127.0.0.1 "ls -lah ${DEVICE:-/srv/node*}/127.0.0.1:8101/objects/1"
+ ssh 127.0.0.1 "ls -lah ${DEVICE:-/srv/node*}/127.0.0.1:8128/objects/1" # [Handoff]
+ ssh 127.0.0.1 "ls -lah ${DEVICE:-/srv/node*}/127.0.0.1:8134/objects/1" # [Handoff]
+ ssh 127.0.0.1 "ls -lah ${DEVICE:-/srv/node*}/127.0.0.1:8147/objects/1" # [Handoff]
+
+ note: `/srv/node*` is used as default value of `devices`, the real value is set in the config file on each storage node.
+
+ mshafiq@c-ceph:/usr/local/bin$ 
 

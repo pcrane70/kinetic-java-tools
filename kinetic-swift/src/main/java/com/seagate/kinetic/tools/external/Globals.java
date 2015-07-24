@@ -29,6 +29,7 @@ public class Globals {
 	static public final String SWIFT_CONTAINER_REQUEST = "container";
 	static public final String SWIFT_ACCOUNT_REQUEST = "account";
 	static public final String SWIFT_PROXY_REQUEST = "proxy";
+	static public final String SWIFT_GET_NODES = "swift-get-nodes";
 	
 	static public String GetSwiftDir(ExternalRequest request)
 	{

@@ -34,6 +34,7 @@ public class ExternalRequest extends RestRequest {
     private String user = null;
     private String swiftKey = null;
     private String file = null;
+    private String partition = null;
 
     public ExternalRequest() {
         setMessageType(MessageType.EXTERNAL_REQUEST);
@@ -55,5 +56,7 @@ public class ExternalRequest extends RestRequest {
     public void setSwiftKey(String val) { this.swiftKey = val; }
     public String getFile() { return this.file; }
     public void setFile(String file) { this.file = file; }
+    public String getPartition() { return this.partition; }
+    public void setPartition(String partition) { this.partition = partition; }
 
 }

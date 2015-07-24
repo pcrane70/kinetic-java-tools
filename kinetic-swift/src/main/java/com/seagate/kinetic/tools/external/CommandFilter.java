@@ -49,7 +49,6 @@ public class CommandFilter {
 		
 		PartitionMap.put("object", "swift-ring-builder");
 		 
-		
 	}
 	
 	private static class Holder 
