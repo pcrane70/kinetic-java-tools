@@ -30,12 +30,12 @@ public class Partitions implements ExternalCommandService {
 	        logger.info("executing Comd " + cmd + " Dir == " + dir + " File == " + file );
 	        String rc = filt.ExecShellCmd(cmd, dir);
 	        int devices = Key2Val(rc, "devices"); 
-	        logger.info("extracting partition infor for " + devices + "  devices");
+	        logger.info("extracting partition info for " + devices + "  devices");
 	        String msg = null;
 	        cmd = filt.GetPartitionCommand(request.getRequestMessage());
 	        for (int i = 0; i < devices; i++) {
 	        	String listCmd = cmd + "," + file + "," + "list_parts" + "," + "d" + i;
-	        	logger.info("executing Comd " + listCmd + " Dir == " + dir + " File == " + file );
+	        	logger.info("executing Command " + listCmd + " Directory == " + dir + " File == " + file );
 	        	rc = filt.ExecShellCmd(listCmd, dir);
 	        	BuildPartMap(rc, Integer.toString(i));
 	        }

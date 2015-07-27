@@ -48,6 +48,10 @@ public class CommandFilter {
 		DispersionMap.put("report", "swift-dispersion-report,-d,-j");
 		
 		PartitionMap.put("object", "swift-ring-builder");
+		
+		InfoMap.put("object", "swift-object-info");
+		InfoMap.put("account", "swift-account-info");
+		InfoMap.put("container", "swift-container-info");
 		 
 	}
 	
@@ -88,6 +92,11 @@ public class CommandFilter {
 	public String GetPartitionCommand(String req)
 	{
 		return PartitionMap.get(req);
+		
+	}
+	public String GetInfoCommand(String req)
+	{
+		return InfoMap.get(req);
 		
 	}
 	public String ExecShellCmd(String cmd, String dir)
@@ -138,5 +147,6 @@ public class CommandFilter {
 	private  HashMap<String, String> ReconMap = new HashMap<String, String>();
 	private  HashMap<String, String> DispersionMap = new HashMap<String, String>();
 	private  HashMap<String, String> PartitionMap = new HashMap<String, String>();
+	private  HashMap<String, String> InfoMap = new HashMap<String, String>();
 
 }

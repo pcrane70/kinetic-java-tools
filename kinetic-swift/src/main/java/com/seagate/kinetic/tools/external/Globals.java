@@ -8,7 +8,9 @@ package com.seagate.kinetic.tools.external;
  *
  */
 public class Globals {
+	static public String SWIFT_DB_EXTENSION = ".db";
 	static public String SWIFT_DIR = "/etc/swift";
+	static public String SWIFT_DATA_DIR = "/swift";
 	static public String SWIFT_OBJECT_RING_BUILDER_FILE = "object.builder";
 	static public String SWIFT_CONTAINER_RING_BUILDER_FILE = "container.builder";
 	static public String SWIFT_ACCOUNT_RING_BUILDER_FILE = "account.builder";

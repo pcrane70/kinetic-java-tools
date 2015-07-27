@@ -84,7 +84,23 @@ Examples:
 curl -d '{"msg":"account"}' http://localhost:8080/external?class=Ring
 curl -d '{"msg":"container"}' http://localhost:8080/external?class=Ring
 curl -d '{"msg":"object"}' http://localhost:8080/external?class=Ring
+-----------------------------------------------------------------
+Extracting information about objects, accounts, and containers: 
+(1) Use the following commands to list the DB files about objects,
+accounts, and containers.
+curl -d '{"msg":"object"}' http://localhost:8080/external?class=Info
+curl -d '{"msg":"account"}' http://localhost:8080/external?class=Info
+curl -d '{"msg":"container"}' http://localhost:8080/external?class=Info
+Once db files are extartced use the following REST to extract information
+about objects, accounts and containers.
 
+REST Example for extracting account info 
+ curl -d '{"msg":"account", "file":"/swift/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178/c8bcccab3ddbfdc34b08e9223f4f5178.db"}' http://localhost:8080/external?class=Info
+
+REST Example for extracting container info 
+ curl -d '{"msg":"container", "file":"/swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db"}' http://localhost:8080/external?class=Info
+REST Example for extracting object info 
+ curl -d '{"msg":"object", "file":"/swift/sdv/object/603/9f7/676786786876786876abcdef45466666666664.db"}' http://localhost:8080/external?class=Info
 ============================  SAMPLE OUTPUT========================
 
 curl -d '{"msg":"populate"}' http://localhost:8080/external?class=Dispersion
@@ -1591,5 +1607,94 @@ Sample output:
 
  note: `/srv/node*` is used as default value of `devices`, the real value is set in the config file on each storage node.
 
- mshafiq@c-ceph:/usr/local/bin$ 
+------------------------------------------------------------------------------------
+curl -d '{"msg":"object"}' http://localhost:8080/external?class=Info
+
+curl -d '{"msg":"container"}' http://localhost:8080/external?class=Info
+/swift/sdv/containers/610/8c6/98b01292b094a930f1a0a5a2643f58c6/98b01292b094a930f1a0a5a2643f58c6.db
+/swift/sdv/containers/290/c5c/48be213a50267e36e5d29de6ddbaec5c/48be213a50267e36e5d29de6ddbaec5c.db
+/swift/sdv/containers/322/d27/508fe2583382232542322fba90443d27/508fe2583382232542322fba90443d27.db
+/swift/sdv/containers/808/afb/ca3a354fd916e64e1e0a4e752f2c8afb/ca3a354fd916e64e1e0a4e752f2c8afb.db
+/swift/sdv/containers/736/58e/b8220ac4f715aa3cdf068e810f25b58e/b8220ac4f715aa3cdf068e810f25b58e.db
+/swift/sdv/containers/854/4cb/d59c610a631fa6acb1a94f81139964cb/d59c610a631fa6acb1a94f81139964cb.db
+/swift/sdv/containers/763/ba5/bef450cf45566fe13fa617c754cb9ba5/bef450cf45566fe13fa617c754cb9ba5.db
+/swift/sdv/containers/24/931/063948dec68262a1b6c4dd7f63e2f931/063948dec68262a1b6c4dd7f63e2f931.db
+/swift/sdv/containers/604/3c3/97397638af37f90cbec2fb437f09b3c3/97397638af37f90cbec2fb437f09b3c3.db
+/swift/sdv/containers/468/1f0/75053810bc36966c8f1651f502d0d1f0/75053810bc36966c8f1651f502d0d1f0.db
+/swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db
+
+curl -d '{"msg":"account"}' http://localhost:8080/external?class=Info
+/swift/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178/c8bcccab3ddbfdc34b08e9223f4f5178.db
+
+ 
+ curl -d '{"msg":"account", "file":"/swift/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178/c8bcccab3ddbfdc34b08e9223f4f5178.db"}' http://localhost:8080/external?class=Info
+ Path: /AUTH_test
+   Account: AUTH_test
+     Account Hash: c8bcccab3ddbfdc34b08e9223f4f5178
+     Metadata:
+       Created at: 2015-07-15T16:15:57.127740 (1436976957.12774)
+         Put Timestamp: 2015-07-15T16:15:57.144980 (1436976957.14498)
+	   Delete Timestamp: 1970-01-01T00:00:00.000000 (0)
+	     Status Timestamp: 2015-07-15T16:15:57.119550 (1436976957.11955)
+	       Container Count: 11
+	         Object Count: 10
+		   Bytes Used: 120
+		     Chexor: 42b7e207f6f3da9d93bd4255abcba156
+		       UUID: cbbc43b4-134d-43cc-82c7-5c52901f484c
+		       No system metadata found in db file
+		       No user metadata found in db file
+		       Partition	802
+		       Hash     	c8bcccab3ddbfdc34b08e9223f4f5178
+
+		       Server:Port Device	127.0.0.1:6002 sdv
+
+
+		       curl -I -XHEAD "http://127.0.0.1:6002/sdv/802/AUTH_test"
+
+
+		       Use your own device location of servers:
+		       such as "export DEVICE=/srv/node"
+		       ssh 127.0.0.1 "ls -lah ${DEVICE:-/srv/node*}/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178"
+
+		       note: `/srv/node*` is used as default value of `devices`, the real value is set in the config file on each storage node.
+
+ curl -d '{"msg":"container", "file":"/swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db"}' http://localhost:8080/external?class=Info
+ Path: /AUTH_test/dispersion_objects
+   Account: AUTH_test
+     Container: dispersion_objects
+       Container Hash: 96e90f348f8d45a7288eaeed2473c9f7
+       Metadata:
+         Created at: 2015-07-15T16:15:57.422400 (1436976957.42240)
+	   Put Timestamp: 2015-07-16T18:40:58.664400 (1437072058.66440)
+	     Delete Timestamp: 1970-01-01T00:00:00.000000 (0)
+	       Status Timestamp: 2015-07-15T16:15:57.414170 (1436976957.41417)
+	         Object Count: 10
+		   Bytes Used: 120
+		     Storage Policy: Policy-0 (0)
+		       Reported Put Timestamp: 2015-07-16T18:40:58.664400 (1437072058.66440)
+		         Reported Delete Timestamp: 1970-01-01T00:00:00.000000 (0)
+			   Reported Object Count: 10
+			     Reported Bytes Used: 120
+			       Chexor: e2a6b13edd3c57767c9d6a75dc34a583
+			         UUID: 60e91652-28c3-4144-9085-79941e26832c
+				   X-Container-Sync-Point2: -1
+				     X-Container-Sync-Point1: -1
+				     No system metadata found in db file
+				     No user metadata found in db file
+				     Partition	603
+				     Hash     	96e90f348f8d45a7288eaeed2473c9f7
+
+				     Server:Port Device	127.0.0.1:6001 sdv
+
+
+				     curl -I -XHEAD "http://127.0.0.1:6001/sdv/603/AUTH_test/dispersion_objects"
+
+
+				     Use your own device location of servers:
+				     such as "export DEVICE=/srv/node"
+				     ssh 127.0.0.1 "ls -lah ${DEVICE:-/srv/node*}/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7"
+
+				     note: `/srv/node*` is used as default value of `devices`, the real value is set in the config file on each storage node.
+
+				     mshafiq@c-ceph:~/kinetic-java-tools$ 
 
