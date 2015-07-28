@@ -15,7 +15,7 @@ public class Ring implements ExternalCommandService {
 	   	    public ExternalResponse execute(ExternalRequest request) {
 	   	        System.out.println("** received request: " + request.toJson());
 	   	        CommandFilter filt = CommandFilter.getInstance();
-	   	        String Cmd  = filt.GetRingCommand(request.getRequestMessage());
+	   	        String Cmd  = filt.GetRingCommand(request.getResource());
 	   	        String file = request.getFile();
 	   	        if (file == null) file = Globals.GetSwiftRingFile(request);
 	   	        Cmd += ("," + file);

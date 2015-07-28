@@ -41,7 +41,7 @@ public class SwiftClientExample {
             ExternalRequest request = new ExternalRequest();
 
             // set request message
-            request.setRequestMessage("Hello Swift, a=b, c=d");
+            request.setResource("Hello Swift, a=b, c=d");
 
             // send request
             RestResponse response = client.send(url, request);

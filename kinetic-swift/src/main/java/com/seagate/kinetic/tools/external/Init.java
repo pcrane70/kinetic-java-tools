@@ -14,7 +14,7 @@ public class Init implements ExternalCommandService {
 
 	        System.out.println("** received request: " + request.toJson());
 	        CommandFilter filt = CommandFilter.getInstance();
-	        return filt.ExecCmd(filt.GetInitCommand(request.getRequestMessage()),
+	        return filt.ExecCmd(filt.GetInitCommand(request.getResource()),
 	        		Globals.GetSwiftDir(request));
 	    }
 }

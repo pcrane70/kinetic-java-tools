@@ -14,7 +14,7 @@ public class Info implements ExternalCommandService {
         CommandFilter filt = CommandFilter.getInstance();
         String dir = request.getDir();
         String file = request.getFile();
-        String msg = request.getRequestMessage();
+        String msg = request.getResource();
         String cmd = filt.GetInfoCommand(msg);
         String result = new String();
         if (dir == null ) dir = Globals.SWIFT_DATA_DIR;

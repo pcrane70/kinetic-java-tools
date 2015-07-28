@@ -41,7 +41,7 @@ public class Globals {
 	}
 	static public String GetSwiftRingFile(ExternalRequest request)
 	{
-		switch(request.getRequestMessage())
+		switch(request.getResource())
 		{
 		case SWIFT_OBJECT_REQUEST:
 			return SWIFT_OBJECT_BUILDER_FILE;

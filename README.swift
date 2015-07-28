@@ -6,8 +6,10 @@ Example:
 
 Alternatively, the following K/V in Json format can be used to change the directory for each REST call
 "dir":"<dir name>"
+
+curl -d '{"resource":"proxy", "dir":"/home/my-swift-dir"}' http://localhost:8080/external?class=Config
 Example:
-curl -d '{"msg":"proxy", "dir":"/home/my-swift-dir"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"proxy", "dir":"/home/my-swift-dir"}' http://localhost:8080/external?class=Config
 ------------------------------------------------
 The default ring files are as follows:
 For Objects: object.builder
@@ -16,7 +18,7 @@ For Containers: container.builder
 The default can be overriden by the following K/V
 "file":"<file name>"
 Example:
- curl -d '{"msg":"object", "file":"object1.builder"}' http://localhost:8080/external?class=Ring
+ curl -d '{"resource":"object", "file":"object1.builder"}' http://localhost:8080/external?class=Ring
 -----------------------------------------------------
 Access Control:
 If swift cluster is started as root make sure to start the REST server with root access.
@@ -43,7 +45,7 @@ The table has 3 lines, one for each replica, and 8 columns, one for each partiti
  the line of index 1 and column of index 2. This lead us to the device ID 3.
 
 To get the Object Ring:
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Partitions
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Partitions
 ---------------------------------------------------------------------------------
 Detailed Informtaion about specific Object partition can be found by invoking Nodes REST
 API:
@@ -55,59 +57,59 @@ A Sample output is shown later in this file
 
 For extracting configurations use Config class. 
 Examples:
-curl -d '{"msg":"proxy"}' http://localhost:8080/external?class=Config
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Config
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Config
-curl -d '{"msg":"container"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"proxy"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"container"}' http://localhost:8080/external?class=Config
 
 For extracting populating dispersion  use Dispersion class. 
 Examples:
-curl -d '{"msg":"populate"}' http://localhost:8080/external?class=Dispersion
-curl -d '{"msg":"report"}' http://localhost:8080/external?class=Dispersion
+curl -d '{"resource":"populate"}' http://localhost:8080/external?class=Dispersion
+curl -d '{"resource":"report"}' http://localhost:8080/external?class=Dispersion
 
 To check the status of the each server use the Init class
 Examples:
-curl -d '{"msg":"container"}' http://localhost:8080/external?class=Init
-curl -d '{"msg":"proxy"}' http://localhost:8080/external?class=Init
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Init
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Init
+curl -d '{"resource":"container"}' http://localhost:8080/external?class=Init
+curl -d '{"resource":"proxy"}' http://localhost:8080/external?class=Init
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Init
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Init
 
 To get the Recon status of each server use the Recon class
 Examples:
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Recon
-curl -d '{"msg":"container"}' http://localhost:8080/external?class=Recon
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Recon
-curl -d '{"msg":"proxy"}' http://localhost:8080/external?class=Recon
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Recon
+curl -d '{"resource":"container"}' http://localhost:8080/external?class=Recon
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Recon
+curl -d '{"resource":"proxy"}' http://localhost:8080/external?class=Recon
 
 To find the status of each ring use the Ring class
 Examples:
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Ring
-curl -d '{"msg":"container"}' http://localhost:8080/external?class=Ring
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Ring
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Ring
+curl -d '{"resource":"container"}' http://localhost:8080/external?class=Ring
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Ring
 -----------------------------------------------------------------
 Extracting information about objects, accounts, and containers: 
 (1) Use the following commands to list the DB files about objects,
 accounts, and containers.
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Info
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Info
-curl -d '{"msg":"container"}' http://localhost:8080/external?class=Info
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Info
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Info
+curl -d '{"resource":"container"}' http://localhost:8080/external?class=Info
 Once db files are extartced use the following REST to extract information
 about objects, accounts and containers.
 
 REST Example for extracting account info 
- curl -d '{"msg":"account", "file":"/swift/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178/c8bcccab3ddbfdc34b08e9223f4f5178.db"}' http://localhost:8080/external?class=Info
+ curl -d '{"resource":"account", "file":"/swift/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178/c8bcccab3ddbfdc34b08e9223f4f5178.db"}' http://localhost:8080/external?class=Info
 
 REST Example for extracting container info 
- curl -d '{"msg":"container", "file":"/swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db"}' http://localhost:8080/external?class=Info
+ curl -d '{"resource":"container", "file":"/swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db"}' http://localhost:8080/external?class=Info
 REST Example for extracting object info 
- curl -d '{"msg":"object", "file":"/swift/sdv/object/603/9f7/676786786876786876abcdef45466666666664.db"}' http://localhost:8080/external?class=Info
+ curl -d '{"resource":"object", "file":"/swift/sdv/object/603/9f7/676786786876786876abcdef45466666666664.db"}' http://localhost:8080/external?class=Info
 ============================  SAMPLE OUTPUT========================
 
-curl -d '{"msg":"populate"}' http://localhost:8080/external?class=Dispersion
+curl -d '{"resource":"populate"}' http://localhost:8080/external?class=Dispersion
 Created 10 containers for dispersion reporting, 0s, 0 retries
 Created 10 objects for dispersion reporting, 0s, 0 retries
 ----------------------------------------------------------------------------
-curl -d '{"msg":"report"}' http://localhost:8080/external?class=Dispersion
+curl -d '{"resource":"report"}' http://localhost:8080/external?class=Dispersion
 Created 10 containers for dispersion reporting, 0s, 0 retries
 Created 10 objects for dispersion reporting, 0s, 0 retries
 Queried 11 containers for dispersion reporting, 0s, 0 retries
@@ -119,22 +121,22 @@ There were 10 partitions missing 0 copy.
 Sample represents 0.98% of the object partition space
 -----------------------------------------------------------
 
-curl -d '{"msg":"container"}' http://localhost:8080/external?class=Init
+curl -d '{"resource":"container"}' http://localhost:8080/external?class=Init
 container-server running (3647 - /etc/swift/container-server.conf)
 -----------------------------------------------------------------------
-curl -d '{"msg":"proxy"}' http://localhost:8080/external?class=Init
+curl -d '{"resource":"proxy"}' http://localhost:8080/external?class=Init
 proxy-server running (3646 - /etc/swift/proxy-server.conf)
 
 ------------------------------------------------------------------------
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Init
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Init
 account-server running (3648 - /etc/swift/account-server.conf)
 
 -------------------------------------------------------------------------
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Init
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Init
 
 object-server running (3649 - /etc/swift/object-server.conf)
 ----------------------------------------------------------------------------
-curl -d '{"msg":"proxy"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"proxy"}' http://localhost:8080/external?class=Config
 # /etc/swift/proxy-server.conf
 [filter:cname_lookup]
 bind_port = 8080
@@ -262,7 +264,7 @@ user = mshafiq
 # log_name = None
 -------------------------------------------------------------
 
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Config
 
 # /etc/swift/account-server.conf
 [app:account-server]
@@ -323,7 +325,7 @@ devices = /swift
 
 ---------------------------------------------------------------
 
-curl -d '{"msg":"container"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"container"}' http://localhost:8080/external?class=Config
 
 # /etc/swift/container-server.conf
 [filter:healthcheck]
@@ -388,7 +390,7 @@ devices = /swift
 # __file__ = /etc/swift/container-server.conf
 # log_name = None
 -----------------------------------------------------------------
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Config
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Config
 # /etc/swift/object-server.conf
 [object-replicator]
 bind_port = 6000
@@ -464,7 +466,7 @@ devices = /swift
 
 
 
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Ring
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Ring
 account.builder, build version 1
 1024 partitions, 3.000000 replicas, 1 regions, 1 zones, 1 devices, 0.00 balance, 0.00 dispersion
 The minimum number of hours before a partition can be reassigned is 1
@@ -473,7 +475,7 @@ Devices:    id  region  zone      ip address  port  replication ip  replication 
              0       1     1       127.0.0.1  6002       127.0.0.1              6002       sdv   1.00       3072    0.00
 	    
  ----------------------------------------
- curl -d '{"msg":"conatiner"}' http://localhost:9090/external?class=Ring
+ curl -d '{"resource":"conatiner"}' http://localhost:9090/external?class=Ring
 container.builder, build version 1
 1024 partitions, 3.000000 replicas, 1 regions, 1 zones, 1 devices, 0.00 balance, 0.00 dispersion
 The minimum number of hours before a partition can be reassigned is 1
@@ -482,7 +484,7 @@ Devices:    id  region  zone      ip address  port  replication ip  replication 
              0       1     1       127.0.0.1  6001       127.0.0.1              6001       sdv   1.00       3072    0.00 
 
  ----------------------------------------
- curl -d '{"msg":"object"}' http://localhost:9090/external?class=Ring 
+ curl -d '{"resource":"object"}' http://localhost:9090/external?class=Ring 
 object.builder, build version 50
 1024 partitions, 3.000000 replicas, 1 regions, 1 zones, 50 devices, 0.91 balance, 0.00 dispersion
 The minimum number of hours before a partition can be reassigned is 1
@@ -542,7 +544,7 @@ Devices:    id  region  zone      ip address  port  replication ip  replication 
 
 
 To get the Object Ring:
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Partitions
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Partitions
 Sample output:
 0 = 2,5,16
 1 = 1,3,45
@@ -1608,9 +1610,9 @@ Sample output:
  note: `/srv/node*` is used as default value of `devices`, the real value is set in the config file on each storage node.
 
 ------------------------------------------------------------------------------------
-curl -d '{"msg":"object"}' http://localhost:8080/external?class=Info
+curl -d '{"resource":"object"}' http://localhost:8080/external?class=Info
 
-curl -d '{"msg":"container"}' http://localhost:8080/external?class=Info
+curl -d '{"resource":"container"}' http://localhost:8080/external?class=Info
 /swift/sdv/containers/610/8c6/98b01292b094a930f1a0a5a2643f58c6/98b01292b094a930f1a0a5a2643f58c6.db
 /swift/sdv/containers/290/c5c/48be213a50267e36e5d29de6ddbaec5c/48be213a50267e36e5d29de6ddbaec5c.db
 /swift/sdv/containers/322/d27/508fe2583382232542322fba90443d27/508fe2583382232542322fba90443d27.db
@@ -1623,11 +1625,11 @@ curl -d '{"msg":"container"}' http://localhost:8080/external?class=Info
 /swift/sdv/containers/468/1f0/75053810bc36966c8f1651f502d0d1f0/75053810bc36966c8f1651f502d0d1f0.db
 /swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db
 
-curl -d '{"msg":"account"}' http://localhost:8080/external?class=Info
+curl -d '{"resource":"account"}' http://localhost:8080/external?class=Info
 /swift/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178/c8bcccab3ddbfdc34b08e9223f4f5178.db
 
  
- curl -d '{"msg":"account", "file":"/swift/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178/c8bcccab3ddbfdc34b08e9223f4f5178.db"}' http://localhost:8080/external?class=Info
+ curl -d '{"resource":"account", "file":"/swift/sdv/accounts/802/178/c8bcccab3ddbfdc34b08e9223f4f5178/c8bcccab3ddbfdc34b08e9223f4f5178.db"}' http://localhost:8080/external?class=Info
  Path: /AUTH_test
    Account: AUTH_test
      Account Hash: c8bcccab3ddbfdc34b08e9223f4f5178
@@ -1658,7 +1660,7 @@ curl -d '{"msg":"account"}' http://localhost:8080/external?class=Info
 
 		       note: `/srv/node*` is used as default value of `devices`, the real value is set in the config file on each storage node.
 
- curl -d '{"msg":"container", "file":"/swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db"}' http://localhost:8080/external?class=Info
+ curl -d '{"resource":"container", "file":"/swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db"}' http://localhost:8080/external?class=Info
  Path: /AUTH_test/dispersion_objects
    Account: AUTH_test
      Container: dispersion_objects

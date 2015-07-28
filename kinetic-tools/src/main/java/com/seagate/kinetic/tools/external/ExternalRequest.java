@@ -29,7 +29,7 @@ public class ExternalRequest extends RestRequest {
 
 	// make all fields optional and let downstream code to valiate the 
 	// parameters
-    private String msg = null;
+    private String resource = null;
     private String dir = null;
     private String user = null;
     private String swiftKey = null;
@@ -39,14 +39,8 @@ public class ExternalRequest extends RestRequest {
     public ExternalRequest() {
         setMessageType(MessageType.EXTERNAL_REQUEST);
     }
-
-    public void setRequestMessage(String msg) {
-        this.msg = msg;
-    }
-
-    public String getRequestMessage() {
-        return this.msg;
-    }
+    public String getResource() { return this.resource; }
+    public void setResource(String resource) { this.resource = resource; }
     
     public String getDir() { return this.dir; }
     public void setDir(String dir) { this.dir = dir; }
