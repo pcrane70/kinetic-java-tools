@@ -475,7 +475,7 @@ Devices:    id  region  zone      ip address  port  replication ip  replication 
              0       1     1       127.0.0.1  6002       127.0.0.1              6002       sdv   1.00       3072    0.00
 	    
  ----------------------------------------
- curl -d '{"resource":"conatiner"}' http://localhost:9090/external?class=Ring
+ curl -d '{"resource":"container"}' http://localhost:9090/external?class=Ring
 container.builder, build version 1
 1024 partitions, 3.000000 replicas, 1 regions, 1 zones, 1 devices, 0.00 balance, 0.00 dispersion
 The minimum number of hours before a partition can be reassigned is 1
