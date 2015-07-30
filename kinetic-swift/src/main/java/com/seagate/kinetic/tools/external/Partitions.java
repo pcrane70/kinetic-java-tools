@@ -24,18 +24,18 @@ public class Partitions implements ExternalCommandService {
 	        CommandFilter filt = CommandFilter.getInstance();
 	        String dir = request.getDir();
 	        String file = request.getFile();
-	        String cmd = filt.GetRingCommand(request.getRequestMessage());
+	        String cmd = filt.GetRingCommand(request.getResource());
 	        if (file == null) file = Globals.SWIFT_OBJECT_BUILDER_FILE;
 	        if (dir == null ) dir = Globals.SWIFT_DIR;
 	        logger.info("executing Comd " + cmd + " Dir == " + dir + " File == " + file );
 	        String rc = filt.ExecShellCmd(cmd, dir);
 	        int devices = Key2Val(rc, "devices"); 
-	        logger.info("extracting partition infor for " + devices + "  devices");
+	        logger.info("extracting partition info for " + devices + "  devices");
 	        String msg = null;
-	        cmd = filt.GetPartitionCommand(request.getRequestMessage());
+	        cmd = filt.GetPartitionCommand(request.getResource());
 	        for (int i = 0; i < devices; i++) {
 	        	String listCmd = cmd + "," + file + "," + "list_parts" + "," + "d" + i;
-	        	logger.info("executing Comd " + listCmd + " Dir == " + dir + " File == " + file );
+	        	logger.info("executing Command " + listCmd + " Directory == " + dir + " File == " + file );
 	        	rc = filt.ExecShellCmd(listCmd, dir);
 	        	BuildPartMap(rc, Integer.toString(i));
 	        }

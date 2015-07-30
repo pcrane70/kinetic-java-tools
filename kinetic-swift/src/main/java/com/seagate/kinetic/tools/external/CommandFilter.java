@@ -29,10 +29,10 @@ public class CommandFilter {
 		ConfigMap.put("object", "swift-config,object");
 		ConfigMap.put("container", "swift-config,container");
 		
-		RingMap.put("proxy", "swift-ring-builder,proxy.builder");
-		RingMap.put("object", "swift-ring-builder,object.builder");
-		RingMap.put("account", "swift-ring-builder,account.builder");
-		RingMap.put("container", "swift-ring-builder,container.builder");
+		RingMap.put("proxy", "swift-ring-builder");
+		RingMap.put("object", "swift-ring-builder");
+		RingMap.put("account", "swift-ring-builder");
+		RingMap.put("container", "swift-ring-builder");
 		
 		InitMap.put("proxy", "swift-init,proxy,status");
 		InitMap.put("object", "swift-init,object,status");
@@ -48,8 +48,11 @@ public class CommandFilter {
 		DispersionMap.put("report", "swift-dispersion-report,-d,-j");
 		
 		PartitionMap.put("object", "swift-ring-builder");
-		 
 		
+		InfoMap.put("object", "swift-object-info");
+		InfoMap.put("account", "swift-account-info");
+		InfoMap.put("container", "swift-container-info");
+		 
 	}
 	
 	private static class Holder 
@@ -89,6 +92,11 @@ public class CommandFilter {
 	public String GetPartitionCommand(String req)
 	{
 		return PartitionMap.get(req);
+		
+	}
+	public String GetInfoCommand(String req)
+	{
+		return InfoMap.get(req);
 		
 	}
 	public String ExecShellCmd(String cmd, String dir)
@@ -139,5 +147,6 @@ public class CommandFilter {
 	private  HashMap<String, String> ReconMap = new HashMap<String, String>();
 	private  HashMap<String, String> DispersionMap = new HashMap<String, String>();
 	private  HashMap<String, String> PartitionMap = new HashMap<String, String>();
+	private  HashMap<String, String> InfoMap = new HashMap<String, String>();
 
 }

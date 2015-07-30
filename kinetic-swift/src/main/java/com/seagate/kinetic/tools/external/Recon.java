@@ -13,7 +13,8 @@ public class Recon implements ExternalCommandService {
 	    public ExternalResponse execute(ExternalRequest request) {
 	        System.out.println("** received request: " + request.toJson());
 	        CommandFilter filt = CommandFilter.getInstance();
-	        return filt.ExecCmd(filt.GetReconCommand(request.getRequestMessage()), null);
+	        return filt.ExecCmd(filt.GetReconCommand(request.getResource()),
+	        		Globals.GetSwiftDir(request));
 	    }
 
 }

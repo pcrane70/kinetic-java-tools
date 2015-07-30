@@ -29,31 +29,28 @@ public class ExternalRequest extends RestRequest {
 
 	// make all fields optional and let downstream code to valiate the 
 	// parameters
-    private String msg = null;
-    transient private String dir = null;
-    transient private String user = null;
-    transient private String key = null;
-    transient private String file = null;
+    private String resource = null;
+    private String dir = null;
+    private String user = null;
+    private String swiftKey = null;
+    private String file = null;
+    private String partition = null;
 
     public ExternalRequest() {
         setMessageType(MessageType.EXTERNAL_REQUEST);
     }
-
-    public void setRequestMessage(String msg) {
-        this.msg = msg;
-    }
-
-    public String getRequestMessage() {
-        return this.msg;
-    }
+    public String getResource() { return this.resource; }
+    public void setResource(String resource) { this.resource = resource; }
     
     public String getDir() { return this.dir; }
     public void setDir(String dir) { this.dir = dir; }
     public String getUser() { return this.user; }
     public void setUser(String user) { this.user = user; }
-    public String getKey() { return this.key; }
-    public void setKey(String key) { this.key = key; }
+    public String getSwiftKey() { return this.swiftKey; }
+    public void setSwiftKey(String val) { this.swiftKey = val; }
     public String getFile() { return this.file; }
     public void setFile(String file) { this.file = file; }
+    public String getPartition() { return this.partition; }
+    public void setPartition(String partition) { this.partition = partition; }
 
 }
