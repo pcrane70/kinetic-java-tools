@@ -17,6 +17,9 @@
  */
 package com.seagate.kinetic.tools.management.rest.service;
 
+import java.io.File;
+import java.nio.file.Paths;
+
 /**
  * Service configuration place holder.
  * 
@@ -25,11 +28,47 @@ package com.seagate.kinetic.tools.management.rest.service;
  */
 public class ServiceConfiguration {
 
+    // rest home prop name
+    public static final String REST_HOME = "kinetic.rest.home";
+
+    private static final String TEMPLET_CONFIG_PATH = "/config";
+
+    private static final String TEMPLET_CONFIG_NAME = "hwview.templet.json";
+
     // service port
     private int port = 8080;
 
     // https port
     private int httpsPort = 8081;
+
+    public static final String getHardwareConfigTempletPath() {
+        return TEMPLET_CONFIG_PATH;
+    }
+
+    public static final String getHardwareConfigTempletName() {
+        return TEMPLET_CONFIG_NAME;
+    }
+
+    public static final String getHardwareConfigTemplet() {
+        return getRestHome() + TEMPLET_CONFIG_PATH + File.separator
+                + TEMPLET_CONFIG_NAME;
+    }
+
+    /**
+     * Get rest service home.
+     * 
+     * @return rest service home.
+     */
+    public static String getRestHome() {
+        String home = null;
+
+        home = System.getProperty(REST_HOME);
+        if (home == null) {
+            home = Paths.get("").toAbsolutePath().toString();
+        }
+
+        return home;
+    }
 
     /**
      * Get service port

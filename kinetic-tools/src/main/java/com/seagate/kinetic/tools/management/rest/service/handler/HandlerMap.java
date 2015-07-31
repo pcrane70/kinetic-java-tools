@@ -68,6 +68,9 @@ public class HandlerMap {
 
     // set security (acl)
     public static final String SETSECURITY = "/setsecurity";
+    
+    // get hardware configuration view
+    public static final String HARDWAREVIEW = "/hwview";
 
     public static final String EXTERNAL = "/external";
 
@@ -95,6 +98,8 @@ public class HandlerMap {
         hmap.put(SETCLUSTERVERSION, new SetClusterVersionHandler());
 
         hmap.put(SETSECURITY, new SetSecurityHandler());
+        
+        hmap.put(HARDWAREVIEW, new HardwareViewHandler());
 
         hmap.put(EXTERNAL, new ExternalCommandHandler());
     }

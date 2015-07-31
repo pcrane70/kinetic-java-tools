@@ -71,10 +71,9 @@ public abstract class GenericServiceHandler implements ServiceHandler {
             logger.info("received request message: " + req.toJson());
 
             /**
-             * call bridge service
+             * do service
              */
-            response = RestBridgeServiceFactory
-                    .getServiceInstance().service(context.getRequestMessage());
+            response = this.doService(context.getRequestMessage());
 
             logger.info("sending response message: " + response.toJson());
 
@@ -97,6 +96,22 @@ public abstract class GenericServiceHandler implements ServiceHandler {
     protected void transformRequestParams(HttpServletRequest httpRequest,
             RestRequest req) {
         ;
+    }
+
+    /**
+     * perform default service.
+     * 
+     * @param request
+     *            request message
+     * 
+     * @return response message
+     */
+    protected RestResponse doService(RestRequest request) {
+
+        RestResponse response = RestBridgeServiceFactory.getServiceInstance()
+                .service(request);
+
+        return response;
     }
 
 }
