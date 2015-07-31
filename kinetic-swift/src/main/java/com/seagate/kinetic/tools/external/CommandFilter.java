@@ -102,6 +102,7 @@ public class CommandFilter {
 	public String ExecShellCmd(String cmd, String dir)
 	{
 		String rc;
+		logger.info("Executing Command " + cmd);
 		if (cmd != null) {
 			ProcessBuilder builder;
 			StringBuffer output = new StringBuffer();
@@ -112,15 +113,24 @@ public class CommandFilter {
 				builder = new ProcessBuilder(args);
 				if (dir != null)
 					builder.directory(new File(dir));
-		
+				
 				Process  proc = builder.start();
-				//proc.wait(60000);
-				BufferedReader reader = 
-                        new BufferedReader(new InputStreamReader(proc.getInputStream()));	
-				while ((line = reader.readLine())!= null) {
+				
+				//proc.wait(6000);
+				BufferedReader Inputreader = 
+                        new BufferedReader(new InputStreamReader(proc.getInputStream()));
+				BufferedReader Errorreader = 
+                        new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+				
+				while ((line = Inputreader.readLine())!= null) {
 					
 					output.append(line + "\n");
 					}
+				while ((line = Errorreader.readLine())!= null) {
+					
+					output.append(line + "\n");
+					}
+				
 				logger.info("Sending Response " + output.toString());
 				
 				rc =  output.toString();

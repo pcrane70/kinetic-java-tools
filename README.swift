@@ -7,7 +7,6 @@ Example:
 Alternatively, the following K/V in Json format can be used to change the directory for each REST call
 "dir":"<dir name>"
 
-curl -d '{"resource":"proxy", "dir":"/home/my-swift-dir"}' http://localhost:8080/external?class=Config
 Example:
 curl -d '{"resource":"proxy", "dir":"/home/my-swift-dir"}' http://localhost:8080/external?class=Config
 ------------------------------------------------
@@ -103,6 +102,17 @@ REST Example for extracting container info
  curl -d '{"resource":"container", "file":"/swift/sdv/containers/603/9f7/96e90f348f8d45a7288eaeed2473c9f7/96e90f348f8d45a7288eaeed2473c9f7.db"}' http://localhost:8080/external?class=Info
 REST Example for extracting object info 
  curl -d '{"resource":"object", "file":"/swift/sdv/object/603/9f7/676786786876786876abcdef45466666666664.db"}' http://localhost:8080/external?class=Info
+ --------------------------------------
+List of objects in a container, and containers in an account can be extracted using REST calls
+
+Example:
+cur -d '{"command":"list", "resource":"dispersion_0", "url":"http://127.0.0.1:8080/auth/v1.0", "user":"test:tester", "key":"testing"}' http://localhost:9090/external?class=Swift
+
+Statistics of containers objects and accounts can be extratced by invoking the REST call.
+Example:
+url -d '{"command":"stat", "resource":"dispersion_0", "url":"http://127.0.0.1:8080/auth/v1.0", "user":"test:tester", "key":"testing"}' http://localhost:9090/external?class=Swift
+
+
 ============================  SAMPLE OUTPUT========================
 
 curl -d '{"resource":"populate"}' http://localhost:8080/external?class=Dispersion
@@ -1698,5 +1708,323 @@ curl -d '{"resource":"account"}' http://localhost:8080/external?class=Info
 
 				     note: `/srv/node*` is used as default value of `devices`, the real value is set in the config file on each storage node.
 
-				     mshafiq@c-ceph:~/kinetic-java-tools$ 
+----------------------------------------------------------------------------------------------------
+curl -d '{"command":"list", "resource":"dispersion_0", "url":"http://127.0.0.1:8080/auth/v1.0", "user":"test:tester", "key":"testing"}' http://localhost:9090/external?class=Swift 
+8100/.wwn
+8100/leveldb/leveldb.ldb/000003.log
+8100/leveldb/leveldb.ldb/CURRENT
+8100/leveldb/leveldb.ldb/LOCK
+8100/leveldb/leveldb.ldb/LOG
+8100/leveldb/leveldb.ldb/MANIFEST-000002
+8101/.wwn
+8101/leveldb/leveldb.ldb/000003.log
+8101/leveldb/leveldb.ldb/CURRENT
+8101/leveldb/leveldb.ldb/LOCK
+8101/leveldb/leveldb.ldb/LOG
+8101/leveldb/leveldb.ldb/MANIFEST-000002
+8102/.wwn
+8102/leveldb/leveldb.ldb/000003.log
+8102/leveldb/leveldb.ldb/CURRENT
+8102/leveldb/leveldb.ldb/LOCK
+8102/leveldb/leveldb.ldb/LOG
+8102/leveldb/leveldb.ldb/MANIFEST-000002
+8103/.wwn
+8103/leveldb/leveldb.ldb/000003.log
+8103/leveldb/leveldb.ldb/CURRENT
+8103/leveldb/leveldb.ldb/LOCK
+8103/leveldb/leveldb.ldb/LOG
+8103/leveldb/leveldb.ldb/MANIFEST-000002
+8104/.wwn
+8104/leveldb/leveldb.ldb/000003.log
+8104/leveldb/leveldb.ldb/CURRENT
+8104/leveldb/leveldb.ldb/LOCK
+8104/leveldb/leveldb.ldb/LOG
+8104/leveldb/leveldb.ldb/MANIFEST-000002
+8105/.wwn
+8105/leveldb/leveldb.ldb/000003.log
+8105/leveldb/leveldb.ldb/CURRENT
+8105/leveldb/leveldb.ldb/LOCK
+8105/leveldb/leveldb.ldb/LOG
+8105/leveldb/leveldb.ldb/MANIFEST-000002
+8106/.wwn
+8106/leveldb/leveldb.ldb/000003.log
+8106/leveldb/leveldb.ldb/CURRENT
+8106/leveldb/leveldb.ldb/LOCK
+8106/leveldb/leveldb.ldb/LOG
+8106/leveldb/leveldb.ldb/MANIFEST-000002
+8107/.wwn
+8107/leveldb/leveldb.ldb/000003.log
+8107/leveldb/leveldb.ldb/CURRENT
+8107/leveldb/leveldb.ldb/LOCK
+8107/leveldb/leveldb.ldb/LOG
+8107/leveldb/leveldb.ldb/MANIFEST-000002
+8108/.wwn
+8108/leveldb/leveldb.ldb/000003.log
+8108/leveldb/leveldb.ldb/CURRENT
+8108/leveldb/leveldb.ldb/LOCK
+8108/leveldb/leveldb.ldb/LOG
+8108/leveldb/leveldb.ldb/MANIFEST-000002
+8109/.wwn
+8109/leveldb/leveldb.ldb/000003.log
+8109/leveldb/leveldb.ldb/CURRENT
+8109/leveldb/leveldb.ldb/LOCK
+8109/leveldb/leveldb.ldb/LOG
+8109/leveldb/leveldb.ldb/MANIFEST-000002
+8110/.wwn
+8110/leveldb/leveldb.ldb/000003.log
+8110/leveldb/leveldb.ldb/CURRENT
+8110/leveldb/leveldb.ldb/LOCK
+8110/leveldb/leveldb.ldb/LOG
+8110/leveldb/leveldb.ldb/MANIFEST-000002
+8111/.wwn
+8111/leveldb/leveldb.ldb/000003.log
+8111/leveldb/leveldb.ldb/CURRENT
+8111/leveldb/leveldb.ldb/LOCK
+8111/leveldb/leveldb.ldb/LOG
+8111/leveldb/leveldb.ldb/MANIFEST-000002
+8112/.wwn
+8112/leveldb/leveldb.ldb/000003.log
+8112/leveldb/leveldb.ldb/CURRENT
+8112/leveldb/leveldb.ldb/LOCK
+8112/leveldb/leveldb.ldb/LOG
+8112/leveldb/leveldb.ldb/MANIFEST-000002
+8113/.wwn
+8113/leveldb/leveldb.ldb/000003.log
+8113/leveldb/leveldb.ldb/CURRENT
+8113/leveldb/leveldb.ldb/LOCK
+8113/leveldb/leveldb.ldb/LOG
+8113/leveldb/leveldb.ldb/MANIFEST-000002
+8114/.wwn
+8114/leveldb/leveldb.ldb/000003.log
+8114/leveldb/leveldb.ldb/CURRENT
+8114/leveldb/leveldb.ldb/LOCK
+8114/leveldb/leveldb.ldb/LOG
+8114/leveldb/leveldb.ldb/MANIFEST-000002
+8115/.wwn
+8115/leveldb/leveldb.ldb/000003.log
+8115/leveldb/leveldb.ldb/CURRENT
+8115/leveldb/leveldb.ldb/LOCK
+8115/leveldb/leveldb.ldb/LOG
+8115/leveldb/leveldb.ldb/MANIFEST-000002
+8116/.wwn
+8116/leveldb/leveldb.ldb/000003.log
+8116/leveldb/leveldb.ldb/CURRENT
+8116/leveldb/leveldb.ldb/LOCK
+8116/leveldb/leveldb.ldb/LOG
+8116/leveldb/leveldb.ldb/MANIFEST-000002
+8117/.wwn
+8117/leveldb/leveldb.ldb/000003.log
+8117/leveldb/leveldb.ldb/CURRENT
+8117/leveldb/leveldb.ldb/LOCK
+8117/leveldb/leveldb.ldb/LOG
+8117/leveldb/leveldb.ldb/MANIFEST-000002
+8118/.wwn
+8118/leveldb/leveldb.ldb/000003.log
+8118/leveldb/leveldb.ldb/CURRENT
+8118/leveldb/leveldb.ldb/LOCK
+8118/leveldb/leveldb.ldb/LOG
+8118/leveldb/leveldb.ldb/MANIFEST-000002
+8119/.wwn
+8119/leveldb/leveldb.ldb/000003.log
+8119/leveldb/leveldb.ldb/CURRENT
+8119/leveldb/leveldb.ldb/LOCK
+8119/leveldb/leveldb.ldb/LOG
+8119/leveldb/leveldb.ldb/MANIFEST-000002
+8120/.wwn
+8120/leveldb/leveldb.ldb/000003.log
+8120/leveldb/leveldb.ldb/CURRENT
+8120/leveldb/leveldb.ldb/LOCK
+8120/leveldb/leveldb.ldb/LOG
+8120/leveldb/leveldb.ldb/MANIFEST-000002
+8121/.wwn
+8121/leveldb/leveldb.ldb/000003.log
+8121/leveldb/leveldb.ldb/CURRENT
+8121/leveldb/leveldb.ldb/LOCK
+8121/leveldb/leveldb.ldb/LOG
+8121/leveldb/leveldb.ldb/MANIFEST-000002
+8122/.wwn
+8122/leveldb/leveldb.ldb/000003.log
+8122/leveldb/leveldb.ldb/CURRENT
+8122/leveldb/leveldb.ldb/LOCK
+8122/leveldb/leveldb.ldb/LOG
+8122/leveldb/leveldb.ldb/MANIFEST-000002
+8123/.wwn
+8123/leveldb/leveldb.ldb/000003.log
+8123/leveldb/leveldb.ldb/CURRENT
+8123/leveldb/leveldb.ldb/LOCK
+8123/leveldb/leveldb.ldb/LOG
+8123/leveldb/leveldb.ldb/MANIFEST-000002
+8124/.wwn
+8124/leveldb/leveldb.ldb/000003.log
+8124/leveldb/leveldb.ldb/CURRENT
+8124/leveldb/leveldb.ldb/LOCK
+8124/leveldb/leveldb.ldb/LOG
+8124/leveldb/leveldb.ldb/MANIFEST-000002
+8125/.wwn
+8125/leveldb/leveldb.ldb/000003.log
+8125/leveldb/leveldb.ldb/CURRENT
+8125/leveldb/leveldb.ldb/LOCK
+8125/leveldb/leveldb.ldb/LOG
+8125/leveldb/leveldb.ldb/MANIFEST-000002
+8126/.wwn
+8126/leveldb/leveldb.ldb/000003.log
+8126/leveldb/leveldb.ldb/CURRENT
+8126/leveldb/leveldb.ldb/LOCK
+8126/leveldb/leveldb.ldb/LOG
+8126/leveldb/leveldb.ldb/MANIFEST-000002
+8127/.wwn
+8127/leveldb/leveldb.ldb/000003.log
+8127/leveldb/leveldb.ldb/CURRENT
+8127/leveldb/leveldb.ldb/LOCK
+8127/leveldb/leveldb.ldb/LOG
+8127/leveldb/leveldb.ldb/MANIFEST-000002
+8128/.wwn
+8128/leveldb/leveldb.ldb/000003.log
+8128/leveldb/leveldb.ldb/CURRENT
+8128/leveldb/leveldb.ldb/LOCK
+8128/leveldb/leveldb.ldb/LOG
+8128/leveldb/leveldb.ldb/MANIFEST-000002
+8129/.wwn
+8129/leveldb/leveldb.ldb/000003.log
+8129/leveldb/leveldb.ldb/CURRENT
+8129/leveldb/leveldb.ldb/LOCK
+8129/leveldb/leveldb.ldb/LOG
+8129/leveldb/leveldb.ldb/MANIFEST-000002
+8130/.wwn
+8130/leveldb/leveldb.ldb/000003.log
+8130/leveldb/leveldb.ldb/CURRENT
+8130/leveldb/leveldb.ldb/LOCK
+8130/leveldb/leveldb.ldb/LOG
+8130/leveldb/leveldb.ldb/MANIFEST-000002
+8131/.wwn
+8131/leveldb/leveldb.ldb/000003.log
+8131/leveldb/leveldb.ldb/CURRENT
+8131/leveldb/leveldb.ldb/LOCK
+8131/leveldb/leveldb.ldb/LOG
+8131/leveldb/leveldb.ldb/MANIFEST-000002
+8132/.wwn
+8132/leveldb/leveldb.ldb/000003.log
+8132/leveldb/leveldb.ldb/CURRENT
+8132/leveldb/leveldb.ldb/LOCK
+8132/leveldb/leveldb.ldb/LOG
+8132/leveldb/leveldb.ldb/MANIFEST-000002
+8133/.wwn
+8133/leveldb/leveldb.ldb/000003.log
+8133/leveldb/leveldb.ldb/CURRENT
+8133/leveldb/leveldb.ldb/LOCK
+8133/leveldb/leveldb.ldb/LOG
+8133/leveldb/leveldb.ldb/MANIFEST-000002
+8134/.wwn
+8134/leveldb/leveldb.ldb/000003.log
+8134/leveldb/leveldb.ldb/CURRENT
+8134/leveldb/leveldb.ldb/LOCK
+8134/leveldb/leveldb.ldb/LOG
+8134/leveldb/leveldb.ldb/MANIFEST-000002
+8135/.wwn
+8135/leveldb/leveldb.ldb/000003.log
+8135/leveldb/leveldb.ldb/CURRENT
+8135/leveldb/leveldb.ldb/LOCK
+8135/leveldb/leveldb.ldb/LOG
+8135/leveldb/leveldb.ldb/MANIFEST-000002
+8136/.wwn
+8136/leveldb/leveldb.ldb/000003.log
+8136/leveldb/leveldb.ldb/CURRENT
+8136/leveldb/leveldb.ldb/LOCK
+8136/leveldb/leveldb.ldb/LOG
+8136/leveldb/leveldb.ldb/MANIFEST-000002
+8137/.wwn
+8137/leveldb/leveldb.ldb/000003.log
+8137/leveldb/leveldb.ldb/CURRENT
+8137/leveldb/leveldb.ldb/LOCK
+8137/leveldb/leveldb.ldb/LOG
+8137/leveldb/leveldb.ldb/MANIFEST-000002
+8138/.wwn
+8138/leveldb/leveldb.ldb/000003.log
+8138/leveldb/leveldb.ldb/CURRENT
+8138/leveldb/leveldb.ldb/LOCK
+8138/leveldb/leveldb.ldb/LOG
+8138/leveldb/leveldb.ldb/MANIFEST-000002
+8139/.wwn
+8139/leveldb/leveldb.ldb/000003.log
+8139/leveldb/leveldb.ldb/CURRENT
+8139/leveldb/leveldb.ldb/LOCK
+8139/leveldb/leveldb.ldb/LOG
+8139/leveldb/leveldb.ldb/MANIFEST-000002
+8140/.wwn
+8140/leveldb/leveldb.ldb/000003.log
+8140/leveldb/leveldb.ldb/CURRENT
+8140/leveldb/leveldb.ldb/LOCK
+8140/leveldb/leveldb.ldb/LOG
+8140/leveldb/leveldb.ldb/MANIFEST-000002
+8141/.wwn
+8141/leveldb/leveldb.ldb/000003.log
+8141/leveldb/leveldb.ldb/CURRENT
+8141/leveldb/leveldb.ldb/LOCK
+8141/leveldb/leveldb.ldb/LOG
+8141/leveldb/leveldb.ldb/MANIFEST-000002
+8142/.wwn
+8142/leveldb/leveldb.ldb/000003.log
+8142/leveldb/leveldb.ldb/CURRENT
+8142/leveldb/leveldb.ldb/LOCK
+8142/leveldb/leveldb.ldb/LOG
+8142/leveldb/leveldb.ldb/MANIFEST-000002
+8143/.wwn
+8143/leveldb/leveldb.ldb/000003.log
+8143/leveldb/leveldb.ldb/CURRENT
+8143/leveldb/leveldb.ldb/LOCK
+8143/leveldb/leveldb.ldb/LOG
+8143/leveldb/leveldb.ldb/MANIFEST-000002
+8144/.wwn
+8144/leveldb/leveldb.ldb/000003.log
+8144/leveldb/leveldb.ldb/CURRENT
+8144/leveldb/leveldb.ldb/LOCK
+8144/leveldb/leveldb.ldb/LOG
+8144/leveldb/leveldb.ldb/MANIFEST-000002
+8145/.wwn
+8145/leveldb/leveldb.ldb/000003.log
+8145/leveldb/leveldb.ldb/CURRENT
+8145/leveldb/leveldb.ldb/LOCK
+8145/leveldb/leveldb.ldb/LOG
+8145/leveldb/leveldb.ldb/MANIFEST-000002
+8146/.wwn
+8146/leveldb/leveldb.ldb/000003.log
+8146/leveldb/leveldb.ldb/CURRENT
+8146/leveldb/leveldb.ldb/LOCK
+8146/leveldb/leveldb.ldb/LOG
+8146/leveldb/leveldb.ldb/MANIFEST-000002
+8147/.wwn
+8147/leveldb/leveldb.ldb/000003.log
+8147/leveldb/leveldb.ldb/CURRENT
+8147/leveldb/leveldb.ldb/LOCK
+8147/leveldb/leveldb.ldb/LOG
+8147/leveldb/leveldb.ldb/MANIFEST-000002
+8148/.wwn
+8148/leveldb/leveldb.ldb/000003.log
+8148/leveldb/leveldb.ldb/CURRENT
+8148/leveldb/leveldb.ldb/LOCK
+8148/leveldb/leveldb.ldb/LOG
+8148/leveldb/leveldb.ldb/MANIFEST-000002
+8149/.wwn
+8149/leveldb/leveldb.ldb/000003.log
+8149/leveldb/leveldb.ldb/CURRENT
+8149/leveldb/leveldb.ldb/LOCK
+8149/leveldb/leveldb.ldb/LOG
+8149/leveldb/leveldb.ldb/MANIFEST-000002
+swift.conf
+----------------------------------------------------------------------------------------
+curl -d '{"command":"stat", "resource":"dispersion_0", "url":"http://127.0.0.1:8080/auth/v1.0", "user":"test:tester", "key":"testing"}' http://localhost:9090/external?class=Swift
+
+         Account: AUTH_test
+       Container: dispersion_0
+         Objects: 301
+           Bytes: 3289854
+        Read ACL:
+       Write ACL:
+         Sync To:
+        Sync Key:
+   Accept-Ranges: bytes
+X-Storage-Policy: Policy-0
+     X-Timestamp: 1436976957.30105
+      X-Trans-Id: tx0d6dad2de32b4683bcd5a-0055bad5a1
+    Content-Type: text/plain; charset=utf-8
 
