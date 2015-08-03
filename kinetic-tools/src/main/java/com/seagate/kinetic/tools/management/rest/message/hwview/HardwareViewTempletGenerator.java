@@ -44,9 +44,9 @@ public class HardwareViewTempletGenerator {
             rack.setId("rack-" + String.valueOf(ri));
 
             Coordinate cor = new Coordinate();
-            cor.setX(ri);
-            cor.setY(ri);
-            cor.setZ(ri);
+            cor.setX("rackx-" + ri);
+            cor.setY("racky-" + ri);
+            cor.setZ("rackz-" + ri);
 
             rack.setCoordinate(cor);
 
@@ -68,9 +68,9 @@ public class HardwareViewTempletGenerator {
 
                 // coordinate
                 Coordinate co1 = new Coordinate();
-                co1.setX(ci);
-                co1.setY(ci);
-                co1.setZ(ci);
+                co1.setX("chassisx-" + ci);
+                co1.setY("chassisy-" + ci);
+                co1.setZ("chassisz-" + ci);
 
                 // set coor
                 cs1.setCoordinate(co1);
@@ -89,9 +89,9 @@ public class HardwareViewTempletGenerator {
                     device.setDeviceId(did);
 
                     Coordinate coordinate = new Coordinate();
-                    coordinate.setX(i);
-                    coordinate.setY(i);
-                    coordinate.setZ(i);
+                    coordinate.setX("devicex-" + i);
+                    coordinate.setY("devicey-" + i);
+                    coordinate.setZ("devicez-" + i);
 
                     device.setCoordinate(coordinate);
 

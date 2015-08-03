@@ -17,40 +17,37 @@
  */
 package com.seagate.kinetic.tools.management.rest.message.hwview;
 
-public class Coordinate {
+/**
+ * 
+ * Hardware view with state.
+ * 
+ * @author chiaming
+ *
+ */
+public class HardwareViewWithState {
 
-    private String x = null;
+    private HardwareView hardwareView = null;
 
-    private String y = null;
+    private int state = 0;
 
-    private String z = null;
-
-    public Coordinate() {
-        // TODO Auto-generated constructor stub
+    public HardwareViewWithState() {
+        ;
     }
 
-    public void setX(String x) {
-        this.x = x;
+    public void setHardwareView(HardwareView hardwareView) {
+        this.hardwareView = hardwareView;
     }
 
-    public String getX() {
-        return x;
+    public HardwareView getHardwareView() {
+        return this.hardwareView;
     }
 
-    public void setY(String y) {
-        this.y = y;
+    public void setState(int state) {
+        this.state = state;
     }
 
-    public String getY() {
-        return this.y;
-    }
-
-    public void setZ(String z) {
-        this.z = z;
-    }
-
-    public String getZ() {
-        return this.z;
+    public int getState() {
+        return this.state;
     }
 
 }
