@@ -18,33 +18,47 @@
 package com.seagate.kinetic.tools.management.rest.service;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-
 /**
- * kinetic tool rest service handler.
+ * Servlet to handle rest request/respond.
  * 
  * @author chiaming
  *
  */
-public class RestServiceHandler extends AbstractHandler {
+public class RestServiceServlet extends HttpServlet {
 
-    /**
-     * Rest request routing engine.
-     */
+    public static final Logger logger = Logger
+            .getLogger(RestServiceServlet.class.getName());
+
+    private static final long serialVersionUID = 1L;
+
+    public RestServiceServlet() {
+        ;
+    }
+
     @Override
-    public void handle(String target, Request baseRequest,
-            HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+
+        logger.info("processing rest post request ...");
+
+        // handle request
+        HttpService.handleRequest(request, response);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+
+        logger.info("processing rest get request ...");
 
         HttpService.handleRequest(request, response);
-
-        // set message processed flag
-        baseRequest.setHandled(true);
     }
+
 }
