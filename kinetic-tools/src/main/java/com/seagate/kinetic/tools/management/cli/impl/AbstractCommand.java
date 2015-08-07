@@ -224,7 +224,7 @@ abstract class AbstractCommand implements Command {
             adminClientConfig.setUserId(getIdentity());
             adminClientConfig.setKey(getKey());
             adminClientConfig
-                    .setRequestTimeoutMillis(getRequestTimeout() * 1000);
+                    .setRequestTimeoutMillis(getRequestTimeout());
         }
 
         @Override

@@ -22,7 +22,7 @@ class BasicSettings {
     private long clusterVersion = 0;
     private long identity = 1;
     private String key = "asdfasdf";
-    private long requestTimeout = 10;
+    private long requestTimeout = 10000;
     private String drivesLogFile = null;
 
     public boolean isUseSsl() {
