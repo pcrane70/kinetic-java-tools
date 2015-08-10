@@ -20,9 +20,10 @@ package com.seagate.kinetic.tools.external;
 import com.seagate.kinetic.tools.management.rest.message.MessageType;
 
 /**
- * external request message.
+ * Swift specific external request message.
  * 
  * @author chiaming
+ * @author Shafig
  */
 public class SwiftRequest extends ExternalRequest {
 

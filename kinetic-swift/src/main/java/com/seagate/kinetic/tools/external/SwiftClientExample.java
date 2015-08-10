@@ -40,6 +40,16 @@ public class SwiftClientExample {
             // new ping request message
             SwiftRequest request = new SwiftRequest();
 
+            request.setPartition("123");
+
+            request.setDir("/tmp");
+
+            request.setFile("foo");
+
+            request.setSwiftKey("swiftKey");
+
+            request.setUrl("swift url");
+
             // set request message
             request.setResource("Hello Swift, a=b, c=d");
 
