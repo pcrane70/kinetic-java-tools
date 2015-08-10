@@ -200,6 +200,7 @@ abstract class AbstractCommand implements Command {
         protected KineticDevice device = null;
         protected KineticAdminClient adminClient = null;
         protected AdminClientConfiguration adminClientConfig = null;
+        protected String alternativeHost = null;
         protected CountDownLatch latch = null;
 
         public AbstractWorkThread(KineticDevice device) throws KineticException {
@@ -213,6 +214,9 @@ abstract class AbstractCommand implements Command {
 
             adminClientConfig = new AdminClientConfiguration();
             adminClientConfig.setHost(device.getInet4().get(0));
+            if (device.getInet4().size() > 1) {
+                alternativeHost = device.getInet4().get(1);
+            }
             adminClientConfig.setUseSsl(isUseSsl());
             if (isUseSsl()) {
                 adminClientConfig.setPort(device.getTlsPort());
@@ -223,24 +227,37 @@ abstract class AbstractCommand implements Command {
             adminClientConfig.setClusterVersion(getClusterVersion());
             adminClientConfig.setUserId(getIdentity());
             adminClientConfig.setKey(getKey());
-            adminClientConfig
-                    .setRequestTimeoutMillis(getRequestTimeout());
+            adminClientConfig.setRequestTimeoutMillis(getRequestTimeout());
         }
 
         @Override
         public void run() {
             try {
                 if (null == adminClientRegister) {
-                    adminClient = KineticAdminClientFactory
-                            .createInstance(adminClientConfig);
+                    try {
+                        adminClient = KineticAdminClientFactory
+                                .createInstance(adminClientConfig);
+                    } catch (Exception e) {
+                        adminClientConfig.setHost(alternativeHost);
+                        adminClient = KineticAdminClientFactory
+                                .createInstance(adminClientConfig);
+                    }
+
                 } else {
                     String hostAndPort = adminClientConfig.getHost() + ":"
                             + adminClientConfig.getPort();
                     adminClient = adminClientRegister
                             .getKineticAdminClient(hostAndPort);
                     if (null == adminClient) {
-                        adminClient = KineticAdminClientFactory
-                                .createInstance(adminClientConfig);
+                        try {
+                            adminClient = KineticAdminClientFactory
+                                    .createInstance(adminClientConfig);
+                        } catch (Exception e) {
+                            adminClientConfig.setHost(alternativeHost);
+                            adminClient = KineticAdminClientFactory
+                                    .createInstance(adminClientConfig);
+                        }
+
                         adminClientRegister.register(hostAndPort, adminClient);
                     }
                 }
