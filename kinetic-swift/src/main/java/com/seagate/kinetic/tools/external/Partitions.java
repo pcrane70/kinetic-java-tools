@@ -28,6 +28,7 @@ public class Partitions implements ExternalCommandService {
 	        if (file == null) file = Globals.SWIFT_OBJECT_BUILDER_FILE;
 	        if (dir == null ) dir = Globals.SWIFT_DIR;
 	        logger.info("executing Comd " + cmd + " Dir == " + dir + " File == " + file );
+	        cmd = cmd + "," + file;
 	        String rc = filt.ExecShellCmd(cmd, dir);
 	        int devices = Key2Val(rc, "devices"); 
 	        logger.info("extracting partition info for " + devices + "  devices");
