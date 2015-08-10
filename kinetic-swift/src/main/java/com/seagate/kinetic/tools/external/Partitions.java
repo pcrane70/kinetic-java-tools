@@ -3,13 +3,11 @@
  */
 package com.seagate.kinetic.tools.external;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * @author mshafiq
@@ -19,7 +17,10 @@ public class Partitions implements ExternalCommandService {
 	public static final Logger logger = Logger.getLogger(CommandFilter.class.getName());
 		public Partitions() {}
 	    @Override
-	    public ExternalResponse execute(ExternalRequest request) {
+    public ExternalResponse execute(ExternalRequest req) {
+
+        SwiftRequest request = (SwiftRequest) req;
+
 	        System.out.println("** received request: " + request.toJson());
 	        CommandFilter filt = CommandFilter.getInstance();
 	        String dir = request.getDir();

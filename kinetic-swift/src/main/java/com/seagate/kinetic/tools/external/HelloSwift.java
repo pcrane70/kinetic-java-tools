@@ -31,7 +31,9 @@ public class HelloSwift implements ExternalCommandService {
     }
 
     @Override
-    public ExternalResponse execute(ExternalRequest request) {
+    public ExternalResponse execute(ExternalRequest req) {
+
+        SwiftRequest request = (SwiftRequest) req;
 
         System.out.println("** received request: " + request.toJson());
 

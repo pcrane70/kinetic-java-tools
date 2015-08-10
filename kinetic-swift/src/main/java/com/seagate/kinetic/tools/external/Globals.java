@@ -34,28 +34,32 @@ public class Globals {
 	static public final String SWIFT_GET_NODES = "swift-get-nodes";
 	static public final String SWIFT_COMMAND = "swift";
 	
-	static public String GetSwiftDir(ExternalRequest request)
-	{
-	        String dir = request.getDir();
-	        if (dir == null ) dir = Globals.SWIFT_DIR;
-	        return dir;
-	}
-	static public String GetSwiftRingFile(ExternalRequest request)
-	{
-		switch(request.getResource())
-		{
-		case SWIFT_OBJECT_REQUEST:
-			return SWIFT_OBJECT_BUILDER_FILE;
-		case SWIFT_CONTAINER_REQUEST:
-			return SWIFT_CONTAINER_BUILDER_FILE;
-		case SWIFT_ACCOUNT_REQUEST:
-			return SWIFT_ACCOUNT_BUILDER_FILE;
-		case SWIFT_PROXY_REQUEST:
-			return SWIFT_PROXY_BUILDER_FILE;
-		
-		}
-	     return null;
-	}
+    static public String GetSwiftDir(ExternalRequest req) {
+
+        SwiftRequest request = (SwiftRequest) req;
+
+        String dir = request.getDir();
+        if (dir == null)
+            dir = Globals.SWIFT_DIR;
+        return dir;
+    }
+
+    static public String GetSwiftRingFile(ExternalRequest req) {
+        SwiftRequest request = (SwiftRequest) req;
+
+        switch (request.getResource()) {
+        case SWIFT_OBJECT_REQUEST:
+            return SWIFT_OBJECT_BUILDER_FILE;
+        case SWIFT_CONTAINER_REQUEST:
+            return SWIFT_CONTAINER_BUILDER_FILE;
+        case SWIFT_ACCOUNT_REQUEST:
+            return SWIFT_ACCOUNT_BUILDER_FILE;
+        case SWIFT_PROXY_REQUEST:
+            return SWIFT_PROXY_BUILDER_FILE;
+
+        }
+        return null;
+    }
 	
 	
 }

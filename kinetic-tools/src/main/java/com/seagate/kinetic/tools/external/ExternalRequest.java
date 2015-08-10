@@ -27,37 +27,8 @@ import com.seagate.kinetic.tools.management.rest.message.RestRequest;
  */
 public class ExternalRequest extends RestRequest {
 
-	// make all fields optional and let downstream code to valiate the 
-	// parameters
-    private String resource = null;
-    private String dir = null;
-    private String user = null;
-    private String swiftKey = null;
-    private String file = null;
-    private String partition = null;
-    private String url = null;
-    private String command = null;
-
     public ExternalRequest() {
         setMessageType(MessageType.EXTERNAL_REQUEST);
     }
-    public String getResource() { return this.resource; }
-    public void setResource(String resource) { this.resource = resource; }
     
-    public String getDir() { return this.dir; }
-    public void setDir(String dir) { this.dir = dir; }
-    public String getUser() { return this.user; }
-    public void setUser(String user) { this.user = user; }
-    public String getSwiftKey() { return this.swiftKey; }
-    public void setSwiftKey(String val) { this.swiftKey = val; }
-    public String getFile() { return this.file; }
-    public void setFile(String file) { this.file = file; }
-    public String getPartition() { return this.partition; }
-    public void setPartition(String partition) { this.partition = partition; }
-    public String getUrl() { return this.url; }
-    public void setUrl(String file) { this.url = url; }
-    public String getCommand() { return this.command; }
-    public void setCommand(String command) { this.command = command; }
-    
-
 }

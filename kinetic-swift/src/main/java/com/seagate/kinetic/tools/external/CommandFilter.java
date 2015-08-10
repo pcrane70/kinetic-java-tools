@@ -6,10 +6,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import com.seagate.kinetic.tools.management.rest.service.KineticRestService;
-
-
-
 public class CommandFilter {
 	public static final Logger logger = Logger.getLogger(CommandFilter.class.getName());
 	

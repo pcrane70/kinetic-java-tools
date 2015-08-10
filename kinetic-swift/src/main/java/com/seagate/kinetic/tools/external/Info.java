@@ -9,7 +9,10 @@ public class Info implements ExternalCommandService {
 	public static final Logger logger = Logger.getLogger(Info.class.getName());
 	public Info() {}
     @Override
-    public ExternalResponse execute(ExternalRequest request) {
+    public ExternalResponse execute(ExternalRequest req) {
+
+        SwiftRequest request = (SwiftRequest) req;
+
         System.out.println("** received request: " + request.toJson());
         CommandFilter filt = CommandFilter.getInstance();
         String dir = request.getDir();

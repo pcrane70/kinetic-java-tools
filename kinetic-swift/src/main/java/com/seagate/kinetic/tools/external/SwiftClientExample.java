@@ -38,7 +38,7 @@ public class SwiftClientExample {
             String url = "http://localhost:8080/external?class=HelloSwift";
 
             // new ping request message
-            ExternalRequest request = new ExternalRequest();
+            SwiftRequest request = new SwiftRequest();
 
             // set request message
             request.setResource("Hello Swift, a=b, c=d");
