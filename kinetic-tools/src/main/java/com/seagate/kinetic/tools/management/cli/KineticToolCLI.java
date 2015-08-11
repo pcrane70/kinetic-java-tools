@@ -65,7 +65,6 @@ public class KineticToolCLI {
     private static final String DEFAULT_PERF_RECORD_COUNT = "10000";
     private static final String DEFAULT_PERF_VALUE_SIZE = "1048576";
     private static final int OK = 0;
-    private static final int MILLI_SECOND_IN_UNIT = 1000;
     private static final String DEFAULT_USE_SSL = "true";
     private static final String DEFAULT_NON_USE_SSL = "false";
     private static final String DEFAULT_CLUSTER_VERSION = "0";
@@ -349,8 +348,7 @@ public class KineticToolCLI {
                 requestTimeoutInString = requestTimeoutInString == null ? DEFAULT_REQUEST_TIMEOUT_IN_SECOND
                         : requestTimeoutInString;
             }
-            long requestTimeout = Long.parseLong(requestTimeoutInString)
-                    * MILLI_SECOND_IN_UNIT;
+            long requestTimeout = Long.parseLong(requestTimeoutInString);
 
             if (args[0].equalsIgnoreCase("-help")
                     || args[0].equalsIgnoreCase("-h")) {

@@ -36,6 +36,7 @@ import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 
 abstract class AbstractCommand implements Command {
     private static final String UNKNOWN = "unknown";
+    private static final int MILLI_SECOND_IN_UNIT = 1000;
     protected static final int BATCH_THREAD_NUMBER = 20;
     protected List<KineticDevice> devices = new ArrayList<KineticDevice>();
     protected Report report = new Report();
@@ -227,7 +228,8 @@ abstract class AbstractCommand implements Command {
             adminClientConfig.setClusterVersion(getClusterVersion());
             adminClientConfig.setUserId(getIdentity());
             adminClientConfig.setKey(getKey());
-            adminClientConfig.setRequestTimeoutMillis(getRequestTimeout());
+            adminClientConfig.setRequestTimeoutMillis(getRequestTimeout()
+                    * MILLI_SECOND_IN_UNIT);
         }
 
         @Override
