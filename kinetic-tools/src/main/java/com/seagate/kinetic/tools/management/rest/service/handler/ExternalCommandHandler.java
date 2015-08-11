@@ -41,26 +41,16 @@ import com.seagate.kinetic.tools.management.rest.service.ServiceHandler;
 public class ExternalCommandHandler implements ServiceHandler {
 
     // external class package name.
-    public static final String CLASS_NAME_PREFIX = "com.seagate.kinetic.tools.external.";
+    public static final String EXTERNAL_CLASS_NAME_PREFIX = "com.seagate.kinetic.tools.external.";
 
     public static final Logger logger = Logger.getLogger(ExternalCommandHandler.class
             .getName());
 
-    // swift request super class
-    private static String SWIFT_REQUEST = CLASS_NAME_PREFIX + "SwiftRequest";
-
     @SuppressWarnings("rawtypes")
     @Override
     public Class getRequestMessageClass() {
-
-        try {
-            // to be extended to support other external types of request.
-            return Class.forName(SWIFT_REQUEST);
-        } catch (ClassNotFoundException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
-        }
-
-        return null;
+        // to be extended to support other external types of request.
+        return ExternalRequest.class;
     }
 
     @Override
@@ -98,7 +88,7 @@ public class ExternalCommandHandler implements ServiceHandler {
             String[] clazz = params.get("class");
 
             // class full name
-            String classFullName = CLASS_NAME_PREFIX + clazz[0];
+            String classFullName = EXTERNAL_CLASS_NAME_PREFIX + clazz[0];
 
             logger.info("invoking external class: " + classFullName);
 

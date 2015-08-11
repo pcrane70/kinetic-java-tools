@@ -35,7 +35,7 @@ public class SwiftClientExample {
         try {
 
             // external service URL
-            String url = "http://localhost:8080/external?class=HelloSwift";
+            String url = "http://localhost:8080/kinetic/swift?class=HelloSwift";
 
             // new ping request message
             SwiftRequest request = new SwiftRequest();
