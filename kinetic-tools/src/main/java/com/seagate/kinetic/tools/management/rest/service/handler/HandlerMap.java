@@ -72,7 +72,10 @@ public class HandlerMap {
     // get hardware configuration view
     public static final String HARDWAREVIEW = "/hwview";
 
+    // external command handler
     public static final String EXTERNAL = "/external";
+
+    public static final String SWIFT = "/swift";
 
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
@@ -101,7 +104,14 @@ public class HandlerMap {
         
         hmap.put(HARDWAREVIEW, new HardwareViewHandler());
 
-        hmap.put(EXTERNAL, new ExternalCommandHandler());
+        /**
+         * XXX chiaming 08/11/2015: backward compatible for swift commands. This
+         * can be fixed once swift command path in the doc is fixed.
+         */
+        // hmap.put(EXTERNAL, new ExternalCommandHandler());
+        hmap.put(EXTERNAL, new SwiftCommandHandler());
+
+        hmap.put(SWIFT, new SwiftCommandHandler());
     }
 
     /**
@@ -115,9 +125,13 @@ public class HandlerMap {
 
         logger.info("*** path=" + path);
 
+        // get handler relative path
+        int index = path.lastIndexOf("/");
+        String hp = path.substring(index);
+
         ServiceHandler handler = null;
 
-        handler = hmap.get(path);
+        handler = hmap.get(hp);
 
         if (handler == null) {
             logger.warning("cound not find handler for request: " + path);
