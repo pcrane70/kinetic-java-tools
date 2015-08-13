@@ -1,0 +1,170 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Cluster Hardware Configuration",
+    "description": "A definition of Kinetic cluster hardware configuration",
+    "type": "object",
+    "required": [
+        "racks"
+    ],
+    "properties": {
+        "racks": {
+            "description": "A list of racks used in the cluster",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "description": "A hardware rack",
+                "type": "object",
+                "required": [
+                    "id",
+                    "chassis"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier for the rack",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "coordinate": {
+                        "description": "Location of the rack (user defined)",
+                        "type": "object",
+                        "properties": {
+                            "x": {
+                                "description": "",
+                                "type": "string"
+                            },
+                            "y": {
+                                "description": "",
+                                "type": "string"
+                            },
+                            "z": {
+                                "description": "",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "chassis": {
+                        "description": "List of storage chassis within a rack",
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "description": "A storage chassis within a rack",
+                            "type": "object",
+                            "required": [
+                                "id",
+                                "devices"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "description": "Unique identifier for storage chassis",
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "ips": {
+                                    "description": "List of IP addresses for storage chassis",
+                                    "type": "array",
+                                    "minItems": 0,
+                                    "items": {
+                                        "description": "IP address for storage chassis",
+                                        "type": "string",
+                                        "oneOf": [
+                                            {
+                                                "format": "ipv4"
+                                            },
+                                            {
+                                                "format": "ipv6"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "coordinate": {
+                                    "description": "Location of the chassis (user defined)",
+                                    "type": "object",
+                                    "properties": {
+                                        "x": {
+                                            "description": "",
+                                            "type": "string"
+                                        },
+                                        "y": {
+                                            "description": "",
+                                            "type": "string"
+                                        },
+                                        "z": {
+                                            "description": "",
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "devices": {
+                                    "description": "List of storage devices within a chassis",
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": {
+                                        "description": "IP address for drive's network interface",
+                                        "type": "object",
+                                        "required": [
+                                            "deviceId"
+                                        ],
+                                        "properties": {
+                                            "deviceId": {
+                                                "type": "object",
+                                                "required": [
+                                                    "ips",
+                                                    "port",
+                                                    "wwn"
+                                                ],
+                                                "properties": {
+                                                    "ips": {
+                                                        "description": "list of drive IP addresses",
+                                                        "type": "array",
+                                                        "minItems": 1,
+                                                        "items": {
+                                                            "description": "IP address for drive's network interface",
+                                                            "type": "string",
+                                                            "format": "ipv4"
+                                                        }
+                                                    },
+                                                    "port": {
+                                                        "description": "port number used for unencrypted connections",
+                                                        "type": "integer"
+                                                    },
+                                                    "tlsPort": {
+                                                        "description": "port number used for TLS/SSL (encrypted) connections",
+                                                        "type": "integer"
+                                                    },
+                                                    "wwn": {
+                                                        "description": "Device world wide name",
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    }
+                                                }
+                                            },
+                                            "coordinate": {
+                                                "description": "Location of the drive within a chassis (user defined)",
+                                                "type": "object",
+                                                "properties": {
+                                                    "x": {
+                                                        "description": "",
+                                                        "type": "string"
+                                                    },
+                                                    "y": {
+                                                        "description": "",
+                                                        "type": "string"
+                                                    },
+                                                    "z": {
+                                                        "description": "",
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
