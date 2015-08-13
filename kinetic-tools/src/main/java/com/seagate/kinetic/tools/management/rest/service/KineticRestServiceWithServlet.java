@@ -76,10 +76,13 @@ public class KineticRestServiceWithServlet {
 
         // set servlet handler
         ServletHandler handler = new ServletHandler();
-        server.setHandler(handler);
 
-        // add my raw Servlet
-        handler.addServletWithMapping(RestServiceServlet.class, "/*");
+        // add Servlet
+        handler.addServletWithMapping(RestServiceServlet.class,
+                config.getServletMapping());
+
+        // set handler
+        server.setHandler(handler);
 
         // http connector
         ServerConnector connector = new ServerConnector(server);
@@ -123,7 +126,8 @@ public class KineticRestServiceWithServlet {
         this.server.start();
 
         logger.info("kinetic rest service is ready on port: "
-                + config.getPort() + ", https port: " + config.getHttpsPort());
+                + config.getPort() + ", https port: " + config.getHttpsPort()
+                + ", mapping=" + config.getServletMapping());
     }
 
     /**
@@ -177,6 +181,10 @@ public class KineticRestServiceWithServlet {
                 config.setHttpsPort(port);
             }
         }
+
+        // set servlet mapping path
+        String mapping = System.getProperty("kinetic.servlet.mapping", "/*");
+        config.setServletMapping(mapping);
 
         KineticRestServiceWithServlet service = new KineticRestServiceWithServlet();
 

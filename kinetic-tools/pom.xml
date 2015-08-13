@@ -50,7 +50,7 @@
 				<configuration>
 				    <archive>
                         <manifest>
-                            <mainClass>com.seagate.kinetic.tools.management.rest.service.KineticRestService</mainClass>
+                            <mainClass>com.seagate.kinetic.tools.management.rest.service.KineticRestServiceWithServlet</mainClass>
                         </manifest>
                     </archive>
 					<descriptorRefs>

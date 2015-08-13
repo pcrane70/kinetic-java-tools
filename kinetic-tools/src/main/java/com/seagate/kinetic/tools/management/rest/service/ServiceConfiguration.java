@@ -35,6 +35,8 @@ public class ServiceConfiguration {
 
     private static final String TEMPLET_CONFIG_NAME = "hwview.templet.json";
 
+    private String servletMapping = "/*";
+
     // service port
     private int port = 8080;
 
@@ -107,6 +109,25 @@ public class ServiceConfiguration {
      */
     public int getHttpsPort() {
         return this.httpsPort;
+    }
+
+    /**
+     * Get servlet mapping path
+     * 
+     * @return servlet mapping path
+     */
+    public String getServletMapping() {
+        return this.servletMapping;
+    }
+
+    /**
+     * Set servlet mapping path.
+     * 
+     * @param mapping
+     *            servlet mapping path
+     */
+    public void setServletMapping(String mapping) {
+        this.servletMapping = mapping;
     }
 
 }
