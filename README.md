@@ -30,7 +30,7 @@ ktool.sh -help
 ```
 
 ###Drive discovery
-Discover a cluster of drives within a set of IP ranges.
+Discover kinetic drives with heartbeats or within a subset of IP range.
 
 The optional inputs for the script includes the following:
   * out ~ Used to specify path of output file for discovered IP Address list, i.e. drives.txt. If option is not specified, the default file output name will be drives_timestamp in milliseconds. The content of output format is in JSON format. 
@@ -298,4 +298,66 @@ ktool.sh -perf <-in <driveListInputFile>>
 
    For instance:
    ./ktool.sh -perf -in drives.txt
+```
+
+##Kinetic REST API
+==============================
+Kinetic tools REST API enables users to invoke kinetic tools commands with REST/HTTP protocol.  
+
+The following are steps to start the Kinetic tools REST service.
+
+  1. cd to "kinetic-java-tools" folder
+  2. run "mvn clean package"
+  3. start REST service with the command below. The default service ports are set to 8080 (HTTP) and 8081 (HTTPS) if not set.
+  
+```
+java -jar ./kinetic-tools/target/kinetic-tools-0.0.1-SNAPSHOT-jar-with-dependencies.jar [http-port https-port]
+
+For example:
+java -jar ./kinetic-tools/target/kinetic-tools-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+```
+
+For each REST request command API, the supported request options are similar to those specified in the kinetic tools CLI above.  The options should be set in the HTTP request message body in JSON format if not specified otherwise in the individual command.
+
+The REST response message is set in the HTTP response message body in JSON format (UTF-8 encoding).
+
+The examples in this section assumes that there is a Kinetic Tools REST service and simulator running on the  localhost.
+
+###Drive discovery with the REST API
+
+```
+POST /kinetic/tools/discover
+
+For example:
+curl -d '{discoid=mycluster, timeout=10}' "http://localhost:8080/kinetic/tools/discover"
+
+Example response message:
+{"discoid":"mycluster","devices":[{"device":{"inet4":["10.24.145.149","127.0.0.1"],"port":8123,"tlsPort":8443,"wwn":"92503018-7360-45df-89ae-7374aa195cc1","model":"Simulator","serialNumber":"S664024157","firmwareVersion":"0.8.0.4-SNAPSHOT"},"status":200}],"overallStatus":200,"messageType":"DISCOVER_REPLY"}
+```
+
+###Ping a set of discovered drives with the REST API
+
+```
+POST /kinetic/tools/ping
+
+For example:
+curl -d '{discoid=mycluster}' "http://localhost:8080/kinetic/tools/ping"
+
+Example response message:
+{"devices":[{"deviceId":{"ips":["10.24.145.149","127.0.0.1"],"port":8123,"tlsPort":8443,"wwn":"92503018-7360-45df-89ae-7374aa195cc1"},"status":200}],"overallStatus":200,"messageType":"PING_REPLY"}
+```
+
+###getlog from a set of discovered drives with the REST API
+
+The options should be set in the request URL as request parameters.
+
+```
+GET /kinetic/tools/getlog
+
+For example:
+curl "http://localhost:8080/kinetic/tools/getlog?discoid=mycluster&type=capacity"
+
+Example response:
+{"deviceLogs":[{"deviceStatus":{"deviceId":{"ips":["10.24.145.149","127.0.0.1"],"port":8123,"tlsPort":8443,"wwn":"92503018-7360-45df-89ae-7374aa195cc1"},"status":200},"capacity":{"nominalCapacityInBytes":499418034176,"portionFull":0.29467958}}],"overallStatus":200,"messageType":"GETLOG_REPLY"}
+
 ```
