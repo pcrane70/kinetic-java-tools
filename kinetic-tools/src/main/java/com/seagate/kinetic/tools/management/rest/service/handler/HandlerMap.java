@@ -71,6 +71,7 @@ public class HandlerMap {
     
     // get hardware configuration view
     public static final String HARDWAREVIEW = "/hwview";
+    public static final String CONFIG = "/config";
 
     // external command handler
     public static final String EXTERNAL = "/external";
@@ -80,6 +81,8 @@ public class HandlerMap {
     // handler map
     private static ConcurrentHashMap<String, ServiceHandler> hmap = new ConcurrentHashMap<String, ServiceHandler>();
     
+    private static HardwareViewHandler ConfigHandler = new HardwareViewHandler();
+
     static {
         hmap.put(PING, new PingHandler());
         hmap.put(ERROR, new ErrorHandler());
@@ -102,15 +105,15 @@ public class HandlerMap {
 
         hmap.put(SETSECURITY, new SetSecurityHandler());
         
-        hmap.put(HARDWAREVIEW, new HardwareViewHandler());
+        // register hardware view/config handler
+        hmap.put(HARDWAREVIEW, ConfigHandler);
+        hmap.put(CONFIG, ConfigHandler);
 
         /**
          * XXX chiaming 08/11/2015: backward compatible for swift commands. This
          * can be fixed once swift command path in the doc is fixed.
          */
-        // hmap.put(EXTERNAL, new ExternalCommandHandler());
         hmap.put(EXTERNAL, new SwiftCommandHandler());
-
         hmap.put(SWIFT, new SwiftCommandHandler());
     }
 
