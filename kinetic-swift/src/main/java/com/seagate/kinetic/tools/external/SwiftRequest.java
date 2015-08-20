@@ -37,6 +37,9 @@ public class SwiftRequest extends ExternalRequest {
     private String partition = null;
     private String url = null;
     private String command = null;
+    private String password = null;
+    private String host = null;
+    
 
     public SwiftRequest() {
         setMessageType(MessageType.EXTERNAL_REQUEST);
@@ -75,5 +78,11 @@ public class SwiftRequest extends ExternalRequest {
     public String getCommand() { return this.command; }
 
     public void setCommand(String command) { this.command = command; }
+    
+    public String getPassword() { return this.password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getHost() { return this.host; }
+    public void setHost(String host) { this.host = host; }
+
 
 }

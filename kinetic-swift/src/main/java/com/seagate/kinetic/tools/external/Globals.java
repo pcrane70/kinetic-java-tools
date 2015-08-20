@@ -33,6 +33,14 @@ public class Globals {
 	static public final String SWIFT_PROXY_REQUEST = "proxy";
 	static public final String SWIFT_GET_NODES = "swift-get-nodes";
 	static public final String SWIFT_COMMAND = "swift";
+	static public final String IPMI_USER = "ADMIN";
+	static public final String IPMI_PASSWORD = "ADMIN";
+	static public final String IPMI_HOST = "192.168.1.99";
+	static public final int IPMI_MAX_DRIVES = 12;
+	static public final String IPMI_DIR = "/usr/local/bin";
+	static public final int  IPMI_SM_CHASSIS_RESPONSE = 284;
+	static public final int  KINETIC_DRIVE_PORT = 8123;
+    static public final int  KINETIC_DRIVE_TLS_PORT = 8443;
 	
     static public String GetSwiftDir(ExternalRequest req) {
 
