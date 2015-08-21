@@ -1,10 +1,12 @@
-package com.seagate.kinetic.tools.external;
+package com.seagate.kinetic.tools.external.swift;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.logging.Logger;
+
+import com.seagate.kinetic.tools.external.ExternalResponse;
 
 public class CommandFilter {
 	public static final Logger logger = Logger.getLogger(CommandFilter.class.getName());

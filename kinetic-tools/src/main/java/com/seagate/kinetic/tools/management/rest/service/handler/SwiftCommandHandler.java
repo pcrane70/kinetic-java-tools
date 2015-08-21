@@ -34,8 +34,11 @@ public class SwiftCommandHandler extends ExternalCommandHandler {
     public static final Logger logger = Logger.getLogger(SwiftCommandHandler.class
             .getName());
 
+    public static String SWIFT_REQUEST_CLASS_NAME_PREFIX = EXTERNAL_CLASS_NAME_PREFIX
+            + "swift.";
     // swift request super class
-    private static String SWIFT_REQUEST = EXTERNAL_CLASS_NAME_PREFIX + "SwiftRequest";
+    public static String SWIFT_REQUEST = SWIFT_REQUEST_CLASS_NAME_PREFIX
+            + "SwiftRequest";
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -49,6 +52,11 @@ public class SwiftCommandHandler extends ExternalCommandHandler {
         }
 
         return null;
+    }
+
+    @Override
+    protected String getExternalClassNamePrefix() {
+        return SWIFT_REQUEST_CLASS_NAME_PREFIX;
     }
 
 }

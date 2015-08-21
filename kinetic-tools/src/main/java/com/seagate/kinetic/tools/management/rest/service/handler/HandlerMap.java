@@ -113,7 +113,7 @@ public class HandlerMap {
          * XXX chiaming 08/11/2015: backward compatible for swift commands. This
          * can be fixed once swift command path in the doc is fixed.
          */
-        hmap.put(EXTERNAL, new SwiftCommandHandler());
+        hmap.put(EXTERNAL, new ExternalCommandHandler());
         hmap.put(SWIFT, new SwiftCommandHandler());
     }
 

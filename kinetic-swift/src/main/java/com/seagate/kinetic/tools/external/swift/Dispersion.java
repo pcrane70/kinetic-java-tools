@@ -1,9 +1,13 @@
 /**
  * 
  */
-package com.seagate.kinetic.tools.external;
+package com.seagate.kinetic.tools.external.swift;
 
 import java.util.logging.Logger;
+
+import com.seagate.kinetic.tools.external.ExternalCommandService;
+import com.seagate.kinetic.tools.external.ExternalRequest;
+import com.seagate.kinetic.tools.external.ExternalResponse;
 
 /**
  * @author mshafiq

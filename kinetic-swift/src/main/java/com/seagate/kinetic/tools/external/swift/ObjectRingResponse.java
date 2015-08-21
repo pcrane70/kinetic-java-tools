@@ -19,8 +19,6 @@ package com.seagate.kinetic.tools.external.swift;
 
 import java.util.SortedMap;
 
-import com.seagate.kinetic.tools.external.SwiftResponse;
-
 /**
  * Object hash ring response message.
  * 

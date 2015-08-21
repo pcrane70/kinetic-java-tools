@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.seagate.kinetic.tools.external;
+package com.seagate.kinetic.tools.external.swift;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -10,6 +10,9 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
+import com.seagate.kinetic.tools.external.ExternalCommandService;
+import com.seagate.kinetic.tools.external.ExternalRequest;
+import com.seagate.kinetic.tools.external.ExternalResponse;
 
 /**
  * @author mshafiq

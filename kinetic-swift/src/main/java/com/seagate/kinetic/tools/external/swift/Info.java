@@ -1,9 +1,13 @@
-package com.seagate.kinetic.tools.external;
+package com.seagate.kinetic.tools.external.swift;
 
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import com.seagate.kinetic.tools.external.ExternalCommandService;
+import com.seagate.kinetic.tools.external.ExternalRequest;
+import com.seagate.kinetic.tools.external.ExternalResponse;
 
 public class Info implements ExternalCommandService {
 	public static final Logger logger = Logger.getLogger(Info.class.getName());

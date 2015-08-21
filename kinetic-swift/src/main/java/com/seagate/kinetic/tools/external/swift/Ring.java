@@ -1,7 +1,11 @@
 /**
  * 
  */
-package com.seagate.kinetic.tools.external;
+package com.seagate.kinetic.tools.external.swift;
+
+import com.seagate.kinetic.tools.external.ExternalCommandService;
+import com.seagate.kinetic.tools.external.ExternalRequest;
+import com.seagate.kinetic.tools.external.ExternalResponse;
 
 
 

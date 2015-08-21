@@ -15,8 +15,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.external;
+package com.seagate.kinetic.tools.external.swift;
 
+import com.seagate.kinetic.tools.external.ExternalRequest;
 import com.seagate.kinetic.tools.management.rest.message.MessageType;
 
 /**

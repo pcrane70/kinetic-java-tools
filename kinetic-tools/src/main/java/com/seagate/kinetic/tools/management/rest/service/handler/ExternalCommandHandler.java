@@ -88,7 +88,7 @@ public class ExternalCommandHandler implements ServiceHandler {
             String[] clazz = params.get("class");
 
             // class full name
-            String classFullName = EXTERNAL_CLASS_NAME_PREFIX + clazz[0];
+            String classFullName = getExternalClassNamePrefix() + clazz[0];
 
             logger.info("invoking external class: " + classFullName);
 
@@ -118,6 +118,10 @@ public class ExternalCommandHandler implements ServiceHandler {
     protected void transformRequestParams(HttpServletRequest httpRequest,
             RestRequest req) {
         ;
+    }
+
+    protected String getExternalClassNamePrefix() {
+        return EXTERNAL_CLASS_NAME_PREFIX;
     }
 
 }

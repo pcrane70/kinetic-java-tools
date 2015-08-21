@@ -15,12 +15,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.seagate.kinetic.tools.external;
+package com.seagate.kinetic.tools.external.swift;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import com.seagate.kinetic.tools.external.swift.ObjectRingResponse;
+import com.seagate.kinetic.tools.external.ExternalCommandService;
+import com.seagate.kinetic.tools.external.ExternalRequest;
+import com.seagate.kinetic.tools.external.ExternalResponse;
 
 
 /**
