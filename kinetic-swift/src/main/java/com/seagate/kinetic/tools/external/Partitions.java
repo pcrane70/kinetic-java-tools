@@ -9,6 +9,8 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
+import com.google.gson.Gson;
+
 /**
  * @author mshafiq
  *
@@ -71,6 +73,7 @@ public class Partitions implements ExternalCommandService {
 	    }
 	    private String PartMap2Str()
 	    {
+	    	/*
 	    	Iterator it = partMap.entrySet().iterator();
 	    	String rc = new String();
 	        while (it.hasNext()) {
@@ -79,6 +82,9 @@ public class Partitions implements ExternalCommandService {
 	        }	
 	        logger.info("Partition List:" + rc);
 	        return rc;
+	        */
+	    	Gson gson = new Gson();
+	    	return gson.toJson(partMap);
 	    }
 	    
 	    

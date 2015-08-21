@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.gson.Gson;
 import com.seagate.kinetic.tools.external.ExternalCommandService;
 import com.seagate.kinetic.tools.external.ExternalRequest;
 import com.seagate.kinetic.tools.external.ExternalResponse;
@@ -73,9 +74,11 @@ public class SuperStore implements ExternalCommandService {
 	       
 	        	}
 	        	smChassis.setDevices(devices);
+	        	
 	        }
 	       // byte[] bytes = rc.getBytes();
-			resp.setResponseMessage(smChassis.toString());
+	        Gson gson = new Gson();
+			resp.setResponseMessage(gson.toJson(smChassis));
 		    return resp;
 	        
 	    }
