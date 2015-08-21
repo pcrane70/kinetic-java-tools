@@ -113,6 +113,14 @@ Example:
 url -d '{"command":"stat", "resource":"dispersion_0", "url":"http://127.0.0.1:8080/auth/v1.0", "user":"test:tester", "key":"testing"}' http://localhost:9090/external?class=Swift
 
 
+================================== Hardware View =============================
+Hardware view such as chassis, and drives in the chassis can be found using SuperStore sub-url. This facility is 
+limited to Super Micro chassis, only.
+The host should be the IPMI interface IP Address or Name.
+Example:
+curl -d '{"host":"SampleChassis"}' http://localhost:9090/external?class=SuperStore
+{"chassis":[{"devices":[{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}}]}]}
+
 ============================  SAMPLE OUTPUT========================
 
 curl -d '{"resource":"populate"}' http://localhost:8080/external?class=Dispersion

@@ -1,4 +1,4 @@
-package com.seagate.kinetic.tools.external.swift;
+package com.seagate.kinetic.tools.external;
 
 
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import com.seagate.kinetic.tools.external.ExternalResponse;
 import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.hwview.Chassis;
 import com.seagate.kinetic.tools.management.rest.message.hwview.Device;
+import com.seagate.kinetic.tools.management.rest.message.hwview.Rack;
 
 
 
@@ -45,6 +46,8 @@ public class SuperStore implements ExternalCommandService {
 	        
 	        Chassis smChassis = new Chassis();
 	        List<Device> devices = new ArrayList<Device>();
+	        List<Chassis> chassises = new ArrayList<Chassis>();
+	        Rack rack = new Rack();
 	        String rc = new String();
 	        /*
 	         * Data must be 284 bytes at minimum;
@@ -52,10 +55,12 @@ public class SuperStore implements ExternalCommandService {
 	        for (int i = 1; i <= Globals.IPMI_MAX_DRIVES; i++) {
 	        	String drvCmd = cmd + i;
 	        	logger.info("executing Comd " + drvCmd + " Dir == " + dir);
-	        	
-	        	rc  = filt.ExecShellCmd(drvCmd, dir);
+	        	if (host.equalsIgnoreCase("sampleChassis")) 
+	        		rc = sampleChassis;
+	        	else
+	        		rc  = filt.ExecShellCmd(drvCmd, dir);
 	        	/* remove white characters*/
-	        	rc.replaceAll("\\s","");
+	        	rc = rc.replaceAll("\\s","");
 	        	
 	        	if (rc.length() < Globals.IPMI_SM_CHASSIS_RESPONSE) {
 	        		logger.info(drvCmd + " returning invalid response");
@@ -77,8 +82,11 @@ public class SuperStore implements ExternalCommandService {
 	        	
 	        }
 	       // byte[] bytes = rc.getBytes();
+	        chassises.add(smChassis);
+	        rack.setChassis(chassises);
 	        Gson gson = new Gson();
-			resp.setResponseMessage(gson.toJson(smChassis));
+	        
+			resp.setResponseMessage(gson.toJson(rack));
 		    return resp;
 	        
 	    }
@@ -88,7 +96,7 @@ public class SuperStore implements ExternalCommandService {
 	    			    " Mac-1:" + getMAC1(in) +
 	    			    " IP-1:" + getIP1(in) +
 	    			    " Mac-2:" + getMAC2(in) +
-	    			    " IP-1:" + getIP2(in));
+	    			    " IP-2:" + getIP2(in));
 	    	
 	    }
 	    /* bytes 1 to 8 */
@@ -118,7 +126,7 @@ public class SuperStore implements ExternalCommandService {
 	    /* bytes 132 to 135 */
 	    private String getIP1(String in)
 	    {
-	    	return Convert2IP(in.substring(132 * 2, 134  * 2));
+	    	return Convert2IP(in.substring(132 * 2, 136  * 2));
 	   
 	    }
 	    
