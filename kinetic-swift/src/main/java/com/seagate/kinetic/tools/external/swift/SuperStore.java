@@ -1,4 +1,4 @@
-package com.seagate.kinetic.tools.external;
+package com.seagate.kinetic.tools.external.swift;
 
 
 import java.util.ArrayList;
