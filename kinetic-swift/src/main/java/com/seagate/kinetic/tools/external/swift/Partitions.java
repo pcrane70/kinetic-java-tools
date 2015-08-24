@@ -3,7 +3,9 @@
  */
 package com.seagate.kinetic.tools.external.swift;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -44,7 +46,7 @@ public class Partitions implements ExternalCommandService {
 	        	String listCmd = cmd + "," + file + "," + "list_parts" + "," + "d" + i;
 	        	logger.info("executing Command " + listCmd + " Directory == " + dir + " File == " + file );
 	        	rc = filt.ExecShellCmd(listCmd, dir);
-	        	BuildPartMap(rc, Integer.toString(i));
+	        	BuildPartMap(rc, i);
 	        }
 	        ExternalResponse resp = new ExternalResponse();
 			resp.setResponseMessage(PartMap2Str());
@@ -60,17 +62,17 @@ public class Partitions implements ExternalCommandService {
 	    		lastToken = st.nextToken();
 	    	return Integer.parseInt(lastToken);
 	    }
-	    private void BuildPartMap(String in, String id)
+	    private void BuildPartMap(String in, int id)
 	    {
 	    	in = in.split("Matches")[1];
 	    	StringTokenizer st = new StringTokenizer(in);
 	    	while (st.hasMoreTokens()) {
 	    		String part = st.nextToken();
 	    		String count = st.nextToken();
-	    		String dev = partMap.get(Integer.parseInt(part));
-	    		if (dev == null) dev = id;
-	    		else dev += ("," + id);
-	    		logger.info("Updating Map Partition " + part + " for device " + dev + " Count " + count);
+	    		List<Integer> dev = partMap.get(Integer.parseInt(part));
+	    		if (dev == null) 
+	    			dev = new ArrayList<Integer>();
+	    		dev.add(id);
 	    		partMap.put(Integer.parseInt(part), dev);
 	    	}
 	    }
@@ -91,7 +93,7 @@ public class Partitions implements ExternalCommandService {
 	    }
 	    
 	    
-	    Map<Integer, String> partMap = new TreeMap<Integer, String>();
+	    Map<Integer, List<Integer>> partMap = new TreeMap<Integer, List<Integer>>();
 	    
 	    
 
