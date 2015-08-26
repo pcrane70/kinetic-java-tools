@@ -100,9 +100,9 @@ public class KineticToolCLI {
         subArgs.add("-timeout");
         subArgs.add("-out");
         subArgs.add("-subnet");
-        subArgs.add("-scope");
-        subArgs.add("-start");
-        subArgs.add("-end");
+        subArgs.add("-scoped");
+        subArgs.add("-startip");
+        subArgs.add("-endip");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-ping";
@@ -208,7 +208,7 @@ public class KineticToolCLI {
         StringBuffer sb = new StringBuffer();
         sb.append("Usage: ktool <-discover|-firmwaredownload|-checkversion|-setclusterversion|-setsecurity|-seterasepin|-instanterase|-runsmoketest>\n");
         sb.append("ktool -h|-help\n");
-        sb.append("ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-scope] [-start <start>] [-end <end>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-scoped] [-startip <startIp>] [-endip <endIp>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -ping <-in <driveListInputFile>> [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
@@ -373,22 +373,22 @@ public class KineticToolCLI {
                 String subnet = kineticToolCLI.getArgValue("-subnet", args);
 
                 // scope
-                if (kineticToolCLI.hasArg("-scope", args)) {
+                if (kineticToolCLI.hasArg("-scoped", args)) {
                     if (null != subnet) {
                         throw new Exception(
-                                "Can't set subnet and scope at the same time.");
+                                "Can't set subnet and scoped at the same time.");
                     }
 
-                    String start = kineticToolCLI.getArgValue("-start", args);
-                    String end = kineticToolCLI.getArgValue("-end", args);
+                    String start = kineticToolCLI.getArgValue("-startip", args);
+                    String end = kineticToolCLI.getArgValue("-endip", args);
 
                     driveListOutputFile = driveListOutputFile == null ? driveDefaultName
                             : driveListOutputFile;
 
                     DeviceDiscovery deviceDiscovery = new DeviceDiscovery(
                             start, end);
-                    System.out.println("Discovering devices with scope: start="
-                            + start + ", end=" + end + ", please wait "
+                    System.out.println("Discovering devices with scoped: startIp="
+                            + start + ", endIp=" + end + ", please wait "
                             + timeout + "s" + "\n");
                     TimeUnit.SECONDS.sleep(timeout);
 

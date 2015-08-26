@@ -418,6 +418,26 @@ public class DefaultRestBridgeService implements RestBridgeService {
         return discoId;
     }
 
+    private String discoverDevicesViaScope(List<KineticDevice> devices,
+            int timeout, String discoId, String startIp, String endIp) {
+        DeviceDiscovery deviceDiscovery;
+        try {
+            deviceDiscovery = new DeviceDiscovery(startIp, endIp);
+            TimeUnit.SECONDS.sleep(timeout);
+            DeviceDiscovery.persistToFile(deviceDiscovery.listDevices(),
+                    discoId);
+            if (devices != null) {
+                for (KineticDevice device : deviceDiscovery.listDevices()) {
+                    devices.add(device);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return discoId;
+    }
+
     private String discoverDevices(int timeout) {
         String discoId = DRIVES_FILE_PREFIX + System.currentTimeMillis();
         String rootDir = TOOL_HOME + File.separator + "out" + File.separator
@@ -437,13 +457,29 @@ public class DefaultRestBridgeService implements RestBridgeService {
         String defaultDiscoId = DRIVES_FILE_PREFIX + System.currentTimeMillis();
 
         discoId = discoId == null ? defaultDiscoId : discoId;
-        
+
         String inputDiscoIdPath = ROOT_DIR + discoId;
 
-        if (request.getSubnet() == null && kineticIds == null) {
+        if (request.getScoped()) {
+            if (request.getSubnet() != null || kineticIds != null) {
+                return new ErrorResponse();
+            }
+
+            String startIp = request.getStartIp();
+            String endIp = request.getEndIp();
+
             kineticDevices = new ArrayList<KineticDevice>();
             try {
-                discoverDevices(kineticDevices, request.getTimeout(), inputDiscoIdPath);
+                discoverDevicesViaScope(kineticDevices, request.getTimeout(),
+                        inputDiscoIdPath, startIp, endIp);
+            } catch (Exception e) {
+                return new ErrorResponse();
+            }
+        } else if (request.getSubnet() == null && kineticIds == null) {
+            kineticDevices = new ArrayList<KineticDevice>();
+            try {
+                discoverDevices(kineticDevices, request.getTimeout(),
+                        inputDiscoIdPath);
             } catch (Exception e) {
                 return new ErrorResponse();
             }
@@ -455,10 +491,11 @@ public class DefaultRestBridgeService implements RestBridgeService {
                         Long.parseLong(request.getIdentity()),
                         request.getKey(), request.getRequestTimeout());
             } else {
-                command = new PingReachableDrive(request.getSubnet(), inputDiscoIdPath,
-                        request.getUseSsl(), request.getClversion(),
-                        Long.parseLong(request.getIdentity()),
-                        request.getKey(), request.getRequestTimeout());
+                command = new PingReachableDrive(request.getSubnet(),
+                        inputDiscoIdPath, request.getUseSsl(),
+                        request.getClversion(), Long.parseLong(request
+                                .getIdentity()), request.getKey(),
+                        request.getRequestTimeout());
             }
             Invoker invoker = new DefaultCommandInvoker();
             Report report = invoker.execute(command);

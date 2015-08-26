@@ -72,14 +72,14 @@ public class DeviceDiscovery {
 
     public DeviceDiscovery(String start, String end) throws Exception {
         if (!validateScope(start, end))
-            throw new KineticToolsException("Invalid start or end.");
+            throw new KineticToolsException("Invalid startIp or endIp.");
 
         String start_subnet24 = start.substring(0, start.lastIndexOf("."));
         String end_subnet24 = end.substring(0, end.lastIndexOf("."));
 
         if (!start_subnet24.equals(end_subnet24))
             throw new KineticToolsException(
-                    "start and end are not in a same subnet.");
+                    "startIp and endIp are not in a same subnet.");
 
         this.subnet = start_subnet24;
 
