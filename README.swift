@@ -120,6 +120,15 @@ The host should be the IPMI interface IP Address or Name.
 Example:
 curl -d '{"host":"SampleChassis"}' http://localhost:9090/external?class=SuperStore
 {"chassis":[{"devices":[{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}},{"deviceId":{"ips":["172.16.17.70","172.17.2.143"],"port":8123,"tlsPort":8443,"wwn":"5000c5007987e798"}}]}]}
+------------------------------------------------
+Auto Discovery of SuperMicro Chassis
+SuperMicro chassis list can be extracted by using Discovery sub-url.
+Example:
+ 
+curl -d  http://localhost:9090/external/swift?class=Discovery
+
+Optional parameters such as user, password, port, directory can be provided with the command
+
 
 ============================  SAMPLE OUTPUT========================
 
@@ -1016,4 +1025,9 @@ X-Storage-Policy: Policy-0
      X-Timestamp: 1436976957.30105
       X-Trans-Id: tx0d6dad2de32b4683bcd5a-0055bad5a1
     Content-Type: text/plain; charset=utf-8
+----------------------------------------------------------------------------------------------------
+
+
+curl -d  http://localhost:9090/external/swift?class=Discovery
+[{"IPAddrss":"192.168.32.15","Board Mfg":"Supermicro","Board Serial":"","FRU Device Description":"Builtin FRU Device (ID 0)","Board Mfg Date":"Sun Dec 31 16","Product Serial":""},{"IPAddrss":"192.168.32.14","Board Mfg":"Supermicro","Board Serial":"","FRU Device Description":"Builtin FRU Device (ID 0)","Board Mfg Date":"Sun Dec 31 16","Product Serial":""},{"IPAddrss":"192.168.32.11","Board Mfg":"Supermicro","Board Serial":"","FRU Device Description":"Builtin FRU Device (ID 0)","Board Mfg Date":"Sun Dec 31 16","Product Serial":""},{"IPAddrss":"192.168.32.10","Product Manufacturer":"Supermicro","Chassis Serial":"C801LAD48A50054","Board Mfg":"Supermicro","Board Serial":"","Product Part Number":"SSG-K1048-RT-ST20B","FRU Device Description":"Builtin FRU Device (ID 0)","Board Mfg Date":"Sun Dec 31 16","Product Serial":"S191109X5627804","Chassis Type":"Unspecified"},{"IPAddrss":"192.168.32.12","Board Mfg":"Supermicro","Board Serial":"","FRU Device Description":"Builtin FRU Device (ID 0)","Board Mfg Date":"Sun Dec 31 16","Product Serial":""},{"IPAddrss":"192.168.32.13","Board Mfg":"Supermicro","Board Serial":"","FRU Device Description":"Builtin FRU Device (ID 0)","Board Mfg Date":"Sun Dec 31 16","Product Serial":""}]
 
