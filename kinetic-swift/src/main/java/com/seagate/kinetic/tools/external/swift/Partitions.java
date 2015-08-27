@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 import com.seagate.kinetic.tools.external.ExternalCommandService;
 import com.seagate.kinetic.tools.external.ExternalRequest;
 import com.seagate.kinetic.tools.external.ExternalResponse;
+import com.seagate.kinetic.tools.external.swift.ring.Opartition;
 
 /**
  * @author mshafiq
@@ -76,25 +77,39 @@ public class Partitions implements ExternalCommandService {
 	    		partMap.put(Integer.parseInt(part), dev);
 	    	}
 	    }
-	    private String PartMap2Str()
-	    {
-	    	/*
-	    	Iterator it = partMap.entrySet().iterator();
-	    	String rc = new String();
-	        while (it.hasNext()) {
-	            Map.Entry pair = (Map.Entry)it.next();
-	            rc += (pair.getKey() + " = " + pair.getValue()) + "\n";
-	        }	
-	        logger.info("Partition List:" + rc);
-	        return rc;
-	        */
-	    	Gson gson = new Gson();
-	    	return gson.toJson(partMap);
-	    }
+
+    private String PartMap2Str() {
+
+        // transform to oRing
+        ArrayList<Opartition> oring = new ArrayList<Opartition>();
+
+        Iterator<Integer> it = partMap.keySet().iterator();
+        while (it.hasNext()) {
+
+            // get next key
+            Integer key = it.next();
+
+            // get drive ids
+            List<Integer> ids = partMap.get(key);
+
+            // create partition
+            Opartition p = new Opartition();
+            // set partition id
+            p.setPartitionId(key.intValue());
+            // set drive ids
+            p.setDriveIds(ids);
+
+            // add partition to ring
+            oring.add(p);
+        }
+
+        Gson gson = new Gson();
+
+        // to json string for the ring
+        return gson.toJson(oring);
+    }
 	    
 	    
 	    Map<Integer, List<Integer>> partMap = new TreeMap<Integer, List<Integer>>();
 	    
-	    
-
 }
