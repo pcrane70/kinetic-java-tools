@@ -491,24 +491,13 @@ devices = /swift
 # log_name = None
 
 
+curl -d '{"resource":"container"}' http://localhost:9090/external/swift?class=Ring
+[[{"id":"0"},{"region":"1"},{"zone":"1"},{"ipaddress":"127.0.0.1"},{"port":"6001"},{"repliactionip":"127.0.0.1"},{"repliactionport":"6001"},{"name":"sdv"},{"weight":"1.00"},{"partitions":"3072"},{"balance":"0.00"}]]
 
+------------------------------------------------------------
+curl -d '{"resource":"account"}' http://localhost:9090/external/swift?class=Ring
+[[{"id":"0"},{"region":"1"},{"zone":"1"},{"ipaddress":"127.0.0.1"},{"port":"6002"},{"repliactionip":"127.0.0.1"},{"repliactionport":"6002"},{"name":"sdv"},{"weight":"1.00"},{"partitions":"3072"},{"balance":"0.00"}]]
 
-curl -d '{"resource":"account"}' http://localhost:8080/external?class=Ring
-account.builder, build version 1
-1024 partitions, 3.000000 replicas, 1 regions, 1 zones, 1 devices, 0.00 balance, 0.00 dispersion
-The minimum number of hours before a partition can be reassigned is 1
-The overload factor is 0.00% (0.000000)
-Devices:    id  region  zone      ip address  port  replication ip  replication port      name weight partitions balance meta
-             0       1     1       127.0.0.1  6002       127.0.0.1              6002       sdv   1.00       3072    0.00
-	    
- ----------------------------------------
- curl -d '{"resource":"container"}' http://localhost:9090/external?class=Ring
-container.builder, build version 1
-1024 partitions, 3.000000 replicas, 1 regions, 1 zones, 1 devices, 0.00 balance, 0.00 dispersion
-The minimum number of hours before a partition can be reassigned is 1
-The overload factor is 0.00% (0.000000)
-Devices:    id  region  zone      ip address  port  replication ip  replication port      name weight partitions balance meta
-             0       1     1       127.0.0.1  6001       127.0.0.1              6001       sdv   1.00       3072    0.00 
 
  ----------------------------------------
   curl -d '{"resource":"object"}' http://localhost:9090/external/swift?class=Ring

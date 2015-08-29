@@ -55,14 +55,12 @@ public class Ring implements ExternalCommandService {
 	   	        if (dir == null) dir = Globals.GetSwiftDir(request);
 	   	        Cmd += ("," + file);
 		        String rc =  filt.ExecShellCmd(Cmd, dir);
-		        if (request.getResource().equalsIgnoreCase(Globals.SWIFT_OBJECT_REQUEST))
-		        	resp.setResponseMessage(Object2Json(rc));
-		        else
-		        	resp.setResponseMessage(rc);
+		        resp.setResponseMessage(String2Json(rc));
+		        
 		        return resp;	
 	   	    }
 	   	    
-	  private String Object2Json(String in)
+	  private String String2Json(String in)
 	  {
 		  String[] splits = in.split("Devices:");
 		  splits = splits[1].split("\n");
