@@ -20,4 +20,4 @@
 *.log
 *.result
 /target
-
+/out

@@ -19,10 +19,21 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
-				<configuration>
-					<source>1.7</source>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+						<configuration>
+						    <source>1.7</source>
 					<target>1.7</target>
-				</configuration>
+							<testSource>1.6</testSource>
+							<testTarget>1.6</testTarget>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -42,6 +53,25 @@
 							<outputDirectory>${project.build.directory}</outputDirectory>
 						</configuration>
 					</execution>
+					<execution>
+						<id>test-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<addMavenDescriptor>false</addMavenDescriptor>
+								<manifest>
+								    <mainClass>com.seagate.kinetic.console.example.VirtualDrives</mainClass>
+									<addClasspath>true</addClasspath>
+								</manifest>
+							</archive>
+							<finalName>kinetic-console-${project.version}</finalName>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+							<skip>false</skip>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -50,7 +80,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.seagate.kinetic.tools.management.rest.service.KineticRestService</mainClass>
+							<mainClass>com.seagate.kinetic.console.KineticConsole</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

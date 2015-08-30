@@ -1,0 +1,187 @@
+.rack{
+    width: 240px;
+    //margin: 0 auto;
+    background-color: #576373;
+    margin-top: 10px;
+    //margin-left: 10px;
+}
+
+.drive_img {
+     width: 65px;
+     height: 32px;
+     margin: 2px;
+}
+
+.mgmt_nic_img {
+    width: 9px;
+    height: 9px;
+    margin: 2px;
+}
+
+.data_nic_img {
+    width: 13px;
+    height: 13px;
+    margin: 2px;
+}
+
+.chassis_mgmt {
+    width: 220px;
+    height: 10px;
+    background-color: #BED2AE;
+}
+
+.overview {
+    width: 250px;
+    margin-top: 21px;
+    //margin: 0 auto;
+}
+
+.detail {
+    //width: 450px;
+    //margin: 0 auto;
+}
+
+.chassis {
+    width: 230px;
+    margin: 0 auto;
+    background-color: #524088;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    //text-align: right;
+}
+
+#nodeInfo{
+    background: rgba(0,255,255,0.75);
+    width: 790px;
+    height: 460px;
+}
+
+#temperature.temperature table
+{
+    position: relative;
+    left: 25px;
+    top: 36px;
+}
+
+
+#temperature.temperature table tbody tr td div div svg g text
+{
+    font-size: 12px;
+}
+
+#temperature_title
+{
+    position: absolute;
+    left: 300px;
+    top: 54px;
+    font-family: Arial;
+    font-size: 10px;
+    font-weight: bold;
+    stroke: none;
+    stroke-width: 0;
+    fill: #000000;
+    z-index: 2;
+}
+
+#temperature_hda_comments
+{
+    position: absolute;
+    left: 322px;
+    top: 185px;
+    font-family: Arial;
+    font-size: 10px;
+    stroke: none;
+    stroke-width: 0;
+    fill: #000000
+}
+
+#temperature_cpu_comments
+{
+    position: absolute;
+    left: 420px;
+    top: 185px;
+    font-family: Arial;
+    font-size: 10px;
+    stroke: none;
+    stroke-width: 0;
+    fill: #000000
+}
+
+.capacity{
+    min-width: 200px;
+    margin-top: 5px;
+    width: 250px;
+    height: 200px;
+    margin-left: 10px;
+    float:left;
+    display: inline;
+}
+
+.temperature{
+    min-width: 200px;
+    margin-top: 5px;
+    width: 250px;
+    height: 200px;
+    margin-left: 10px;
+    float:left;
+    display: inline;
+    background-color: #ffffff;
+}
+
+.temperature_hda{
+    min-width: 100px;
+    margin-top: 5px;
+    width: 100px;
+    height: 100px;
+    margin-left: 2px;
+    float:left;
+    display: inline;
+    background-color: #ffffff;
+}
+
+.temperature_cpu{
+    margin-top: 5px;
+    float:left;
+    display: inline;
+    background-color: #ffffff;
+}
+
+
+.utilizations{
+    min-width: 200px;
+    margin-top: 5px;
+    width: 250px;
+    height: 200px;
+    margin-left: 10px;
+    float:left;
+    display: inline;
+}
+
+.counters{
+    min-width: 200px;
+    margin-top: 5px;
+    width: 770px;
+    height: 200px;
+    margin-left: 10px;
+    float:left;
+    display: inline;
+}
+
+
+a.button, #content a.button, .button, input[type="submit"] {
+    background-color: rgba(127,255,255,0.75);
+    border: 1px solid #999999;
+    margin-left: 10px;
+    margin-top: 3px;
+    width: 770px;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 -1px 0 rgba(255, 255, 255, 0.45) inset, 1px 0 0 rgba(255, 255, 255, 0.45) inset, -1px 1px 0 rgba(255, 255, 255, 0.45) inset;
+    color: #000000 !important;
+    float: left;
+    font: bold 16px/16px "klavika-web","Helvetica Neue",Helvetica,Arial,Geneva,sans-serif;
+    padding: 8px 15px;
+    text-decoration: none;
+    text-align: center;
+    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.35);
+    transition: all 0.2s ease 0s;
+}

@@ -48,5 +48,6 @@
 		<module>kinetic-tools</module>
 		<module>kinetic-performance</module>
                 <module>kinetic-swift</module>
+                <module>kinetic-console</module>
 	</modules>
 </project>
