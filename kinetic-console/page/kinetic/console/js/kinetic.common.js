@@ -552,7 +552,7 @@ function renderUtilizations(nodeInfo) {
                     height: 200,
                     bar: {groupWidth: "65%"},
                     legend: {position: "none"},
-                    hAxis: {maxValue: 100, minValue: 0}
+                    vAxis: {maxValue: 100, minValue: 0}
                 };
                 var chart = new google.visualization.ColumnChart(document.getElementById("utilizations"));
                 chart.draw(view, options);
