@@ -67,9 +67,9 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
     var theadContent = "";
     theadContent += "<thead><tr class='info'>";
     theadContent += "<th><strong>Rack Location</strong></th>";
-    theadContent += "<th><strong>Chassises</strong></th>";
-    theadContent += "<th><strong>Drives(normal/total)</strong></th>";
-    theadContent += "<th><strong>Capacity(free/total)</strong></th>";
+    theadContent += "<th><strong>Chassis</strong></th>";
+    theadContent += "<th><strong>Drives (normal/total)</strong></th>";
+    theadContent += "<th><strong>Capacity (free/total)</strong></th>";
     theadContent += "</tr></thead>";
     $("#rack_abstract").append(theadContent);
 
