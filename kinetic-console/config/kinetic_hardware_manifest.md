@@ -18,7 +18,7 @@ For a very tiny cluster, it may be easiest to create the manifest file using a t
 
 SuperMicro Chassis Discovery Utility
 ------------------------------------
---Add instructions here--
+Please use ```ipmi_rack_to_manifest.py``` (modified as necessary for your environment) to discovery storage chassis within a rack. This utility will output Kinetic hardware manifest to standard output in JSON format.
 
 Kinetic Console
 ---------------
