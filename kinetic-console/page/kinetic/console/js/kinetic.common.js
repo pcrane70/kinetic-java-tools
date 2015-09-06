@@ -108,7 +108,16 @@ Kinetic.Chassis = function (id, unit, mgtIp1, mgtIp2) {
     this.mgtIp2 = mgtIp2;
     this.usedCap = 0;
     this.totalCap = 0;
+    this.history = {
+        putOps: [],
+        getOps: [],
+        deleteOps: [],
+        putTrpt: [],
+        getTrpt: [],
+        deleteTrpt: []
+    };
     this.rackId_ = 0;
+    this.rackLoc_ = "";
     this.drives_ = [];
 };
 
@@ -118,6 +127,14 @@ Kinetic.Chassis.prototype.setRackId = function (rackId) {
 
 Kinetic.Chassis.prototype.getRackId = function () {
     return this.rackId_;
+};
+
+Kinetic.Chassis.prototype.setRackLoc = function (rackLoc) {
+    this.rackLoc_ = rackLoc;
+};
+
+Kinetic.Chassis.prototype.getRackLoc = function () {
+    return this.rackLoc_;
 };
 
 Kinetic.Chassis.prototype.clearDrives = function () {
@@ -222,12 +239,12 @@ Kinetic.Portal.prototype.getDrive = function (wwn) {
 };
 
 Kinetic.Portal.prototype.getChassis = function (rackLoc, chassisUnit) {
-    var key = rackLoc + "/" + chassisUnit;
+    var key = rackLoc + "_" + chassisUnit;
     return this.chassisMap[key];
 };
 
 Kinetic.Portal.prototype.updateChassisCap = function (rackLoc, chassisUnit) {
-    var key = rackLoc + "/" + chassisUnit;
+    var key = rackLoc + "_" + chassisUnit;
     var chassis = this.chassisMap[key];
 
     var deviceIndex;
@@ -308,6 +325,7 @@ Kinetic.Portal.prototype.loadRackList = function () {
                 }
                 chassisObj = new Kinetic.Chassis(chassisJsonObj.id, chassisJsonObj.coordinate.x, ip1, ip2);
                 chassisObj.setRackId(rackObj.id);
+                chassisObj.setRackLoc(rackObj.location);
                 for (j = 0; j < chassisJsonObj.devices.length; j++) {
                     driveJsonObj = chassisJsonObj.devices[j];
                     if (driveJsonObj.deviceId.ips.length <= 0) {
@@ -330,7 +348,7 @@ Kinetic.Portal.prototype.loadRackList = function () {
                     self.deviceMap[driveJsonObj.deviceId.wwn] = driveObj;
                 }
                 rackObj.addOrUpdateChassis(chassisObj);
-                self.chassisMap[rackLocation + "/" + chassisJsonObj.coordinate.x] = chassisObj;
+                self.chassisMap[rackLocation + "_" + chassisJsonObj.coordinate.x] = chassisObj;
             }
         }
 
@@ -378,6 +396,9 @@ function reRenderChassisUnitInfo() {
 
     $("#chassis_unit_info").append("Unit: " + chassis.unit + "<br/>("
         + freeCapByGB + "GB Free/" +  totalCapByGB + "GB Total)");
+    
+    var key = "chassis_stat_line" + chassis.getRackLoc() + "_" + chassis.unit;
+    $("#chassis_unit_info").append("<div class='line_chart'><span class='inlinesparkline' id='" + key + "'></span></div>");
 }
 
 function showDriveInfo(wwn) {

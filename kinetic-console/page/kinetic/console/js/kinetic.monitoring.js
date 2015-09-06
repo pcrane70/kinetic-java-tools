@@ -84,6 +84,9 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
 
 
     setInterval(function () {
+    	$(".jqstooltip").css("height","40px");
+        $(".jqstooltip").css("width","80px");
+        
         if (debug)
         {
             if(debugPutOpsHistory.length >= Kinetic.Config.CHARTS_DRIVE_HISTORY_LINE_MAX_DATA_SIZE)
@@ -108,19 +111,27 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
             if (rack.location == selectedRack) {
                 for (j = 0; j < rack.listChassises().length; j++) {
                     chassis = rack.listChassises()[j];
+                    
+                    var chassisLatestPutOps = 0;
+                    var chassisLatestGetOps = 0;
+                    var chassisLatestDeleteOps = 0;
                     for (k = 0; k < chassis.listDrives().length; k++) {
                         drive = chassis.listDrives()[k];
                         var id = "sparkline_" + drive.wwn;
                         var putOps = drive.history.putOps;
                         var getOps = drive.history.getOps;
                         var deleteOps = drive.history.deleteOps;
-
                         if (debug)
                         {
                             putOps = debugPutOpsHistory;
                             getOps = debugGetOpsHistory;
                             deleteOps = debugDeleteOpsHistory;
                         }
+                        
+                        
+                        chassisLatestPutOps += putOps.length > 0 ? putOps[putOps.length -1] : 0;
+                        chassisLatestGetOps += getOps.length > 0 ? getOps[getOps.length -1] : 0;
+                        chassisLatestDeleteOps += deleteOps.length > 0 ? deleteOps[deleteOps.length -1] : 0;
 
                         if (drive.state != Kinetic.State.NORMAL)
                         {
@@ -134,23 +145,64 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
                             fillColor: false,
                             width: 170,
                             height: 40,
-                            tooltipPrefix: "PutOps: "
+                            tooltipPrefix: "PutOps: ",
+                            tooltipClassname: "sparkline_tooltip_cls"
                         });
 
                         $('#' + id).sparkline(getOps, {
                             lineColor: 'red',
                             fillColor: false,
                             composite: true,
-                            tooltipPrefix: "GetOps: "
+                            tooltipPrefix: "GetOps: ",
+                            tooltipClassname: "sparkline_tooltip_cls"
                         });
 
                         $('#' + id).sparkline(deleteOps, {
                             lineColor: 'blue',
                             fillColor: false,
                             composite: true,
-                            tooltipPrefix: "DeleteOps: "
+                            tooltipPrefix: "DeleteOps: ",
+                            tooltipClassname: "sparkline_tooltip_cls"
                         });
                     }
+                    
+                    if (chassis.history.putOps.length >= Kinetic.Config.CHARTS_DRIVE_HISTORY_LINE_MAX_DATA_SIZE) {
+                    	chassis.history.putOps.shift();
+                    } else if (chassis.history.getOps.length >= Kinetic.Config.CHARTS_DRIVE_HISTORY_LINE_MAX_DATA_SIZE) {
+                    	chassis.history.getOps.shift();
+                    } else if (chassis.history.deleteOps.length >= Kinetic.Config.CHARTS_DRIVE_HISTORY_LINE_MAX_DATA_SIZE) {
+                    	chassis.history.deleteOps.shift();
+                    }
+                    
+                    chassis.history.putOps.push(chassisLatestPutOps);
+                    chassis.history.getOps.push(chassisLatestGetOps);
+                    chassis.history.deleteOps.push(chassisLatestDeleteOps);
+                    
+                    var chassis_stat_line_id = "chassis_stat_line" + chassis.getRackLoc() + "_" + chassis.unit;
+                    $('#' + chassis_stat_line_id).sparkline(chassis.history.putOps, {
+                        lineColor: 'yellow',
+                        fillColor: false,
+                        width: 240,
+                        height: 40,
+                        tooltipPrefix: "PutOps: ",
+                        tooltipClassname: "sparkline_tooltip_cls"
+                    });
+
+                    $('#' + chassis_stat_line_id).sparkline(chassis.history.getOps, {
+                        lineColor: 'red',
+                        fillColor: false,
+                        composite: true,
+                        tooltipPrefix: "GetOps: ",
+                        tooltipClassname: "sparkline_tooltip_cls"
+                    });
+
+                    $('#' + chassis_stat_line_id).sparkline(chassis.history.deleteOps, {
+                        lineColor: 'blue',
+                        fillColor: false,
+                        composite: true,
+                        tooltipPrefix: "DeleteOps: ",
+                        tooltipClassname: "sparkline_tooltip_cls"
+                    });
                 }
             }
         }
