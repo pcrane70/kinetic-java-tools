@@ -19,6 +19,7 @@ package com.seagate.kinetic.console.servlet;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,7 +35,6 @@ public class ConsoleServlet extends HttpServlet {
 
     public ConsoleServlet() {
         consoleService = new ConsoleService();
-        // consoleService.enableDebugMode();
     }
 
     @Override
@@ -53,6 +53,22 @@ public class ConsoleServlet extends HttpServlet {
         } else if (action.equalsIgnoreCase("dscdevice")) {
             String wwn = req.getParameter("wwn");
             responseMessage = consoleService.describeDevice(wwn);
+        } else if (action.equalsIgnoreCase("listhwfiles"))
+        {
+        	List<String> files = ConsoleService.listHwViewFiles();
+        	responseMessage += "[";
+        	for (int i=0; i<files.size(); i++)
+        	{
+        		responseMessage += "\"";
+        		responseMessage += files.get(i);
+        		responseMessage += "\"";
+        		
+        		if (i < files.size() -1)
+        		{
+        			responseMessage += ",";
+        		}
+        	}
+        	responseMessage += "]";
         }
 
         Writer writer = resp.getWriter();

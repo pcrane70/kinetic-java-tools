@@ -18,6 +18,7 @@
 package com.seagate.kinetic.console.service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -105,6 +106,20 @@ public class ConsoleService {
         }
         sb.append("]");
         return sb.toString();
+    }
+    
+    public static List<String> listHwViewFiles()
+    {
+    	String configDir = ConsoleConfiguration.getConsoleHome() + File.separator + "config";
+    	File dir = new File(configDir);
+    	File hwviewFiles[] = dir.listFiles();
+    	
+    	List<String> files = new ArrayList<String>();
+    	for (File file:hwviewFiles){
+    		files.add(file.getName());
+    	}
+    	
+    	return files;
     }
 
     public String describeDevice(String wwn) {
@@ -280,13 +295,14 @@ public class ConsoleService {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        ConsoleService consoleService = new ConsoleService();
+        //ConsoleService consoleService = new ConsoleService();
+        System.out.println(ConsoleService.listHwViewFiles().toString());
         // consoleService.enableDebugMode();
 
-        while (true) {
-            TimeUnit.SECONDS.sleep(10);
-            System.out.println(consoleService.describeDevice(null));
-        }
+//        while (true) {
+//            TimeUnit.SECONDS.sleep(10);
+//            System.out.println(consoleService.describeDevice(null));
+//        }
     }
 }
 

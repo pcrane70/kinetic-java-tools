@@ -12,7 +12,7 @@
 
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/jquery-ui.css" rel="stylesheet">
-    <link href="css/kinetic.config.css" rel="stylesheet">
+    <link href="css/kinetic.overview.css" rel="stylesheet">
     <link rel="stylesheet" href="css/jquery-anyslider.css">
     <link rel="stylesheet" href="css/tooltipster.css" />
 
@@ -24,18 +24,30 @@
             Kinetic Console
         </h3>
         <ul class="nav nav-tabs">
-            <li>
+            <li class="active">
                 <a href="overview.html">Overview</a>
             </li>
-            <li class="active">
+            <li>
                 <a href="configuration.html">Configuration</a>
             </li>
             <li>
                 <a href="monitoring.html">Monitoring</a>
             </li>
         </ul>
+        <form action="#">
+            <fieldset>
+                <label>Choose another rack: </label>
+                <select name="racks" class="racks_dropbox" id="racks_dropbox">
+                </select>
+            </fieldset>
+        </form>
 	    <div class="row">
-		    <div class="col-md-12">
+		    <div class="col-md-4">
+                <div id="overview" class="overview">
+                    <div id=rackContainer class=rack></div>
+                </div>
+		    </div>
+		    <div class="col-md-8">
                 <div id="detail" class="detail" >
                 </div>
 		    </div>
@@ -48,6 +60,6 @@
     <script src="js/jquery.anyslider.js"></script>
     <script src="js/jquery.tooltipster.min.js"></script>
     <script src="js/kinetic.common.js"></script>
-    <script src="js/kinetic.config.js"></script>
+    <script src="js/kinetic.overview.js"></script>
   </body>
 </html>

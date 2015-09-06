@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 import com.seagate.kinetic.tools.management.rest.service.ServiceConfiguration;
 
 public class ConsoleConfiguration extends ServiceConfiguration {
-    public static final String CONSOLE_HOME = "kinetic.console.home";
+    public static final String CONSOLE_HOME = "kinetic.rest.home";
 
     /**
      * jetty server port.

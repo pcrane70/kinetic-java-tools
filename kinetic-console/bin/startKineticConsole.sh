@@ -30,4 +30,4 @@ done
 
 #echo "CLASSPATH=$CLASSPATH"
 
-exec "$JAVA" -classpath "$CLASSPATH" -Dkinetic.console.home=$BASE_DIR -Dkinetic.rest.home=$BASE_DIR com.seagate.kinetic.console.KineticConsole "$@"
+exec "$JAVA" -classpath "$CLASSPATH" -Dkinetic.rest.home=$BASE_DIR com.seagate.kinetic.console.KineticConsole "$@"
