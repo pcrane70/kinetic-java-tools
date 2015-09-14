@@ -64,14 +64,23 @@ public class ConsoleService {
     private Gson gson = null;
 
     public ConsoleService() {
+        this(null);
+    }
+    
+    public ConsoleService(String hwvFile) {
         devicesStateMap = new ConcurrentHashMap<String, Integer>();
         kineticLogMap = new ConcurrentHashMap<String, MyKineticLog>();
         gson = new Gson();
-        init();
+        init(hwvFile);
+    }
+    
+    public HardwareView getHardwareView()
+    {
+        return hwView;
     }
 
-    private void init() {
-        hwView = readTemplet();
+    private void init(String hwvFile) {
+        hwView = readTemplet(hwvFile);
         for (Rack rack : hwView.getRacks()) {
             for (Chassis chassis : rack.getChassis()) {
                 for (Device device : chassis.getDevices()) {
@@ -110,13 +119,16 @@ public class ConsoleService {
     
     public static List<String> listHwViewFiles()
     {
-    	String configDir = ConsoleConfiguration.getConsoleHome() + File.separator + "config" + File.separator + "default";
+    	String configDir = ConsoleConfiguration.getConsoleHome() + File.separator + "config";
     	File dir = new File(configDir);
     	File hwviewFiles[] = dir.listFiles();
     	
     	List<String> files = new ArrayList<String>();
     	for (File file:hwviewFiles){
-    		files.add(file.getName());
+    	    if (file.getName().endsWith(".hv"))
+    	    {
+    	        files.add(file.getName());
+    	    }
     	}
     	
     	return files;
@@ -163,10 +175,16 @@ public class ConsoleService {
         return sb.toString();
     }
 
-    private HardwareView readTemplet() {
+    private HardwareView readTemplet(String hwvFile) {
 
-        String path = ConsoleConfiguration.getHardwareConfigTemplet();
-
+        String path = null;
+        if (hwvFile == null || hwvFile.isEmpty())
+        {
+            path = ConsoleConfiguration.getHardwareConfigTemplet();
+        } else {
+            path = ConsoleConfiguration.getConsoleHome() + File.separator + "config" + File.separator + hwvFile;
+        }
+        
         HardwareView view = null;
 
         BufferedReader br;

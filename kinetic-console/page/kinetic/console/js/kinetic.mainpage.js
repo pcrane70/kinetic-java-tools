@@ -10,8 +10,12 @@ $(document).ready(function () {
         
         
         $("#hwv_dropbox").change(function () {
-	        var selectedRack = $("#hwv_dropbox option:selected").text();
-	        location.href="overview.html";
+	        var selectedhwv = $("#hwv_dropbox option:selected").text();
+	        $.getJSON(Kinetic.Config.URL_SELECT_HARDWARE_VIEW_FILE + "&filename=" + selectedhwv, function (json) {	
+	        });
+	        setTimeout(function(){
+	        	location.href="overview.html";
+	        }, 1000);
 	    });
 	});
 });

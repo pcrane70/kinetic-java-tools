@@ -18,9 +18,10 @@ Kinetic.Const = {
 Kinetic.Config = {
     // servlet requests url
     URL_DESCRIBE_ALL_DEVICES: "/servlet/ConsoleServlet?action=dscdevice",
-    URL_DESCRIBE_HW_VIEW: "/kinetic/hwview",
+    URL_DESCRIBE_HW_VIEW: "/servlet/ConsoleServlet?action=gethwv",
     URL_DESCRIBE_SWIFT_RING: "data/ring.json",
     URL_LIST_HARDWARE_VIEW_FILES: "/servlet/ConsoleServlet?action=listhwfiles",
+    URL_SELECT_HARDWARE_VIEW_FILE: "/servlet/ConsoleServlet?action=selecthwvfile",
 
     // images url
     IMAGE_DRIVE_NORMAL: "img/drive_green_1.png",

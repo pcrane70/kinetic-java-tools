@@ -26,57 +26,78 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.Gson;
 import com.seagate.kinetic.console.service.ConsoleService;
+import com.seagate.kinetic.tools.management.rest.message.hwview.HardwareViewResponse;
 
 public class ConsoleServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -2034467086492824589L;
-    private ConsoleService consoleService;
+	private static final long serialVersionUID = -2034467086492824589L;
+	private ConsoleService consoleService = null;
+	private Gson gson = new Gson();
 
-    public ConsoleServlet() {
-        consoleService = new ConsoleService();
-    }
+	public ConsoleServlet() {}
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        String action = req.getParameter("action");
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String action = req.getParameter("action");
 
-        String responseMessage = "";
+		String responseMessage = "";
 
-        if (action.equalsIgnoreCase("enabledebug")) {
-            consoleService.enableDebugMode();
-        } else if (action.equalsIgnoreCase("disabledebug")) {
-            consoleService.disableDebugMode();
-        } else if (action.equalsIgnoreCase("liststate")) {
-            responseMessage = consoleService.listDevicesState();
-        } else if (action.equalsIgnoreCase("dscdevice")) {
-            String wwn = req.getParameter("wwn");
-            responseMessage = consoleService.describeDevice(wwn);
-        } else if (action.equalsIgnoreCase("listhwfiles"))
-        {
-        	List<String> files = ConsoleService.listHwViewFiles();
-        	responseMessage += "[";
-        	for (int i=0; i<files.size(); i++)
-        	{
-        		responseMessage += "\"";
-        		responseMessage += files.get(i);
-        		responseMessage += "\"";
-        		
-        		if (i < files.size() -1)
-        		{
-        			responseMessage += ",";
-        		}
-        	}
-        	responseMessage += "]";
-        }
+		if (action.equalsIgnoreCase("enabledebug")) {
+		    if (consoleService != null)
+			    consoleService.enableDebugMode();
+		} else if (action.equalsIgnoreCase("disabledebug")) {
+		    if (consoleService != null)
+		        consoleService.disableDebugMode();
+		} else if (action.equalsIgnoreCase("liststate")) {
+		    if (consoleService != null)
+		        responseMessage = consoleService.listDevicesState();
+		} else if (action.equalsIgnoreCase("dscdevice")) {
+		    if (consoleService != null)
+		    {
+		        String wwn = req.getParameter("wwn");
+	            responseMessage = consoleService.describeDevice(wwn);
+		    }
+		} else if (action.equalsIgnoreCase("listhwfiles")) {
+			List<String> files = ConsoleService.listHwViewFiles();
+			responseMessage += "[";
+			for (int i = 0; i < files.size(); i++) {
+				responseMessage += "\"";
+				responseMessage += files.get(i);
+				responseMessage += "\"";
 
-        Writer writer = resp.getWriter();
+				if (i < files.size() - 1) {
+					responseMessage += ",";
+				}
+			}
+			responseMessage += "]";
+		} else if (action.equalsIgnoreCase("selecthwvfile"))
+		{
+		    if (null == consoleService) {
+                synchronized (this) {
+                    if (null == consoleService) {
+                        String fileName = req.getParameter("filename");
+                        consoleService = new ConsoleService(fileName);
+                    }
+                }
+            }
+		} else if (action.equalsIgnoreCase("gethwv"))
+		{
+		    if (consoleService != null)
+		    {
+		        HardwareViewResponse hardwareViewResponse = new HardwareViewResponse();
+		        hardwareViewResponse.setHardwareView(consoleService.getHardwareView());
+		        responseMessage += gson.toJson(hardwareViewResponse);
+		    }
+		}
 
-        writer.write(responseMessage);
+		Writer writer = resp.getWriter();
 
-        writer.close();
+		writer.write(responseMessage);
 
-    }
+		writer.close();
+
+	}
 
 }

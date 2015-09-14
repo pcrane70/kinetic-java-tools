@@ -134,6 +134,7 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
 $(document).ready(function () {
 	$.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (json) {
 		driveStates = json;
+		
 		portal = new Kinetic.Portal();
 	    portal.loadRackList();
 
@@ -156,4 +157,13 @@ $(document).ready(function () {
 	    	});
 	    }, Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC * 1000);
 	});
+	
+	
+    setInterval(function() {
+		if ($("#racks_dropbox").children().length <= 0)
+		{
+	        window.location.reload();
+		}
+	},2000);
+	
 });
