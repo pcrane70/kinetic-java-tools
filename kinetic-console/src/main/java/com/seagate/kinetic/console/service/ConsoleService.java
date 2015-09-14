@@ -110,7 +110,7 @@ public class ConsoleService {
     
     public static List<String> listHwViewFiles()
     {
-    	String configDir = ConsoleConfiguration.getConsoleHome() + File.separator + "config";
+    	String configDir = ConsoleConfiguration.getConsoleHome() + File.separator + "config" + File.separator + "default";
     	File dir = new File(configDir);
     	File hwviewFiles[] = dir.listFiles();
     	
