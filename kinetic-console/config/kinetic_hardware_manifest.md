@@ -22,4 +22,4 @@ Please use ```ipmi_rack_to_manifest.py``` (modified as necessary for your enviro
 
 Kinetic Console
 ---------------
-Copy the Kinetic hardware manifest (JSON file) to ```kinetic-java-tools/kinetic-console/config/hwview.templet.json```
+Copy the Kinetic hardware manifest (JSON file) to ```kinetic-java-tools/kinetic-console/config/default/hwview_default.json```

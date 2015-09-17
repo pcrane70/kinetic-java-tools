@@ -66,16 +66,15 @@ public class ConsoleService {
     public ConsoleService() {
         this(null);
     }
-    
+
     public ConsoleService(String hwvFile) {
         devicesStateMap = new ConcurrentHashMap<String, Integer>();
         kineticLogMap = new ConcurrentHashMap<String, MyKineticLog>();
         gson = new Gson();
         init(hwvFile);
     }
-    
-    public HardwareView getHardwareView()
-    {
+
+    public HardwareView getHardwareView() {
         return hwView;
     }
 
@@ -116,22 +115,19 @@ public class ConsoleService {
         sb.append("]");
         return sb.toString();
     }
-    
-    public static List<String> listHwViewFiles()
-    {
-    	String configDir = ConsoleConfiguration.getConsoleHome() + File.separator + "config";
-    	File dir = new File(configDir);
-    	File hwviewFiles[] = dir.listFiles();
-    	
-    	List<String> files = new ArrayList<String>();
-    	for (File file:hwviewFiles){
-    	    if (file.getName().endsWith(".hv"))
-    	    {
-    	        files.add(file.getName());
-    	    }
-    	}
-    	
-    	return files;
+
+    public static List<String> listHwViewFiles() {
+        String configDir = ConsoleConfiguration.getConsoleHome()
+                + File.separator + "config" + File.separator + "default";
+        File dir = new File(configDir);
+        File hwviewFiles[] = dir.listFiles();
+
+        List<String> files = new ArrayList<String>();
+        for (File file : hwviewFiles) {
+            files.add(file.getName());
+        }
+
+        return files;
     }
 
     public String describeDevice(String wwn) {
@@ -178,13 +174,14 @@ public class ConsoleService {
     private HardwareView readTemplet(String hwvFile) {
 
         String path = null;
-        if (hwvFile == null || hwvFile.isEmpty())
-        {
+        if (hwvFile == null || hwvFile.isEmpty()) {
             path = ConsoleConfiguration.getHardwareConfigTemplet();
         } else {
-            path = ConsoleConfiguration.getConsoleHome() + File.separator + "config" + File.separator + hwvFile;
+            path = ConsoleConfiguration.getConsoleHome() + File.separator
+                    + "config" + File.separator + "default" + File.separator
+                    + hwvFile;
         }
-        
+
         HardwareView view = null;
 
         BufferedReader br;
@@ -313,14 +310,14 @@ public class ConsoleService {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        //ConsoleService consoleService = new ConsoleService();
+        // ConsoleService consoleService = new ConsoleService();
         System.out.println(ConsoleService.listHwViewFiles().toString());
         // consoleService.enableDebugMode();
 
-//        while (true) {
-//            TimeUnit.SECONDS.sleep(10);
-//            System.out.println(consoleService.describeDevice(null));
-//        }
+        // while (true) {
+        // TimeUnit.SECONDS.sleep(10);
+        // System.out.println(consoleService.describeDevice(null));
+        // }
     }
 }
 
