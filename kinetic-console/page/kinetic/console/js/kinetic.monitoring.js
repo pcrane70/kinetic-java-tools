@@ -65,7 +65,6 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
     refreshChartsAndTables();
 
     var slider = $('#rackContainer').anyslider({
-            easing: 'easeInOutCirc',
             interval: 0,
             keyboard: false,
             speed: 1500,
