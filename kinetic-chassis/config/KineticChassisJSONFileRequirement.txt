@@ -1,0 +1,22 @@
+Kinetic Chassis JSON File Requirement
+
+
+This document uses the terms defined at the link below.
+http://json.org/
+
+Sample template of this JSON format is at chassis_template.json in the same folder of this file.
+
+1.0 The Kinetic JSON file must contain at least one "chassis" object.
+
+1.1 The "id" name-value pair must be present within the “chassis” object and the value must be unique within the namespace of the vendor.
+
+1.2 The "ips" pair must be present within the “chassis” object and must contain at least one valid IP value.
+
+2.0  0 or many "deviceId" object can be present within the “chassis” object. 
+
+2.1. Each “devideId” object must contain the required "ips" object.  One or many IP can be present in the “ips” value.
+
+3. All other fields are optional for the initial phase.
+
+See schema:
+https://github.com/Seagate/kinetic-java-tools/blob/master/kinetic-tools/config/hwview-schema.json
