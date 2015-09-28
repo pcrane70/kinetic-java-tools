@@ -3,12 +3,19 @@ var Kinetic = Kinetic || {};
 var portal;
 var driveStates;
 var anyslider;
+var selectedDrive = "";
+var selectedChassis = "";
+var capacityChart;
+var temperatureCpuChart;
+var temperatureHdaChart;
+var counterChart;
+var utilizationChart;
+var chassisStatChart;
 
 var debug = false;   // disable debug to get real drive ops line infomation dd
 var debugPutOpsHistory = [];
 var debugGetOpsHistory = [];
 var debugDeleteOpsHistory = [];
-
 
 Kinetic.Const = {
     BYTES_PER_KB: 1024,
@@ -396,10 +403,142 @@ function reRenderChassisUnitInfo() {
     var totalCapByGB = (chassis.totalCap/BYTES_PER_GB).toFixed(2);
 
     $("#chassis_unit_info").append("Unit: " + chassis.unit + "<br/>("
-        + freeCapByGB + "GB Free/" +  totalCapByGB + "GB Total)");
+        + freeCapByGB + "GB Free/" +  totalCapByGB + "GB Total)"
+        + "<br/><a href='#'>click to track the ops of this chassis</a>");
     
-    var key = "chassis_stat_line" + chassis.getRackLoc() + "_" + chassis.unit;
-    $("#chassis_unit_info").append("<div class='line_chart'><span class='inlinesparkline' id='" + key + "'></span></div>");
+    //var key = "chassis_stat_line" + chassis.getRackLoc() + "_" + chassis.unit;
+    //$("#chassis_unit_info").append("<div class='line_chart'><span class='inlinesparkline' id='" + key + "'></span></div>");
+}
+
+function showChassisStatInfo()
+{
+	var visibleSlide = anyslider.currentSlide();
+	var selectedRackLocation = $("#racks_dropbox option:selected").text();
+    var rack, chassis;
+    var i;
+    for (i = 0; i < portal.racks.length; i++) {
+        rack = portal.racks[i];
+        if (rack.location == selectedRackLocation) {
+            if (visibleSlide == 0 && rack.listChassises().length > 0) {
+                visibleSlide = 1;
+            }
+            chassis = rack.listChassises()[visibleSlide - 1];
+        }
+    }
+    
+    $("#chassisStatInfo").empty();
+    //$("#chassisStatInfo").append("<div id='chassisStatInfoOuterContainer'></div>");
+
+    $("#chassisStatInfo").append(
+        "<div id='chassisStatInfoOuterContainer'" + ">"
+        + "<a class='button'>" + selectedRackLocation + "/" + "UNIT_" + visibleSlide
+        + "</a>"
+        + "<div id='chassisStatInfoInnerContainer'></div>"
+        + "</div>");
+	
+	google.load('visualization', '1.0', {
+        'packages': ['line'], 'callback': function () {
+        	var data = new google.visualization.DataTable();
+            data.addColumn('number', 'Operations per Second of chassis');
+            data.addColumn('number', 'PutOps');
+            data.addColumn('number', 'GetOps');
+            data.addColumn('number', 'DeleteOps');
+            
+            var size = chassis.history.putOps.length;
+            if (size > chassis.history.getOps.length) {size = chassis.history.getOps.length;}
+            if (size > chassis.history.deleteOps.length) {size = chassis.history.deleteOps.length;}
+            
+            var index;
+            var row = [];
+            var rows = [];
+            for (index = 0; index < size; index++)
+            {
+            	row = [];
+            	row.push(index + 1);
+            	row.push(chassis.history.putOps[i]);
+            	row.push(chassis.history.getOps[i]);
+            	row.push(chassis.history.deleteOps[i]);
+            	rows.push(row);
+            }
+
+            data.addRows(rows);
+
+            var options = {
+              chart: {
+//                title: 'The performance of this whole chassis',
+//                subtitle: 'in operations per second.'
+              },
+              width: 760,
+              height: 410,
+              axes: {
+                x: {
+                  0: {side: 'top'}
+                }
+              }
+            };
+
+            var chart = new google.charts.Line(document.getElementById('chassisStatInfoInnerContainer'));
+            chart.draw(data, options);
+            
+            chassisStatChart = chart;
+        }
+    });
+}
+
+function updateChassisStatInfo()
+{
+	var visibleSlide = anyslider.currentSlide();
+	var selectedRackLocation = $("#racks_dropbox option:selected").text();
+    var rack, chassis;
+    var i;
+    for (i = 0; i < portal.racks.length; i++) {
+        rack = portal.racks[i];
+        if (rack.location == selectedRackLocation) {
+            if (visibleSlide == 0 && rack.listChassises().length > 0) {
+                visibleSlide = 1;
+            }
+            chassis = rack.listChassises()[visibleSlide - 1];
+        }
+    }
+    
+    var data = new google.visualization.DataTable();
+    data.addColumn('number', 'Operations per Second of chassis');
+    data.addColumn('number', 'PutOps');
+    data.addColumn('number', 'GetOps');
+    data.addColumn('number', 'DeleteOps');
+    
+    var size = chassis.history.putOps.length;
+    if (size > chassis.history.getOps.length) {size = chassis.history.getOps.length;}
+    if (size > chassis.history.deleteOps.length) {size = chassis.history.deleteOps.length;}
+    
+    var index;
+    var row = [];
+    var rows = [];
+    for (index = 0; index < size; index++)
+    {
+    	row = [];
+    	row.push(index + 1);
+    	row.push(chassis.history.putOps[index]);
+    	row.push(chassis.history.getOps[index]);
+    	row.push(chassis.history.deleteOps[index]);
+    	rows.push(row);
+    }
+
+    data.addRows(rows);
+    var options = {
+            chart: {
+//              title: 'The performance of this whole chassis',
+//              subtitle: 'in operations per second.'
+            },
+            width: 760,
+            height: 410,
+            axes: {
+              x: {
+                0: {side: 'top'}
+              }
+            }
+          };
+    chassisStatChart.draw(data, options);
 }
 
 function showDriveInfo(wwn) {
@@ -475,9 +614,18 @@ function renderCapacity(nodeInfo) {
 
                 var chart = new google.visualization.PieChart(document.getElementById('capacity'));
                 chart.draw(data, options);
+                capacityChart = chart;
             }
         });
     }
+}
+
+function reRenderCapacity(chart, nodeInfo) {
+    var used = nodeInfo.capacity.portionFull * nodeInfo.capacity.nominalCapacityInBytes;
+    var remaining = nodeInfo.capacity.nominalCapacityInBytes - used;
+    var options = {title: 'Capacity (B)', is3D: true,legend: {alignment: 'center', position: 'bottom'}};
+    var data = google.visualization.arrayToDataTable([['Capacity', 'Current'],['Remaining', remaining],['Used', used]]);
+    chart.draw(data, options);
 }
 
 function renderTemperature(nodeInfo) {
@@ -505,6 +653,7 @@ function renderTemperature(nodeInfo) {
 
                 var chart = new google.visualization.Gauge(document.getElementById('temperature_hda'));
                 chart.draw(data, options);
+                temperatureHdaChart = chart;
 
                 $('#temperature_hda_comments').remove();
                 $('#temperature_hda').append("<text id='temperature_hda_comments'>Min:&nbsp;"
@@ -537,6 +686,7 @@ function renderTemperature(nodeInfo) {
 
                 var chart = new google.visualization.Gauge(document.getElementById('temperature_cpu'));
                 chart.draw(data, options);
+                temperatureCpuChart = chart;
 
                 $('#temperature_cpu_comments').remove();
                 $('#temperature_cpu').append("<text id='temperature_cpu_comments'>Min:&nbsp;"
@@ -546,6 +696,40 @@ function renderTemperature(nodeInfo) {
             }
         });
     }
+}
+
+function reRenderTemperature(hdaTempChart, cpuTempChart, nodeInfo) {
+	var tMax = nodeInfo.temperature[0].max;
+    var tMin = nodeInfo.temperature[0].min;
+    var tTarget = nodeInfo.temperature[0].target;
+    var data = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['HDA', nodeInfo.temperature[0].current]
+    ]);
+    var options = {
+        width: 125, height: 100,
+        redFrom: tTarget, redTo: tMax,
+        yellowFrom: tMin, yellowTo: tTarget,
+        greenFrom: 0, greenTo: tMin,
+        minorTicks: 5
+    };
+    hdaTempChart.draw(data, options);
+    
+    tMax = nodeInfo.temperature[1].max;
+    tMin = nodeInfo.temperature[1].min;
+    tTarget = nodeInfo.temperature[1].target;
+    data = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['CPU', nodeInfo.temperature[1].current]
+    ]);
+    options = {
+        width: 125, height: 100,
+        redFrom: tTarget, redTo: tMax,
+        yellowFrom: tMin, yellowTo: tTarget,
+        greenFrom: 0, greenTo: tMin,
+        minorTicks: 5
+    };
+    cpuTempChart.draw(data, options);
 }
 
 function renderUtilizations(nodeInfo) {
@@ -579,9 +763,40 @@ function renderUtilizations(nodeInfo) {
                 };
                 var chart = new google.visualization.ColumnChart(document.getElementById("utilizations"));
                 chart.draw(view, options);
+                utilizationChart = chart;
             }
         });
     }
+}
+
+function reRenderUtilizations(chart, nodeInfo)
+{
+	var data = google.visualization.arrayToDataTable([
+	       ["Type", "Utilizations (%)"],
+	       ["HDA", Math.floor(nodeInfo.utilization[0].utility * 100)],
+	       ["EN0", Math.floor(nodeInfo.utilization[1].utility * 100)],
+	       ["EN1", Math.floor(nodeInfo.utilization[2].utility * 100)],
+	       ["CPU", Math.floor(nodeInfo.utilization[3].utility * 100)],
+	]);
+	
+	var view = new google.visualization.DataView(data);
+    view.setColumns([0, 1,
+        {
+            calc: "stringify",
+            sourceColumn: 1,
+            type: "string",
+            role: "annotation"
+        }]);
+    
+	var options = {
+            title: "Utilizations (%)",
+            width: 250,
+            height: 200,
+            bar: {groupWidth: "65%"},
+            legend: {position: "none"},
+            vAxis: {maxValue: 100, minValue: 0}
+    };
+	utilizationChart.draw(view, options);
 }
 
 function renderCounters(nodeInfo) {
@@ -652,9 +867,77 @@ function renderCounters(nodeInfo) {
 
                 var chart = new google.visualization.ColumnChart(document.getElementById("counters"));
                 chart.draw(data, options);
+                counterChart = chart;
             }
         });
     }
+}
+
+function reRenderCounters(chart, nodeInfo) {
+	var operationCounters = {};
+    var bytesCounters = {};
+    var counter;
+    for (var i = 0; i < nodeInfo.statistics.length; i++) {
+        counter = nodeInfo.statistics[i];
+        if (counter.messageType == 'GET') {
+            operationCounters.GET = counter.count;
+            bytesCounters.GET = counter.bytes;
+        } else if (counter.messageType == 'PUT') {
+            operationCounters.PUT = counter.count;
+            bytesCounters.PUT = counter.bytes;
+        } else if (counter.messageType == 'DELETE') {
+            operationCounters.DELETE = counter.count;
+            bytesCounters.DELETE = counter.bytes;
+        } else if (counter.messageType == 'GETNEXT') {
+            operationCounters.GETNEXT = counter.count;
+            bytesCounters.GETNEXT = counter.bytes;
+        } else if (counter.messageType == 'GETPREVIOUS') {
+            operationCounters.GETPREVIOUS = counter.count;
+            bytesCounters.GETPREVIOUS = counter.bytes;
+        } else if (counter.messageType == 'GETKEYRANGE') {
+            operationCounters.GETKEYRANGE = counter.count;
+            bytesCounters.GETKEYRANGE = counter.bytes;
+        } else if (counter.messageType == 'GETVERSION') {
+            operationCounters.GETVERSION = counter.count;
+            bytesCounters.GETVERSION = counter.bytes;
+        } else if (counter.messageType == 'SETUP') {
+            operationCounters.SETUP = counter.count;
+            bytesCounters.SETUP = counter.bytes;
+        } else if (counter.messageType == 'GETLOG') {
+            operationCounters.GETLOG = counter.count;
+            bytesCounters.GETLOG = counter.bytes;
+        } else if (counter.messageType == 'SECURITY') {
+            operationCounters.SECURITY = counter.count;
+            bytesCounters.SECURITY = counter.bytes;
+        } else if (counter.messageType == 'PEER2PEERPUSH') {
+            operationCounters.PEER2PEERPUSH = counter.count;
+            bytesCounters.PEER2PEERPUSH = counter.bytes;
+        }
+    }
+    
+	var data = google.visualization.arrayToDataTable([
+	    ['Type', 'Operations (times)', 'Bytes (KB)'],
+	    ['GET', operationCounters.GET, bytesCounters.GET / Kinetic.Const.BYTES_PER_KB],
+	    ['PUT', operationCounters.PUT, bytesCounters.PUT / Kinetic.Const.BYTES_PER_KB],
+	    ['DELETE', operationCounters.DELETE, bytesCounters.DELETE / Kinetic.Const.BYTES_PER_KB],
+	    ['GETNEXT', operationCounters.GETNEXT, bytesCounters.GETNEXT / Kinetic.Const.BYTES_PER_KB],
+	    ['GETPREVIOUS', operationCounters.GETPREVIOUS, bytesCounters.GETPREVIOUS / Kinetic.Const.BYTES_PER_KB],
+	    ['GETKEYRANGE', operationCounters.GETKEYRANGE, bytesCounters.GETKEYRANGE / Kinetic.Const.BYTES_PER_KB],
+	    ['GETVERSION', operationCounters.GETVERSION, bytesCounters.GETVERSION / Kinetic.Const.BYTES_PER_KB],
+	    ['SETUP', operationCounters.SETUP, bytesCounters.SETUP / Kinetic.Const.BYTES_PER_KB],
+	    ['GETLOG', operationCounters.GETLOG, bytesCounters.GETLOG / Kinetic.Const.BYTES_PER_KB],
+	    ['SECURITY', operationCounters.SECURITY, bytesCounters.SECURITY / Kinetic.Const.BYTES_PER_KB],
+	    ['PEER2PEERPUSH', operationCounters.PEER2PEERPUSH, bytesCounters.PEER2PEERPUSH / Kinetic.Const.BYTES_PER_KB]
+	]);
+
+	var options = {
+	    title: 'Operation and Bytes Counters',
+	    legend: {alignment: 'center', position: 'bottom'},
+	    hAxis: {minTextSpacing: 6, textStyle: {fontSize: 8}},
+	    chartArea: {height: '50%'}
+	};	
+	
+	chart.draw(data, options);
 }
 
 function refreshChartsAndTables() {
@@ -717,12 +1000,20 @@ function refreshChartsAndTables() {
                     device.history.deleteTrpt.shift();
                 }
 
-                device.history.putOps.push(driveStates[index].log.statistics[0].count - device.currentStat.totalPuts);
-                device.history.getOps.push(driveStates[index].log.statistics[1].count - device.currentStat.totalGets);
-                device.history.deleteOps.push(driveStates[index].log.statistics[2].count - device.currentStat.totalDeletes);
-                device.history.putTrpt.push(driveStates[index].log.statistics[0].bytes - device.currentStat.totalPutBytes);
-                device.history.getTrpt.push(driveStates[index].log.statistics[1].bytes - device.currentStat.totalGetBytes);
-                device.history.deleteTrpt.push(driveStates[index].log.statistics[2].bytes - device.currentStat.totalDeleteBytes);
+                //alert((driveStates[index].log.statistics[0].count - device.currentStat.totalPuts)/Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC);
+                device.history.putOps.push((driveStates[index].log.statistics[0].count - device.currentStat.totalPuts)/Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC);
+                device.history.getOps.push((driveStates[index].log.statistics[1].count - device.currentStat.totalGets)/Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC);
+                device.history.deleteOps.push((driveStates[index].log.statistics[2].count - device.currentStat.totalDeletes)/Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC);
+                device.history.putTrpt.push((driveStates[index].log.statistics[0].bytes - device.currentStat.totalPutBytes)/Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC);
+                device.history.getTrpt.push((driveStates[index].log.statistics[1].bytes - device.currentStat.totalGetBytes)/Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC);
+                device.history.deleteTrpt.push((driveStates[index].log.statistics[2].bytes - device.currentStat.totalDeleteBytes)/Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC);
+            
+                device.currentStat.totalPuts = driveStates[index].log.statistics[0].count;
+                device.currentStat.totalGets = driveStates[index].log.statistics[1].count;
+                device.currentStat.totalDeletes = driveStates[index].log.statistics[2].count;
+                device.currentStat.totalPutBytes = driveStates[index].log.statistics[0].bytes;
+                device.currentStat.totalGetBytes = driveStates[index].log.statistics[1].bytes;
+                device.currentStat.totalDeleteBytes = driveStates[index].log.statistics[2].bytes;
             }
         }
         ++rackTotalDevices[rackLocation];

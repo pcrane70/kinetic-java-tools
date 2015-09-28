@@ -77,10 +77,22 @@
     //text-align: right;
 }
 
+#chassisStatInfo {
+    background: rgba(176,196,222,0.75);
+    width: 790px;
+    height: 460px;
+}
+
 #nodeInfo{
     background: rgba(176,196,222,0.75);
     width: 790px;
     height: 460px;
+}
+
+#chassisStatInfoInnerContainer {
+	position: absolute;
+    top: 40px;
+    left: 15px;	
 }
 
 #temperature.temperature table

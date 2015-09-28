@@ -50,6 +50,7 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
 
             $('#' + driveArray[driveIndex].wwn).click(function () {
                 var wwn = $(this).attr("id");
+                selectedDrive = wwn;
                 showDriveInfo(wwn);
                 $("#nodeInfo").center();
                 $("#nodeInfo").show();
@@ -140,7 +141,7 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
                         }
 
                         $('#' + id).sparkline(putOps, {
-                            lineColor: 'yellow',
+                            lineColor: 'blue',
                             fillColor: false,
                             width: 170,
                             height: 40,
@@ -157,7 +158,7 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
                         });
 
                         $('#' + id).sparkline(deleteOps, {
-                            lineColor: 'blue',
+                            lineColor: 'yellow',
                             fillColor: false,
                             composite: true,
                             tooltipPrefix: "DeleteOps: ",
@@ -177,31 +178,31 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
                     chassis.history.getOps.push(chassisLatestGetOps);
                     chassis.history.deleteOps.push(chassisLatestDeleteOps);
                     
-                    var chassis_stat_line_id = "chassis_stat_line" + chassis.getRackLoc() + "_" + chassis.unit;
-                    $('#' + chassis_stat_line_id).sparkline(chassis.history.putOps, {
-                        lineColor: 'yellow',
-                        fillColor: false,
-                        width: 240,
-                        height: 40,
-                        tooltipPrefix: "PutOps: ",
-                        tooltipClassname: "sparkline_tooltip_cls"
-                    });
-
-                    $('#' + chassis_stat_line_id).sparkline(chassis.history.getOps, {
-                        lineColor: 'red',
-                        fillColor: false,
-                        composite: true,
-                        tooltipPrefix: "GetOps: ",
-                        tooltipClassname: "sparkline_tooltip_cls"
-                    });
-
-                    $('#' + chassis_stat_line_id).sparkline(chassis.history.deleteOps, {
-                        lineColor: 'blue',
-                        fillColor: false,
-                        composite: true,
-                        tooltipPrefix: "DeleteOps: ",
-                        tooltipClassname: "sparkline_tooltip_cls"
-                    });
+//                    var chassis_stat_line_id = "chassis_stat_line" + chassis.getRackLoc() + "_" + chassis.unit;
+//                    $('#' + chassis_stat_line_id).sparkline(chassis.history.putOps, {
+//                        lineColor: 'blue',
+//                        fillColor: false,
+//                        width: 240,
+//                        height: 40,
+//                        tooltipPrefix: "PutOps: ",
+//                        tooltipClassname: "sparkline_tooltip_cls"
+//                    });
+//
+//                    $('#' + chassis_stat_line_id).sparkline(chassis.history.getOps, {
+//                        lineColor: 'red',
+//                        fillColor: false,
+//                        composite: true,
+//                        tooltipPrefix: "GetOps: ",
+//                        tooltipClassname: "sparkline_tooltip_cls"
+//                    });
+//
+//                    $('#' + chassis_stat_line_id).sparkline(chassis.history.deleteOps, {
+//                        lineColor: 'yellow',
+//                        fillColor: false,
+//                        composite: true,
+//                        tooltipPrefix: "DeleteOps: ",
+//                        tooltipClassname: "sparkline_tooltip_cls"
+//                    });
                 }
             }
         }
@@ -210,6 +211,7 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
 
 $(document).ready(function () {
     $("#nodeInfo").hide();
+    $("#chassisStatInfo").hide();
     $.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (json) {
         driveStates = json;
         portal = new Kinetic.Portal();
@@ -226,9 +228,15 @@ $(document).ready(function () {
                 }
             }
         });
-
+        
         $("#nodeInfo").click(function () {
+        	selectedDrive = "";
             $("#nodeInfo").slideUp();
+        });
+        
+        $("#chassisStatInfo").click(function () {
+        	selectedChassis = "";
+            $("#chassisStatInfo").slideUp();
         });
 
         setInterval(function () {
@@ -237,5 +245,54 @@ $(document).ready(function () {
                 refreshChartsAndTables();
             });
         }, Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC * 1000);
+        
+        setInterval(function () {
+        	if (selectedDrive != "" )
+        	{
+        		var driveIndex;
+        	    var driveLog;
+        	    for (driveIndex = 0; driveIndex < driveStates.length; driveIndex++) {
+        	        if (driveStates[driveIndex].wwn == selectedDrive) {
+        	            driveLog = driveStates[driveIndex].log;
+        	            break;
+        	        }
+        	    }
+
+        	    if (capacityChart != undefined)
+        	    {
+        	    	reRenderCapacity(capacityChart, driveLog);
+        	    }
+        	   
+        	    if (temperatureHdaChart != undefined && temperatureCpuChart != undefined)
+        	    {
+        	    	reRenderTemperature(temperatureHdaChart, temperatureCpuChart, driveLog);
+        	    }
+        	    
+        	    if (utilizationChart != undefined)
+        	    {
+        	    	reRenderUtilizations(utilizationChart, driveLog);
+        	    }
+        	    
+        	    if (counterChart != undefined)
+        	    {
+        	    	reRenderCounters(counterChart, driveLog);
+        	    }
+        	}
+        }, 5000);
+        
+        setInterval(function () {
+            if (selectedChassis != "")
+            {
+            	updateChassisStatInfo();
+            }
+        }, 5000);
+    });
+    
+    $("#chassis_unit_info").click(function () {
+    	selectedChassis = anyslider.currentSlide();
+        $("#chassisStatInfo").center();
+        $("#chassisStatInfo").show();
+    	showChassisStatInfo();
+    	return false;
     });
 });
