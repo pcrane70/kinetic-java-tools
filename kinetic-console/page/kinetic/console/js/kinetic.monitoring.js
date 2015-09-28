@@ -177,32 +177,6 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
                     chassis.history.putOps.push(chassisLatestPutOps);
                     chassis.history.getOps.push(chassisLatestGetOps);
                     chassis.history.deleteOps.push(chassisLatestDeleteOps);
-                    
-//                    var chassis_stat_line_id = "chassis_stat_line" + chassis.getRackLoc() + "_" + chassis.unit;
-//                    $('#' + chassis_stat_line_id).sparkline(chassis.history.putOps, {
-//                        lineColor: 'blue',
-//                        fillColor: false,
-//                        width: 240,
-//                        height: 40,
-//                        tooltipPrefix: "PutOps: ",
-//                        tooltipClassname: "sparkline_tooltip_cls"
-//                    });
-//
-//                    $('#' + chassis_stat_line_id).sparkline(chassis.history.getOps, {
-//                        lineColor: 'red',
-//                        fillColor: false,
-//                        composite: true,
-//                        tooltipPrefix: "GetOps: ",
-//                        tooltipClassname: "sparkline_tooltip_cls"
-//                    });
-//
-//                    $('#' + chassis_stat_line_id).sparkline(chassis.history.deleteOps, {
-//                        lineColor: 'yellow',
-//                        fillColor: false,
-//                        composite: true,
-//                        tooltipPrefix: "DeleteOps: ",
-//                        tooltipClassname: "sparkline_tooltip_cls"
-//                    });
                 }
             }
         }
