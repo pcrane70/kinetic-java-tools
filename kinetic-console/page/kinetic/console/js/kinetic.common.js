@@ -518,9 +518,9 @@ function updateChassisStatInfo()
     {
     	row = [];
     	row.push(index + 1);
-    	row.push(chassis.history.putOps[index]);
-    	row.push(chassis.history.getOps[index]);
-    	row.push(chassis.history.deleteOps[index]);
+    	row.push(chassis.history.putOps[chassis.history.putOps.length - size + index]);
+    	row.push(chassis.history.getOps[chassis.history.getOps.length - size + index]);
+    	row.push(chassis.history.deleteOps[chassis.history.deleteOps.length - size + index]);
     	rows.push(row);
     }
 
