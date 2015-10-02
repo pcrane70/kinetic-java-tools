@@ -56,7 +56,7 @@ public class ConsoleService {
             .getName());
     private static final int UNREACHABLE_STATE_FAILURE_TIMES = 2;
     private static final int FAILURE_STATE_FAILURE_TIMES = 30;
-    private static final int HEARTBEAT_THREAD_DETECT_PERIOD_IN_SEC = 5;
+    private static final int HEARTBEAT_THREAD_DETECT_PERIOD_IN_SEC = 2;
     private HardwareView hwView;
     private Map<String, Integer> devicesStateMap;
     private Map<String, MyKineticLog> kineticLogMap;

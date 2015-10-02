@@ -259,7 +259,7 @@ $(document).ready(function () {
             {
             	updateChassisStatInfo();
             }
-        }, 5000);
+        }, 6000);
     });
     
     $("#chassis_unit_info").click(function () {
