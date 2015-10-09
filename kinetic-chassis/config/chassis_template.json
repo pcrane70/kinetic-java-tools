@@ -1,1 +1,50 @@
-{"chassis":[{"id":"chassis-0","ips":["10.2.2.0","10.2.3.0"],"coordinate":{"x":"chassisx-0","y":"chassisy-0","z":"chassisz-0"},"devices":[{"deviceId":{"ips":["10.2.4.0", "10.2.4.1"],"port":8123,"tlsPort":8443,"wwn":"wwn-0"},"coordinate":{"x":"devicex-0","y":"devicey-0","z":"devicez-0"}},{"deviceId":{"ips":["10.2.4.2", "10.2.4.3"],"port":8123,"tlsPort":8443,"wwn":"wwn-1"},"coordinate":{"x":"devicex-1","y":"devicey-1","z":"devicez-1"}}]}]}
+{
+  "chassis": [
+    {
+      "id": "chassis-0",
+      "ips": [
+        "10.2.2.0",
+        "10.2.3.0"
+      ],
+      "coordinate": {
+        "x": "chassisx-0",
+        "y": "chassisy-0",
+        "z": "chassisz-0"
+      },
+      "devices": [
+        {
+          "deviceId": {
+            "ips": [
+              "10.2.4.0",
+              "10.2.4.1"
+            ],
+            "port": 8123,
+            "tlsPort": 8443,
+            "wwn": "wwn-0"
+          },
+          "coordinate": {
+            "x": "devicex-0",
+            "y": "devicey-0",
+            "z": "devicez-0"
+          }
+        },
+        {
+          "deviceId": {
+            "ips": [
+              "10.2.4.2",
+              "10.2.4.3"
+            ],
+            "port": 8123,
+            "tlsPort": 8443,
+            "wwn": "wwn-1"
+          },
+          "coordinate": {
+            "x": "devicex-1",
+            "y": "devicey-1",
+            "z": "devicez-1"
+          }
+        }
+      ]
+    }
+  ]
+}
