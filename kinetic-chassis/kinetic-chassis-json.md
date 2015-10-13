@@ -30,5 +30,5 @@ The program uses the vendor specific protocol to discover/query chassis and prod
   Kinetic chassis JSON template:
   https://github.com/Seagate/kinetic-java-tools/blob/master/kinetic-chassis/config/chassis_template.json
   
-  The hardware view schema that consists of a set of chassis:
+  The description of each JSON field is included in the schema here:
   https://github.com/Seagate/kinetic-java-tools/blob/master/kinetic-tools/config/hwview-schema.json
