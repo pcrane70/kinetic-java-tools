@@ -29,8 +29,6 @@ The program uses the vendor specific protocol to discover/query chassis and prod
 
   Kinetic chassis JSON template:
   https://github.com/Seagate/kinetic-java-tools/blob/master/kinetic-chassis/config/chassis_template.json
-
-  The minimum required information in the output are IP address of the chassis and IP addresses of each device contained in the chassis.
   
   The hardware view schema that consists of a set of chassis:
   https://github.com/Seagate/kinetic-java-tools/blob/master/kinetic-tools/config/hwview-schema.json
