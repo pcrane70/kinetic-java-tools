@@ -52,9 +52,9 @@
 .as-nav {
     bottom: -10px;
     left: 50%;
-    margin-left: -27px;
-    position: absolute;
-    text-align: left;
+    margin-left: 500px;
+    //position: absolute;
+    text-align: center;
     width: 54px;
     z-index: 1;
 }
