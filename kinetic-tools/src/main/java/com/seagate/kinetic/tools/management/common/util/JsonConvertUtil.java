@@ -15,15 +15,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.seagate.kinetic.tools.management.cli.impl.KineticDevice;
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
-import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.hwview.Chassis;
-import com.seagate.kinetic.tools.management.rest.message.hwview.Coordinate;
-import com.seagate.kinetic.tools.management.rest.message.hwview.Device;
 
 public class JsonConvertUtil {
 
-    public static void fromJsonConverter(List<Chassis> chassis, String jsonFileOutPath)
-            throws Exception {
+    public static void fromJsonConverter(List<Chassis> chassis,
+            String jsonFileOutPath) throws Exception {
         Gson gson = new Gson();
         String json = gson.toJson(chassis);
 
@@ -176,40 +173,4 @@ public class JsonConvertUtil {
 
         return sb.toString();
     }
-
-    public static void main(String[] args) throws Exception {
-        // toJsonConverter(
-        // "/Users/Emma/git/kinetic-java-tools/kinetic-tools/src/main/java/com/seagate/kinetic/tools/management/common/util/test_titan.json",
-        // "/Users/Emma/git/kinetic-java-tools/kinetic-tools/src/main/java/com/seagate/kinetic/tools/management/common/util/discover-test-1.json");
-        Chassis chassis = new Chassis();
-        chassis.setId("titan");
-        String[] ips = new String[] { "mgmt-ip1", "mgmt-ip2" };
-        chassis.setIps(ips);
-
-        DeviceId deviceId = new DeviceId();
-        deviceId.setIps(new String[] { "data-ip-1", "data-ip-2" });
-        deviceId.setPort(8123);
-        deviceId.setTlsPort(8443);
-        deviceId.setWwn("wwn-0");
-        Coordinate coordinate = new Coordinate();
-        coordinate.setX("x");
-        coordinate.setY("y");
-        coordinate.setZ("z");
-
-        Device device1 = new Device();
-        device1.setDeviceId(deviceId);
-        device1.setCoordinate(coordinate);
-
-        List<Device> devices = new ArrayList<Device>();
-        devices.add(device1);
-
-        chassis.setDevices(devices);
-        chassis.setCoordinate(coordinate);
-
-//        fromJsonConverter(
-//                chassis,
-//                "/Users/Emma/git/kinetic-java-tools/kinetic-tools/src/main/java/com/seagate/kinetic/tools/management/common/util/json_trans.json");
-
-    }
-
 }
