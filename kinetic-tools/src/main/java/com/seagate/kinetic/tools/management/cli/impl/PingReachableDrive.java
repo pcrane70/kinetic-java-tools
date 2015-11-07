@@ -37,7 +37,11 @@ import com.seagate.kinetic.common.lib.KineticMessage;
 import com.seagate.kinetic.proto.Kinetic.Command.GetLog.Configuration;
 import com.seagate.kinetic.proto.Kinetic.Command.GetLog.Configuration.Interface;
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
+import com.seagate.kinetic.tools.management.common.util.JsonConvertUtil;
 import com.seagate.kinetic.tools.management.rest.message.DeviceId;
+import com.seagate.kinetic.tools.management.rest.message.hwview.Chassis;
+import com.seagate.kinetic.tools.management.rest.message.hwview.Coordinate;
+import com.seagate.kinetic.tools.management.rest.message.hwview.Device;
 import com.seagate.kinetic.tools.management.rest.message.ping.PingResponse;
 
 public class PingReachableDrive extends AbstractCommand {
@@ -53,6 +57,7 @@ public class PingReachableDrive extends AbstractCommand {
     private static final int TLS_PORT = 8443;
     private static final int PORT = 8123;
     private String driveListOutputFile;
+    private boolean formatFlag = false;
     private String subnetPrefix = null;
     private int from = -1;
     private int to = -1;
@@ -65,6 +70,20 @@ public class PingReachableDrive extends AbstractCommand {
         super(useSsl, clusterVersion, identity, key, requestTimeout,
                 subnetPrefixOrDriveInputFilePath);
         this.driveListOutputFile = driveListOutputFile;
+
+        if (validateSubnet(subnetPrefixOrDriveInputFilePath)) {
+            this.subnetPrefix = subnetPrefixOrDriveInputFilePath;
+        }
+    }
+
+    public PingReachableDrive(String subnetPrefixOrDriveInputFilePath,
+            String driveListOutputFile, boolean useSsl, long clusterVersion,
+            long identity, String key, long requestTimeout, boolean formatFlag) {
+        super(useSsl, clusterVersion, identity, key, requestTimeout,
+                subnetPrefixOrDriveInputFilePath);
+        this.driveListOutputFile = driveListOutputFile;
+
+        this.formatFlag = formatFlag;
 
         if (validateSubnet(subnetPrefixOrDriveInputFilePath)) {
             this.subnetPrefix = subnetPrefixOrDriveInputFilePath;
@@ -183,25 +202,83 @@ public class PingReachableDrive extends AbstractCommand {
         waitUnSolicitedMesesages(UNSOLICITED_MSG_MAX_WAIT_MS);
     }
 
-    private String persistToFile(List<KineticDevice> deviceList, String filePath)
-            throws Exception {
-        assert (filePath != null);
-        assert (deviceList != null);
-
-        File file = new File(filePath);
-        if (file.getParentFile() != null && !file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-
-        FileOutputStream fos = new FileOutputStream(file);
+    private String persistToFile(List<KineticDevice> deviceList,
+            String filePath, boolean formatFlag) throws Exception {
         StringBuffer sb = new StringBuffer();
-        for (KineticDevice device : deviceList) {
-            sb.append(KineticDevice.toJson(device));
-            sb.append("\n");
+
+        if (formatFlag && deviceList != null && !deviceList.isEmpty()
+                && deviceList.size() != 0) {
+            List<Chassis> chassisOfList = new ArrayList<Chassis>();
+
+            Chassis chassis = new Chassis();
+            Coordinate coordinateChassis = new Coordinate();
+            coordinateChassis.setX("chassisx-0");
+            coordinateChassis.setY("chassisy-0");
+            coordinateChassis.setZ("chassisz-0");
+
+            List<Device> devices = new ArrayList<Device>();
+            for (int index = 0; index < deviceList.size(); index++) {
+                KineticDevice kineticDevice = new KineticDevice();
+                kineticDevice = deviceList.get(index);
+
+                if (null != kineticDevice) {
+                    Device device = new Device();
+                    Coordinate coordinateDevice = new Coordinate();
+                    coordinateDevice.setX("devicex-" + index);
+                    coordinateDevice.setY("devicey-" + index);
+                    coordinateDevice.setZ("devicez-" + index);
+
+                    DeviceId deviceId = new DeviceId();
+
+                    String[] ips = new String[2];
+                    if (kineticDevice.getInet4() != null
+                            && !kineticDevice.getInet4().isEmpty()
+                            && (2 >= kineticDevice.getInet4().size())) {
+                        for (int i = 0; i < kineticDevice.getInet4().size(); i++) {
+                            String ip = kineticDevice.getInet4().get(i);
+                            if (null != ip) {
+                                ips[i] = ip;
+                            }
+                        }
+                    }
+
+                    deviceId.setIps(ips);
+                    deviceId.setPort(kineticDevice.getPort());
+                    deviceId.setTlsPort(kineticDevice.getTlsPort());
+                    deviceId.setWwn(kineticDevice.getWwn());
+
+                    device.setDeviceId(deviceId);
+                    device.setCoordinate(coordinateDevice);
+
+                    devices.add(device);
+                }
+            }
+            chassis.setDevices(devices);
+            chassis.setCoordinate(coordinateChassis);
+            chassis.setId("");
+            chassis.setIps(new String[] { "", "" });
+
+            chassisOfList.add(chassis);
+
+            JsonConvertUtil.fromJsonConverter(chassisOfList, filePath);
+        } else {
+            assert (filePath != null);
+            assert (deviceList != null);
+
+            File file = new File(filePath);
+            if (file.getParentFile() != null && !file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+
+            FileOutputStream fos = new FileOutputStream(file);
+            for (KineticDevice device : deviceList) {
+                sb.append(KineticDevice.toJson(device));
+                sb.append("\n");
+            }
+            fos.write(sb.toString().getBytes());
+            fos.flush();
+            fos.close();
         }
-        fos.write(sb.toString().getBytes());
-        fos.flush();
-        fos.close();
 
         return sb.toString();
     }
@@ -358,7 +435,7 @@ public class PingReachableDrive extends AbstractCommand {
             }
             try {
 
-                persistToFile(reachableDevices, rootDir);
+                persistToFile(reachableDevices, rootDir, formatFlag);
             } catch (Exception e) {
                 throw new KineticToolsException(e);
             }

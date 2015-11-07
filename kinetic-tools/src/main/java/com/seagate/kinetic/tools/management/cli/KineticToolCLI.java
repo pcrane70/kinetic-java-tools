@@ -47,6 +47,7 @@ import com.seagate.kinetic.tools.management.cli.impl.SetLockPin;
 import com.seagate.kinetic.tools.management.cli.impl.SetSecurity;
 import com.seagate.kinetic.tools.management.cli.impl.SmokeTestRunner;
 import com.seagate.kinetic.tools.management.cli.impl.UnLockDevice;
+import com.seagate.kinetic.tools.management.common.util.JsonConvertUtil;
 
 /**
  *
@@ -103,22 +104,26 @@ public class KineticToolCLI {
         subArgs.add("-scoped");
         subArgs.add("-startip");
         subArgs.add("-endip");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-ping";
         subArgs = initSubArgs();
         subArgs.add("-in");
         subArgs.add("-out");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-firmwaredownload";
         subArgs = initSubArgs();
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-setsecurity";
         subArgs = initSubArgs();
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-seterasepin";
@@ -126,6 +131,7 @@ public class KineticToolCLI {
         subArgs.add("-oldpin");
         subArgs.add("-newpin");
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-setlockpin";
@@ -133,30 +139,35 @@ public class KineticToolCLI {
         subArgs.add("-oldpin");
         subArgs.add("-newpin");
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-setclusterversion";
         subArgs = initSubArgs();
         subArgs.add("-newclversion");
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-instanterase";
         subArgs = initSubArgs();
         subArgs.add("-pin");
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-secureerase";
         subArgs = initSubArgs();
         subArgs.add("-pin");
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-checkversion";
         subArgs = initSubArgs();
         subArgs.add("-v");
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-getlog";
@@ -164,6 +175,7 @@ public class KineticToolCLI {
         subArgs.add("-in");
         subArgs.add("-out");
         subArgs.add("-type");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-getvendorspecificdevicelog";
@@ -171,23 +183,27 @@ public class KineticToolCLI {
         subArgs.add("-in");
         subArgs.add("-out");
         subArgs.add("-name");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-lockdevice";
         subArgs = initSubArgs();
         subArgs.add("-pin");
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-unlockdevice";
         subArgs = initSubArgs();
         subArgs.add("-pin");
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-runsmoketest";
         subArgs = initSubArgs();
         subArgs.add("-in");
+        subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
         rootArg = "-perf";
@@ -200,6 +216,7 @@ public class KineticToolCLI {
         subArgs.add("-insertproportion");
         subArgs.add("-distribution");
         subArgs.add("-threads");
+        subArgs.add("-format");
 
         legalArguments.put(rootArg, subArgs);
     }
@@ -208,22 +225,22 @@ public class KineticToolCLI {
         StringBuffer sb = new StringBuffer();
         sb.append("Usage: ktool <-discover|-firmwaredownload|-checkversion|-setclusterversion|-setsecurity|-seterasepin|-instanterase|-runsmoketest>\n");
         sb.append("ktool -h|-help\n");
-        sb.append("ktool -discover [-out <driveListOutputFile>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-scoped] [-startip <startIp>] [-endip <endIp>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -ping <-in <driveListInputFile>> [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -setsecurity <securityFile> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -getlog <-in <driveListInputFile>> [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -runsmoketest <-in <driveListInputFile>>\n");
-        sb.append("ktool -perf <-in <driveListInputFile>> [-valuesize <valueSizeInByte>] [-recordcount <recordCountForPrepare>] [-operationcount <realOperationCount>] [-connectionperdrive <connectionPerDrive>] [-readproportion <readProportion>] [-insertproportion <insertProportion>] [-distribution <distribution>] [-threads <threads_number>]\n");
+        sb.append("ktool -discover [-out <driveListOutputFile>] [-format <json>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-scoped] [-startip <startIp>] [-endip <endIp>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -ping <-in <driveListInputFile>> [-format <json>] [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -setsecurity <securityFile> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -getlog <-in <driveListInputFile>> [-format <json>] [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-format <json>] [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -runsmoketest <-in <driveListInputFile>> [-format <json>]\n");
+        sb.append("ktool -perf <-in <driveListInputFile>> [-format <json>] [-valuesize <valueSizeInByte>] [-recordcount <recordCountForPrepare>] [-operationcount <realOperationCount>] [-connectionperdrive <connectionPerDrive>] [-readproportion <readProportion>] [-insertproportion <insertProportion>] [-distribution <distribution>] [-threads <threads_number>]\n");
         System.out.println(sb.toString());
     }
 
@@ -370,6 +387,13 @@ public class KineticToolCLI {
                 String driveDefaultName = DEFAULT_DRIVE_OUTPUT_FILE + "_"
                         + String.valueOf(time);
 
+                boolean formatFlag = false;
+                if (kineticToolCLI.hasArg("-format", args)
+                        && kineticToolCLI.getArgValue("-format", args)
+                                .equalsIgnoreCase("json")) {
+                    formatFlag = true;
+                }
+
                 String subnet = kineticToolCLI.getArgValue("-subnet", args);
 
                 // scope
@@ -387,9 +411,12 @@ public class KineticToolCLI {
 
                     DeviceDiscovery deviceDiscovery = new DeviceDiscovery(
                             start, end);
-                    System.out.println("Discovering devices with scoped: startIp="
-                            + start + ", endIp=" + end + ", please wait "
-                            + timeout + "s" + "\n");
+                    System.out
+                            .println("Discovering devices with scoped: startIp="
+                                    + start
+                                    + ", endIp="
+                                    + end
+                                    + ", please wait " + timeout + "s" + "\n");
                     TimeUnit.SECONDS.sleep(timeout);
 
                     String toolHome = System.getProperty("kinetic.tools.out",
@@ -401,7 +428,8 @@ public class KineticToolCLI {
                             + driveDefaultName : rootDir + driveListOutputFile;
 
                     logger.info(DeviceDiscovery.persistToFile(
-                            deviceDiscovery.listDevices(), driveListOutputFile));
+                            deviceDiscovery.listDevices(), driveListOutputFile,
+                            formatFlag));
 
                     System.out.println("Discovered "
                             + deviceDiscovery.listDevices().size()
@@ -419,7 +447,7 @@ public class KineticToolCLI {
 
                     invoker.execute(new PingReachableDrive(subnet,
                             driveListOutputFile, useSsl, clusterVersion,
-                            identity, key, requestTimeout));
+                            identity, key, requestTimeout, formatFlag));
                 } else {
                     DeviceDiscovery deviceDiscovery = new DeviceDiscovery();
                     System.out.println("Discovering devices..., please wait "
@@ -435,7 +463,8 @@ public class KineticToolCLI {
                             + driveDefaultName : rootDir + driveListOutputFile;
 
                     logger.info(DeviceDiscovery.persistToFile(
-                            deviceDiscovery.listDevices(), driveListOutputFile));
+                            deviceDiscovery.listDevices(), driveListOutputFile,
+                            formatFlag));
 
                     System.out.println("Discovered "
                             + deviceDiscovery.listDevices().size()
@@ -445,9 +474,9 @@ public class KineticToolCLI {
             } else if (args[0].equalsIgnoreCase("-ping")) {
                 String driveInputListFile = kineticToolCLI.getArgValue("-in",
                         args);
-                if (null == driveInputListFile) {
-                    throw new Exception("Missing input drives file path.");
-                }
+
+                driveInputListFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveInputListFile);
 
                 String driveListOutputFile = kineticToolCLI.getArgValue("-out",
                         args);
@@ -467,6 +496,9 @@ public class KineticToolCLI {
                 String driveInputListFile = kineticToolCLI.getArgValue("-in",
                         args);
 
+                driveInputListFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveInputListFile);
+
                 invoker.execute(new FirmwareDownload(firmwareFile,
                         driveInputListFile, useSsl, clusterVersion, identity,
                         key, requestTimeout));
@@ -475,6 +507,9 @@ public class KineticToolCLI {
                         "-setsecurity", args);
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
 
                 invoker.execute(new SetSecurity(securityFile,
                         driveListInputFile, useSsl, clusterVersion, identity,
@@ -487,6 +522,9 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
 
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 invoker.execute(new SetErasePin(oldErasePin, newErasePin,
                         driveListInputFile, useSsl, clusterVersion, identity,
                         key, requestTimeout));
@@ -496,6 +534,9 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
 
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 invoker.execute(new SetClusterVersion(newClusterVersion,
                         driveListInputFile, useSsl, clusterVersion, identity,
                         key, requestTimeout));
@@ -504,6 +545,9 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
 
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 invoker.execute(new InstantErase(erasePin, driveListInputFile,
                         useSsl, clusterVersion, identity, key, requestTimeout));
             } else if (args[0].equalsIgnoreCase("-secureerase")) {
@@ -511,12 +555,18 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
 
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 invoker.execute(new SecureErase(erasePin, driveListInputFile,
                         useSsl, clusterVersion, identity, key, requestTimeout));
             } else if (args[0].equalsIgnoreCase("-checkversion")) {
                 String expectVersion = kineticToolCLI.getArgValue("-v", args);
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
 
                 invoker.execute(new CheckFirmwareVersion(expectVersion,
                         driveListInputFile, useSsl, clusterVersion, identity,
@@ -527,12 +577,19 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
 
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 invoker.execute(new SetLockPin(oldLockPin, newLockPin,
                         driveListInputFile, useSsl, clusterVersion, identity,
                         key, requestTimeout));
             } else if (args[0].equalsIgnoreCase("-getlog")) {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 String logOutputFile = kineticToolCLI.getArgValue("-out", args);
                 logOutputFile = logOutputFile == null ? DEFAULT_GET_LOG_OUTPUT_FILE
                         + "_" + String.valueOf(System.currentTimeMillis())
@@ -549,6 +606,10 @@ public class KineticToolCLI {
                         args);
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 String logOutputFile = kineticToolCLI.getArgValue("-out", args);
                 logOutputFile = logOutputFile == null ? DEFAULT_GET_VENDOR_SPECIFIC_LOG_OUTPUT_FILE
                         + "_" + String.valueOf(System.currentTimeMillis())
@@ -560,6 +621,10 @@ public class KineticToolCLI {
             } else if (args[0].equalsIgnoreCase("-lockdevice")) {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 String lockPin = kineticToolCLI.getArgValue("-pin", args);
 
                 invoker.execute(new LockDevice(driveListInputFile, lockPin,
@@ -568,6 +633,10 @@ public class KineticToolCLI {
             } else if (args[0].equalsIgnoreCase("-unlockdevice")) {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 String unLockPin = kineticToolCLI.getArgValue("-pin", args);
 
                 invoker.execute(new UnLockDevice(driveListInputFile, unLockPin,
@@ -576,10 +645,17 @@ public class KineticToolCLI {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
 
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 invoker.execute(new SmokeTestRunner(driveListInputFile));
             } else if (args[0].equalsIgnoreCase("-perf")) {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+
                 String valueSize = kineticToolCLI.getArgValue("-valuesize",
                         args);
                 valueSize = valueSize == null ? DEFAULT_PERF_VALUE_SIZE
@@ -684,6 +760,28 @@ public class KineticToolCLI {
         Matcher matcher = pattern.matcher(subnet);
 
         return matcher.matches();
+    }
+
+    private String checkInputfileFormat(String[] args, String driveInputListFile)
+            throws Exception {
+        if (null == driveInputListFile) {
+            throw new Exception("Missing input drives file path.");
+        }
+
+        if (hasArg("-format", args)) {
+            String jsonFormatFlag = getArgValue("-format", args);
+            if (jsonFormatFlag.equalsIgnoreCase("json")) {
+                String driveInputListFile_temp = driveInputListFile + "_"
+                        + "trans" + String.valueOf(System.currentTimeMillis());
+                JsonConvertUtil.toJsonConverter(driveInputListFile,
+                        driveInputListFile_temp);
+                driveInputListFile = driveInputListFile_temp;
+            } else {
+                throw new Exception("parameter error for format!");
+            }
+        }
+
+        return driveInputListFile;
     }
 
 }

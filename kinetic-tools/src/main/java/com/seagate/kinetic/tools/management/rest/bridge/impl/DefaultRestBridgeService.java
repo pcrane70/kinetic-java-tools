@@ -401,11 +401,12 @@ public class DefaultRestBridgeService implements RestBridgeService {
     private String discoverDevices(List<KineticDevice> devices, int timeout,
             String discoId) {
         DeviceDiscovery deviceDiscovery;
+        boolean formatFlag = false;
         try {
             deviceDiscovery = new DeviceDiscovery();
             TimeUnit.SECONDS.sleep(timeout);
             DeviceDiscovery.persistToFile(deviceDiscovery.listDevices(),
-                    discoId);
+                    discoId, formatFlag);
             if (devices != null) {
                 for (KineticDevice device : deviceDiscovery.listDevices()) {
                     devices.add(device);
@@ -421,11 +422,12 @@ public class DefaultRestBridgeService implements RestBridgeService {
     private String discoverDevicesViaScope(List<KineticDevice> devices,
             int timeout, String discoId, String startIp, String endIp) {
         DeviceDiscovery deviceDiscovery;
+        boolean formatFlag = false;
         try {
             deviceDiscovery = new DeviceDiscovery(startIp, endIp);
             TimeUnit.SECONDS.sleep(timeout);
             DeviceDiscovery.persistToFile(deviceDiscovery.listDevices(),
-                    discoId);
+                    discoId, formatFlag);
             if (devices != null) {
                 for (KineticDevice device : deviceDiscovery.listDevices()) {
                     devices.add(device);
