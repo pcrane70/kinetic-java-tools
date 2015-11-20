@@ -46,6 +46,8 @@ import com.seagate.kinetic.tools.management.rest.message.DeviceId;
 import com.seagate.kinetic.tools.management.rest.message.hwview.Chassis;
 import com.seagate.kinetic.tools.management.rest.message.hwview.Coordinate;
 import com.seagate.kinetic.tools.management.rest.message.hwview.Device;
+import com.seagate.kinetic.tools.management.rest.message.hwview.HardwareView;
+import com.seagate.kinetic.tools.management.rest.message.hwview.Rack;
 
 public class DeviceDiscovery {
     private static final String SUBNET_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -139,65 +141,38 @@ public class DeviceDiscovery {
     }
 
     public static String persistToFile(List<KineticDevice> deviceList,
-            String filePath, boolean formatFlag) throws Exception {
+            String filePath, String formatFlag) throws Exception {
 
         StringBuffer sb = new StringBuffer();
 
-        if (formatFlag && deviceList != null && !deviceList.isEmpty()
-                && deviceList.size() != 0) {
-            List<Chassis> chassisOfList = new ArrayList<Chassis>();
-
-            Chassis chassis = new Chassis();
-            Coordinate coordinateChassis = new Coordinate();
-            coordinateChassis.setX("chassisx-0");
-            coordinateChassis.setY("chassisy-0");
-            coordinateChassis.setZ("chassisz-0");
-
-            List<Device> devices = new ArrayList<Device>();
-            for (int index = 0; index < deviceList.size(); index++) {
-                KineticDevice kineticDevice = new KineticDevice();
-                kineticDevice = deviceList.get(index);
-
-                if (null != kineticDevice) {
-                    Device device = new Device();
-                    Coordinate coordinateDevice = new Coordinate();
-                    coordinateDevice.setX("devicex-" + index);
-                    coordinateDevice.setY("devicey-" + index);
-                    coordinateDevice.setZ("devicez-" + index);
-
-                    DeviceId deviceId = new DeviceId();
-
-                    String[] ips = new String[2];
-                    if (kineticDevice.getInet4() != null
-                            && !kineticDevice.getInet4().isEmpty()
-                            && (2 >= kineticDevice.getInet4().size())) {
-                        for (int i = 0; i < kineticDevice.getInet4().size(); i++) {
-                            String ip = kineticDevice.getInet4().get(i);
-                            if (null != ip) {
-                                ips[i] = ip;
-                            }
-                        }
-                    }
-
-                    deviceId.setIps(ips);
-                    deviceId.setPort(kineticDevice.getPort());
-                    deviceId.setTlsPort(kineticDevice.getTlsPort());
-                    deviceId.setWwn(kineticDevice.getWwn());
-
-                    device.setDeviceId(deviceId);
-                    device.setCoordinate(coordinateDevice);
-
-                    devices.add(device);
-                }
-            }
-            chassis.setDevices(devices);
-            chassis.setCoordinate(coordinateChassis);
-            chassis.setId("");
-            chassis.setIps(new String[] { "", "" });
-
-            chassisOfList.add(chassis);
+        if (formatFlag.equalsIgnoreCase("chassisjson") && deviceList != null
+                && !deviceList.isEmpty() && deviceList.size() != 0) {
+            List<Chassis> chassisOfList = generateChassisFromDeviceList(deviceList);
 
             JsonConvertUtil.fromJsonConverter(chassisOfList, filePath);
+        } else if (formatFlag.equalsIgnoreCase("racksjson")
+                && deviceList != null && !deviceList.isEmpty()
+                && deviceList.size() != 0) {
+            HardwareView hardwareView = new HardwareView();
+            List<Rack> racks = new ArrayList<Rack>();
+            Rack rack = new Rack();
+
+            Coordinate coordinate = new Coordinate();
+            coordinate.setX("rackx-0");
+            coordinate.setY("racky-0");
+            coordinate.setZ("rackz-0");
+
+            List<Chassis> chassisOfList = generateChassisFromDeviceList(deviceList);
+
+            rack.setId("1");
+            rack.setCoordinate(coordinate);
+            rack.setChassis(chassisOfList);
+
+            racks.add(rack);
+
+            hardwareView.setRacks(racks);
+
+            JsonConvertUtil.fromJsonConverter(hardwareView, filePath);
         } else {
             assert (filePath != null);
             assert (deviceList != null);
@@ -278,6 +253,63 @@ public class DeviceDiscovery {
                 }
             }
         }
+    }
+
+    private static List<Chassis> generateChassisFromDeviceList(
+            List<KineticDevice> deviceList) {
+        List<Chassis> chassisOfList = new ArrayList<Chassis>();
+
+        Chassis chassis = new Chassis();
+        Coordinate coordinateChassis = new Coordinate();
+        coordinateChassis.setX("1");
+        coordinateChassis.setY("chassisy-0");
+        coordinateChassis.setZ("chassisz-0");
+
+        List<Device> devices = new ArrayList<Device>();
+        for (int index = 0; index < deviceList.size(); index++) {
+            KineticDevice kineticDevice = new KineticDevice();
+            kineticDevice = deviceList.get(index);
+
+            if (null != kineticDevice) {
+                Device device = new Device();
+                Coordinate coordinateDevice = new Coordinate();
+                coordinateDevice.setX("devicex-" + index);
+                coordinateDevice.setY("devicey-" + index);
+                coordinateDevice.setZ("devicez-" + index);
+
+                DeviceId deviceId = new DeviceId();
+
+                String[] ips = new String[2];
+                if (kineticDevice.getInet4() != null
+                        && !kineticDevice.getInet4().isEmpty()
+                        && (2 >= kineticDevice.getInet4().size())) {
+                    for (int i = 0; i < kineticDevice.getInet4().size(); i++) {
+                        String ip = kineticDevice.getInet4().get(i);
+                        if (null != ip) {
+                            ips[i] = ip;
+                        }
+                    }
+                }
+
+                deviceId.setIps(ips);
+                deviceId.setPort(kineticDevice.getPort());
+                deviceId.setTlsPort(kineticDevice.getTlsPort());
+                deviceId.setWwn(kineticDevice.getWwn());
+
+                device.setDeviceId(deviceId);
+                device.setCoordinate(coordinateDevice);
+
+                devices.add(device);
+            }
+        }
+        chassis.setDevices(devices);
+        chassis.setCoordinate(coordinateChassis);
+        chassis.setId("1");
+        chassis.setIps(new String[] { "", "" });
+
+        chassisOfList.add(chassis);
+
+        return chassisOfList;
     }
 
     class MyHeartbeatListener extends HeartbeatListener {

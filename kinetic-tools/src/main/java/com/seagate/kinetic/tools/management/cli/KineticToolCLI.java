@@ -225,22 +225,22 @@ public class KineticToolCLI {
         StringBuffer sb = new StringBuffer();
         sb.append("Usage: ktool <-discover|-firmwaredownload|-checkversion|-setclusterversion|-setsecurity|-seterasepin|-instanterase|-runsmoketest>\n");
         sb.append("ktool -h|-help\n");
-        sb.append("ktool -discover [-out <driveListOutputFile>] [-format <json>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-scoped] [-startip <startIp>] [-endip <endIp>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -ping <-in <driveListInputFile>> [-format <json>] [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -setsecurity <securityFile> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -getlog <-in <driveListInputFile>> [-format <json>] [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-format <json>] [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-format <json>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
-        sb.append("ktool -runsmoketest <-in <driveListInputFile>> [-format <json>]\n");
-        sb.append("ktool -perf <-in <driveListInputFile>> [-format <json>] [-valuesize <valueSizeInByte>] [-recordcount <recordCountForPrepare>] [-operationcount <realOperationCount>] [-connectionperdrive <connectionPerDrive>] [-readproportion <readProportion>] [-insertproportion <insertProportion>] [-distribution <distribution>] [-threads <threads_number>]\n");
+        sb.append("ktool -discover [-out <driveListOutputFile>] [-format <chassisjson|racksjson>] [-timeout <timeoutInSecond>] [-subnet <subnet>] [-scoped] [-startip <startIp>] [-endip <endIp>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -ping <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-out <driveListOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -firmwaredownload <fmFile> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -checkversion <-v <expectFirmwareVersion>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -seterasepin <-oldpin <oldErasePinInString>> <-newpin <newErasePinInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -setlockpin <-oldpin <oldLockPinInString>> <-newpin <newLockPinInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -instanterase <-pin <erasePinInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -secureerase <-pin <erasePinInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -setclusterversion <-newclversion <newClusterVersionInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -setsecurity <securityFile> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -getlog <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-out <logOutputFile>] [-type <utilization|temperature|capacity|configuration|message|statistic|limits|all>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -runsmoketest <-in <driveListInputFile>> [-format <chassisjson|racksjson>]\n");
+        sb.append("ktool -perf <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-valuesize <valueSizeInByte>] [-recordcount <recordCountForPrepare>] [-operationcount <realOperationCount>] [-connectionperdrive <connectionPerDrive>] [-readproportion <readProportion>] [-insertproportion <insertProportion>] [-distribution <distribution>] [-threads <threads_number>]\n");
         System.out.println(sb.toString());
     }
 
@@ -387,11 +387,14 @@ public class KineticToolCLI {
                 String driveDefaultName = DEFAULT_DRIVE_OUTPUT_FILE + "_"
                         + String.valueOf(time);
 
-                boolean formatFlag = false;
-                if (kineticToolCLI.hasArg("-format", args)
-                        && kineticToolCLI.getArgValue("-format", args)
-                                .equalsIgnoreCase("json")) {
-                    formatFlag = true;
+                String formatFlag = "";
+                if (kineticToolCLI.hasArg("-format", args)) {
+                    formatFlag = kineticToolCLI.getArgValue("-format", args);
+                    if (!formatFlag.equalsIgnoreCase("chassisjson")
+                            && !formatFlag.equalsIgnoreCase("racksjson")) {
+                        throw new Exception(
+                                "format parameters illegal, it should be chassisjson or racksjson");
+                    }
                 }
 
                 String subnet = kineticToolCLI.getArgValue("-subnet", args);
@@ -770,11 +773,17 @@ public class KineticToolCLI {
 
         if (hasArg("-format", args)) {
             String jsonFormatFlag = getArgValue("-format", args);
-            if (jsonFormatFlag.equalsIgnoreCase("json")) {
+            if (jsonFormatFlag.equalsIgnoreCase("chassisjson")) {
                 String driveInputListFile_temp = driveInputListFile + "_"
                         + "trans" + String.valueOf(System.currentTimeMillis());
                 JsonConvertUtil.toJsonConverter(driveInputListFile,
-                        driveInputListFile_temp);
+                        driveInputListFile_temp, "chassis");
+                driveInputListFile = driveInputListFile_temp;
+            } else if (jsonFormatFlag.equalsIgnoreCase("racksjson")) {
+                String driveInputListFile_temp = driveInputListFile + "_"
+                        + "trans" + String.valueOf(System.currentTimeMillis());
+                JsonConvertUtil.toJsonConverter(driveInputListFile,
+                        driveInputListFile_temp, "hwview");
                 driveInputListFile = driveInputListFile_temp;
             } else {
                 throw new Exception("parameter error for format!");
