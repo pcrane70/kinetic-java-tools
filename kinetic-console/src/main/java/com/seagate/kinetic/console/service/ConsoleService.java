@@ -144,7 +144,7 @@ public class ConsoleService {
                     sb.append("\"log\": " + gson.toJson(kineticLogMap.get(key))
                             + "}");
                 } else {
-                    sb.append("{\"wwn\": " + key + "\",");
+                    sb.append("{\"wwn\": \"" + key + "\",");
                     sb.append("\"state\": " + devicesStateMap.get(key) + ",");
                     sb.append("\"ready\": " + 1 + "}");
                 }

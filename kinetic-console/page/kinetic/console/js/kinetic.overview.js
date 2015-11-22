@@ -127,43 +127,49 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
     tableContent += "</tbody>";
     $("#chasssis_abstract").append(tableContent);
 
-    refreshChartsAndTables();
+    //refreshChartsAndTables();
 
 };
 
 $(document).ready(function () {
-	$.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (json) {
-		driveStates = json;
-		
-		portal = new Kinetic.Portal();
-	    portal.loadRackList();
-
-	    $("#racks_dropbox").change(function () {
-	        var selectedRack = $("#racks_dropbox option:selected").text();
-
-	        var racks = portal.racks;
-	        var index;
-	        for (index = 0; index < racks.length; index++) {
-	            if (selectedRack == racks[index].location) {
-	                portal.renderRack(racks[index]);
-	            }
-	        }
-	    });
-
-	    setInterval(function() {
-	    	$.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (json) {
-	    		driveStates = json;
+    $.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (check) {
+        $.getJSON(Kinetic.Config.URL_DESCRIBE_HW_VIEW, function (data) {
+            portal = new Kinetic.Portal();
+            portal.loadRackList(data);
+            if (check != undefined && check.length != undefined)
+            {
+                driveStates = check;
                 refreshChartsAndTables();
-	    	});
-	    }, Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC * 1000);
-	});
-	
-	
-    setInterval(function() {
-		if ($("#racks_dropbox").children().length <= 0)
-		{
-	        window.location.reload();
-		}
-	},2000);
-	
+            }
+
+            setInterval(function() {
+                $.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (json) {
+                    driveStates = json;
+                    refreshChartsAndTables();
+                });
+            }, Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC * 1000);
+
+            setInterval(function() {
+                if ($("#racks_dropbox").children().length <= 0)
+                {
+                    window.location.reload();
+                }
+            },2000);
+
+            $("#racks_dropbox").change(function () {
+                var selectedRack = $("#racks_dropbox option:selected").text();
+
+                var racks = portal.racks;
+                var index;
+                for (index = 0; index < racks.length; index++) {
+                    if (selectedRack == racks[index].location) {
+                        portal.renderRack(racks[index]);
+                    }
+                }
+            });
+        });
+    });
+
+
+
 });

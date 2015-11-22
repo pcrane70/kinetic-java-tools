@@ -217,6 +217,7 @@ Kinetic.Portal = function () {
     this.deviceMap = {};
 
 
+
     this._renderRackDropbox = function () {
         var index;
         var option;
@@ -294,78 +295,76 @@ Kinetic.Portal.prototype.updateRackCap = function (rackLoc) {
     return rack;
 };
 
-Kinetic.Portal.prototype.loadRackList = function () {
+Kinetic.Portal.prototype.loadRackList = function (data) {
     var self = this;
-    $.getJSON(Kinetic.Config.URL_DESCRIBE_HW_VIEW, function (data) {
-        var json = data.hwconfig;
-        var index;
-        var rackObj;
-        var rackJsonObj;
-        var rackLocation;
-        for (index = 0; index < json.racks.length; index++) {
-            rackJsonObj = json.racks[index]
-            rackLocation = rackJsonObj.coordinate.x + "_" + rackJsonObj.coordinate.y + "_" +
-                rackJsonObj.coordinate.z;
-            rackObj = new Kinetic.Rack(rackJsonObj.id, rackLocation, rackLocation);
-            self.racks.push(rackObj);
-            self.rackMap[rackLocation] = rackObj;
+    var json = data.hwconfig;
+    var index;
+    var rackObj;
+    var rackJsonObj;
+    var rackLocation;
+    for (index = 0; index < json.racks.length; index++) {
+        rackJsonObj = json.racks[index]
+        rackLocation = rackJsonObj.coordinate.x + "_" + rackJsonObj.coordinate.y + "_" +
+            rackJsonObj.coordinate.z;
+        rackObj = new Kinetic.Rack(rackJsonObj.id, rackLocation, rackLocation);
+        self.racks.push(rackObj);
+        self.rackMap[rackLocation] = rackObj;
 
-            rackObj.clearChassises();
-            var i, j;
-            var chassisObj;
-            var chassisJsonObj;
-            var driveObj;
-            var driveJsonObj;
-            var ip1;
-            var ip2;
+        rackObj.clearChassises();
+        var i, j;
+        var chassisObj;
+        var chassisJsonObj;
+        var driveObj;
+        var driveJsonObj;
+        var ip1;
+        var ip2;
 
-            for (i = 0; i < rackJsonObj.chassis.length; i++) {
-                chassisJsonObj = rackJsonObj.chassis[i];
-                if (chassisJsonObj.ips.length <= 0) {
+        for (i = 0; i < rackJsonObj.chassis.length; i++) {
+            chassisJsonObj = rackJsonObj.chassis[i];
+            if (chassisJsonObj.ips.length <= 0) {
+                ip1 = "";
+                ip2 = "";
+            } else if ((chassisJsonObj.ips.length == 1)) {
+                ip1 = chassisJsonObj.ips[0];
+                ip2 = "";
+            } else {
+                ip1 = chassisJsonObj.ips[0];
+                ip2 = chassisJsonObj.ips[1];
+            }
+            chassisObj = new Kinetic.Chassis(chassisJsonObj.id, chassisJsonObj.coordinate.x, ip1, ip2);
+            chassisObj.setRackId(rackObj.id);
+            chassisObj.setRackLoc(rackObj.location);
+            for (j = 0; j < chassisJsonObj.devices.length; j++) {
+                driveJsonObj = chassisJsonObj.devices[j];
+                if (driveJsonObj.deviceId.ips.length <= 0) {
                     ip1 = "";
                     ip2 = "";
-                } else if ((chassisJsonObj.ips.length == 1)) {
-                    ip1 = chassisJsonObj.ips[0];
+                } else if ((driveJsonObj.deviceId.ips.length == 1)) {
+                    ip1 = driveJsonObj.deviceId.ips[0];
                     ip2 = "";
                 } else {
-                    ip1 = chassisJsonObj.ips[0];
-                    ip2 = chassisJsonObj.ips[1];
+                    ip1 = driveJsonObj.deviceId.ips[0];
+                    ip2 = driveJsonObj.deviceId.ips[1];
                 }
-                chassisObj = new Kinetic.Chassis(chassisJsonObj.id, chassisJsonObj.coordinate.x, ip1, ip2);
-                chassisObj.setRackId(rackObj.id);
-                chassisObj.setRackLoc(rackObj.location);
-                for (j = 0; j < chassisJsonObj.devices.length; j++) {
-                    driveJsonObj = chassisJsonObj.devices[j];
-                    if (driveJsonObj.deviceId.ips.length <= 0) {
-                        ip1 = "";
-                        ip2 = "";
-                    } else if ((driveJsonObj.deviceId.ips.length == 1)) {
-                        ip1 = driveJsonObj.deviceId.ips[0];
-                        ip2 = "";
-                    } else {
-                        ip1 = driveJsonObj.deviceId.ips[0];
-                        ip2 = driveJsonObj.deviceId.ips[1];
-                    }
-                    driveObj = new Kinetic.Drive(driveJsonObj.coordinate.x, driveJsonObj.deviceId.wwn, ip1, ip2);
-                    driveObj.port = driveJsonObj.deviceId.port;
-                    driveObj.tlsPort = driveJsonObj.deviceId.tlsPort;
-                    driveObj.setChassisId(chassisObj.id);
-                    driveObj.setRackId(rackObj.id);
-                    driveObj.setRackLoc(rackObj.location);
-                    chassisObj.addOrUpdateDrive(driveObj);
-                    self.deviceMap[driveJsonObj.deviceId.wwn] = driveObj;
-                }
-                rackObj.addOrUpdateChassis(chassisObj);
-                self.chassisMap[rackLocation + "_" + chassisJsonObj.coordinate.x] = chassisObj;
+                driveObj = new Kinetic.Drive(driveJsonObj.coordinate.x, driveJsonObj.deviceId.wwn, ip1, ip2);
+                driveObj.port = driveJsonObj.deviceId.port;
+                driveObj.tlsPort = driveJsonObj.deviceId.tlsPort;
+                driveObj.setChassisId(chassisObj.id);
+                driveObj.setRackId(rackObj.id);
+                driveObj.setRackLoc(rackObj.location);
+                chassisObj.addOrUpdateDrive(driveObj);
+                self.deviceMap[driveJsonObj.deviceId.wwn] = driveObj;
             }
+            rackObj.addOrUpdateChassis(chassisObj);
+            self.chassisMap[rackLocation + "_" + chassisJsonObj.coordinate.x] = chassisObj;
         }
+    }
 
-        self._renderRackDropbox();
+    self._renderRackDropbox();
 
-        if (json.racks.length > 0) {
-            self.renderRack(self.racks[0]);
-        }
-    });
+    if (json.racks.length > 0) {
+        self.renderRack(self.racks[0]);
+    }
 };
 
 jQuery.fn.center = function () {

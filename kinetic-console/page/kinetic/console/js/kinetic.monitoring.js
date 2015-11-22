@@ -188,85 +188,88 @@ $(document).ready(function () {
     $("#chassisStatInfo").hide();
     $.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (json) {
         driveStates = json;
-        portal = new Kinetic.Portal();
-        portal.loadRackList();
 
-        $("#racks_dropbox").change(function () {
-            var selectedRack = $("#racks_dropbox option:selected").text();
+        $.getJSON(Kinetic.Config.URL_DESCRIBE_HW_VIEW, function (hwdata) {
+            portal = new Kinetic.Portal();
+            portal.loadRackList(hwdata);
 
-            var racks = portal.racks;
-            var index;
-            for (index = 0; index < racks.length; index++) {
-                if (selectedRack == racks[index].location) {
-                    portal.renderRack(racks[index]);
+            $("#racks_dropbox").change(function () {
+                var selectedRack = $("#racks_dropbox option:selected").text();
+
+                var racks = portal.racks;
+                var index;
+                for (index = 0; index < racks.length; index++) {
+                    if (selectedRack == racks[index].location) {
+                        portal.renderRack(racks[index]);
+                    }
                 }
-            }
-        });
-        
-        $("#nodeInfo").click(function () {
-        	selectedDrive = "";
-            $("#nodeInfo").slideUp();
-        });
-        
-        $("#chassisStatInfo").click(function () {
-        	selectedChassis = "";
-            $("#chassisStatInfo").slideUp();
-        });
-
-        setInterval(function () {
-            $.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (json1) {
-                driveStates = json1;
-                refreshChartsAndTables();
             });
-        }, Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC * 1000);
-        
-        setInterval(function () {
-        	if (selectedDrive != "" )
-        	{
-        		var driveIndex;
-        	    var driveLog;
-        	    for (driveIndex = 0; driveIndex < driveStates.length; driveIndex++) {
-        	        if (driveStates[driveIndex].wwn == selectedDrive) {
-        	            driveLog = driveStates[driveIndex].log;
-        	            break;
-        	        }
-        	    }
 
-        	    if (capacityChart != undefined)
-        	    {
-        	    	reRenderCapacity(capacityChart, driveLog);
-        	    }
-        	   
-        	    if (temperatureHdaChart != undefined && temperatureCpuChart != undefined)
-        	    {
-        	    	reRenderTemperature(temperatureHdaChart, temperatureCpuChart, driveLog);
-        	    }
-        	    
-        	    if (utilizationChart != undefined)
-        	    {
-        	    	reRenderUtilizations(utilizationChart, driveLog);
-        	    }
-        	    
-        	    if (counterChart != undefined)
-        	    {
-        	    	reRenderCounters(counterChart, driveLog);
-        	    }
-        	}
-        }, 5000);
-        
-        setInterval(function () {
-            if (selectedChassis != "")
-            {
-            	updateChassisStatInfo();
-            }
-        }, 6000);
-    });
-    
-    $("#chassis_unit_info").click(function () {
-    	selectedChassis = anyslider.currentSlide();
-        $("#chassisStatInfo").center();
-        $("#chassisStatInfo").show();
-    	showChassisStatInfo();
-    	return false;
+            $("#nodeInfo").click(function () {
+                selectedDrive = "";
+                $("#nodeInfo").slideUp();
+            });
+
+            $("#chassisStatInfo").click(function () {
+                selectedChassis = "";
+                $("#chassisStatInfo").slideUp();
+            });
+
+            setInterval(function () {
+                $.getJSON(Kinetic.Config.URL_DESCRIBE_ALL_DEVICES, function (json1) {
+                    driveStates = json1;
+                    refreshChartsAndTables();
+                });
+            }, Kinetic.Config.CHARTS_REFRESH_PERIOD_IN_SEC * 1000);
+
+            setInterval(function () {
+                if (selectedDrive != "" )
+                {
+                    var driveIndex;
+                    var driveLog;
+                    for (driveIndex = 0; driveIndex < driveStates.length; driveIndex++) {
+                        if (driveStates[driveIndex].wwn == selectedDrive) {
+                            driveLog = driveStates[driveIndex].log;
+                            break;
+                        }
+                    }
+
+                    if (capacityChart != undefined)
+                    {
+                        reRenderCapacity(capacityChart, driveLog);
+                    }
+
+                    if (temperatureHdaChart != undefined && temperatureCpuChart != undefined)
+                    {
+                        reRenderTemperature(temperatureHdaChart, temperatureCpuChart, driveLog);
+                    }
+
+                    if (utilizationChart != undefined)
+                    {
+                        reRenderUtilizations(utilizationChart, driveLog);
+                    }
+
+                    if (counterChart != undefined)
+                    {
+                        reRenderCounters(counterChart, driveLog);
+                    }
+                }
+            }, 5000);
+
+            setInterval(function () {
+                if (selectedChassis != "")
+                {
+                    updateChassisStatInfo();
+                }
+            }, 6000);
+
+            $("#chassis_unit_info").click(function () {
+                selectedChassis = anyslider.currentSlide();
+                $("#chassisStatInfo").center();
+                $("#chassisStatInfo").show();
+                showChassisStatInfo();
+                return false;
+            });
+        });
     });
 });
