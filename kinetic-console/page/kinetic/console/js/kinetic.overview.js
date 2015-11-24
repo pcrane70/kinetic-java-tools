@@ -20,9 +20,11 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
 
         driveArray = chassisArray[chassisIndex].listDrives();
         for (driveIndex = 0; driveIndex < driveArray.length; driveIndex++) {
+            var eId = driveArray[driveIndex].wwn.replace(/\s+/g,'_');
+
             ++totalDrives;
             var drivehtml = "<img class='drive_img' ";
-            drivehtml += " id='" + driveArray[driveIndex].wwn + "'";
+            drivehtml += " id='" + eId + "'";
 
             if (currentState == Kinetic.State.NORMAL) {
                 ++normalDrives;
@@ -49,12 +51,12 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
                 content: $('<samp>Mgmt IP: ' + chassisArray[chassisIndex].mgtIp1 + '</samp></br>')
             });
 
-            $('#' + driveArray[driveIndex].wwn).tooltipster({
+            (function () { $('#' + driveArray[driveIndex].wwn.replace(/\s+/g,'_')).tooltipster({
                 content: $('<samp>WWN: ' + driveArray[driveIndex].wwn + '</samp></br>'
                     + '<samp>IP1: ' + driveArray[driveIndex].ip1 + '</samp></br>'
                     + '<samp>IP2: ' + driveArray[driveIndex].ip2 + '</samp></br>'
                     + '<samp>UNIT: ' + chassisArray[chassisIndex].unit + '</samp></br>')
-            });
+            })})();
         }
     }
 

@@ -20,10 +20,11 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
 
         driveArray = chassisArray[chassisIndex].listDrives();
         for (driveIndex = 0; driveIndex < driveArray.length; driveIndex++) {
+            var eId = driveArray[driveIndex].wwn.replace(/\s+/g,'_');
+
             ++totalDrives;
             var drivehtml = "<span class='drive_box'><img class='drive_img' ";
-            drivehtml += " id='" + driveArray[driveIndex].wwn + "'";
-
+            drivehtml += " id='" + eId + "'";
 
             currentState = this.getDrive(driveArray[driveIndex].wwn).state;
             if (currentState == Kinetic.State.NORMAL) {
@@ -34,28 +35,29 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
             } else {
                 drivehtml += " src=img/drive_red_1.png />";
             }
+
             drivehtml += "<div><div>" + driveArray[driveIndex].wwn
                 + "</div><div>" + driveArray[driveIndex].ip1 + "(" + driveArray[driveIndex].ip2 + "):" + driveArray[driveIndex].port
                 + "</div></div>";
             drivehtml += "<div class='jump'></div><div class='line_chart'><span class='inlinesparkline' id='sparkline_"
-                + driveArray[driveIndex].wwn + "'></span></div></span>";
+                + eId + "'></span></div></span>";
             $("#" + cid).append(drivehtml);
 
-            $('#' + driveArray[driveIndex].wwn).tooltipster({
+            (function () {  $('#' + driveArray[driveIndex].wwn.replace(/\s+/g,'_')).tooltipster({
                 content: $('<samp>WWN: ' + driveArray[driveIndex].wwn + '</samp></br>'
                     + '<samp>IP1: ' + driveArray[driveIndex].ip1 + '</samp></br>'
                     + '<samp>IP2: ' + driveArray[driveIndex].ip2 + '</samp></br>'
                     + '<samp>UNIT: ' + chassisArray[chassisIndex].unit + '</samp></br>')
-            });
+            })})();
 
-            $('#' + driveArray[driveIndex].wwn).click(function () {
+            (function () {  $('#' + driveArray[driveIndex].wwn.replace(/\s+/g,'_')).click(function () {
                 var wwn = $(this).attr("id");
-                selectedDrive = wwn;
-                showDriveInfo(wwn);
+                selectedDrive = wwn.replace(/\_/g,' ');
+                showDriveInfo(selectedDrive);
                 $("#nodeInfo").center();
                 $("#nodeInfo").show();
                 return false;
-            });
+            })})();
         }
 
         $("#" + cid).click(function () {
