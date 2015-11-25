@@ -1019,13 +1019,13 @@ function refreshChartsAndTables() {
 
         if (device.state == Kinetic.State.NORMAL) {
             ++rackNormalDevices[rackLocation];
-            $("#" + device.wwn).attr("src", Kinetic.Config.IMAGE_DRIVE_NORMAL);
+            $("#" + device.wwn.replace(/\s+/g,'_')).attr("src", Kinetic.Config.IMAGE_DRIVE_NORMAL);
         } else if (device.state == Kinetic.State.UNREACHABLE) {
             ++rackUnreachableDevices[rackLocation];
-            $("#" + device.wwn).attr("src", Kinetic.Config.IMAGE_DRIVE_UNREACHABLE);
+            $("#" + device.wwn.replace(/\s+/g,'_')).attr("src", Kinetic.Config.IMAGE_DRIVE_UNREACHABLE);
         } else {
             ++rackFailedDevices[rackLocation];
-            $("#" + device.wwn).attr("src", Kinetic.Config.IMAGE_DRIVE_DOWN);
+            $("#" + device.wwn.replace(/\s+/g,'_')).attr("src", Kinetic.Config.IMAGE_DRIVE_DOWN);
         }
     }
 

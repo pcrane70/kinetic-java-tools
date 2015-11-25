@@ -128,9 +128,6 @@ Kinetic.Portal.prototype.renderRack = function (rack) {
     }
     tableContent += "</tbody>";
     $("#chasssis_abstract").append(tableContent);
-
-    //refreshChartsAndTables();
-
 };
 
 $(document).ready(function () {
