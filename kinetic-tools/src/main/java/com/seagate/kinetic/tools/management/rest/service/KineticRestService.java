@@ -165,7 +165,7 @@ public class KineticRestService {
         if (args.length > 0) {
             // http port
             int port = Integer.parseInt(args[0]);
-            config.serPort(port);
+            config.setPort(port);
             if (args.length > 1) {
                 // https port
                 port = Integer.parseInt(args[1]);

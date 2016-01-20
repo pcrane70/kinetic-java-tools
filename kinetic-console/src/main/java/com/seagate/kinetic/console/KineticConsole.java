@@ -141,7 +141,7 @@ public class KineticConsole {
         if (args.length > 0) {
             // http port
             int port = Integer.parseInt(args[0]);
-            consoleConfiguration.serPort(port);
+            consoleConfiguration.setPort(port);
             if (args.length > 1) {
                 // https port
                 port = Integer.parseInt(args[1]);

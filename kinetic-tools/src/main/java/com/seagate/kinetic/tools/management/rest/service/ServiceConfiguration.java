@@ -87,7 +87,7 @@ public class ServiceConfiguration {
      * @param port
      *            service port for the rest service
      */
-    public void serPort(int port) {
+    public void setPort(int port) {
         this.port = port;
     }
 
