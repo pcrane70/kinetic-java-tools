@@ -66,9 +66,9 @@ public class SnmpHwView {
                 snmpHwViewDevice.coordinate = new Coordinate();
 
                 j++;
-                snmpHwViewChassis.coordinate.x = j + "";
-                snmpHwViewChassis.coordinate.y = "";
-                snmpHwViewChassis.coordinate.z = "";
+                snmpHwViewDevice.coordinate.x = j + "";
+                snmpHwViewDevice.coordinate.y = "";
+                snmpHwViewDevice.coordinate.z = "";
 
                 snmpHwViewChassis.devices.add(snmpHwViewDevice);
             }
