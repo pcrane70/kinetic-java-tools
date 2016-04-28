@@ -58,6 +58,7 @@ public class DeviceDiscovery {
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
     private static final int DEFAULT_MULTICAST_PORT = 8123;
+    private static final int DEFAULT_IPV4_ARRAY_SIZE = 2;
     private Map<String, KineticDevice> devices = new ConcurrentHashMap<String, KineticDevice>();
     private static final String DEFAULT_MC_DESTNATION = "239.1.2.3";
     private boolean useListener = false;
@@ -279,15 +280,13 @@ public class DeviceDiscovery {
 
                 DeviceId deviceId = new DeviceId();
 
-                String[] ips = new String[2];
+                String[] ips = new String[DEFAULT_IPV4_ARRAY_SIZE];
                 if (kineticDevice.getInet4() != null
-                        && !kineticDevice.getInet4().isEmpty()
-                        && (2 >= kineticDevice.getInet4().size())) {
-                    for (int i = 0; i < kineticDevice.getInet4().size(); i++) {
-                        String ip = kineticDevice.getInet4().get(i);
-                        if (null != ip) {
-                            ips[i] = ip;
-                        }
+                        && !kineticDevice.getInet4().isEmpty()) {
+                    int size = kineticDevice.getInet4().size();
+                    ips = new String[size];
+                    for (int i = 0; i < size; i++) {
+                        ips[i] = kineticDevice.getInet4().get(i);
                     }
                 }
 
