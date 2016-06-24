@@ -49,5 +49,6 @@
 		<module>kinetic-performance</module>
                 <module>kinetic-swift</module>
                 <module>kinetic-console</module>
+                <module>kinetic-chassis/snmp</module>
 	</modules>
 </project>
