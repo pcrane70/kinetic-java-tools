@@ -20,7 +20,7 @@ var debugDeleteOpsHistory = [];
 Kinetic.Const = {
     BYTES_PER_KB: 1024,
     DATA_READY: 0,
-}
+};
 
 Kinetic.Config = {
     // servlet requests url
@@ -42,13 +42,51 @@ Kinetic.Config = {
     CHARTS_DRIVE_HISTORY_LINE_MAX_DATA_SIZE: 16,
 
     MAX_HASH_VALUE : "2^32"
-}
+};
 
 Kinetic.State = {
     NORMAL: 0,
     UNREACHABLE: 1,
     DOWN: 2
 };
+
+Kinetic.Layout = {
+    SEPERATOR_IN_CHASSIS_DEFAULT: [2, 5, 8],
+    WIDTH_12: 230,
+    DEVICES_EACH_ROW_12: 3,
+    SEPERATOR_IN_CHASSIS_12: [2, 5, 8],
+    WIDTH_84: 990,
+    DEVICES_EACH_ROW_84: 14,
+    SEPERATOR_IN_CHASSIS_84: [13, 27, 41]
+};
+
+function getLayoutSeperatorInChassis(devicesPerChassis)
+{
+    var mgmtSeperatorInChassis = Kinetic.Layout.SEPERATOR_IN_CHASSIS_DEFAULT;
+    if (devicesPerChassis == 12)
+    {
+        mgmtSeperatorInChassis = Kinetic.Layout.SEPERATOR_IN_CHASSIS_12;
+    }else if (devicesPerChassis == 84)
+    {
+        mgmtSeperatorInChassis = Kinetic.Layout.SEPERATOR_IN_CHASSIS_84;
+    }
+
+    return mgmtSeperatorInChassis;
+}
+
+function getLayoutChassisWidth(devicesPerChassis)
+{
+    var chassisWidth = 230;
+    if (devicesPerChassis == 12)
+    {
+        chassisWidth = Kinetic.Layout.WIDTH_12;
+    }else if (devicesPerChassis == 84)
+    {
+        chassisWidth = Kinetic.Layout.WIDTH_84;
+    }
+
+    return chassisWidth;
+}
 
 Kinetic.Drive = function (slot, wwn, ip1, ip2) {
     this.slot = slot;
@@ -224,6 +262,20 @@ Kinetic.Portal = function () {
         for (index = 0; index < this.racks.length; index++) {
             if (index == 0) {
                 option = "<option selected=selected>" + this.racks[index].location + "</option>";
+
+                var cIndex;
+                var cOption;
+                var chassisList = this.racks[index].listChassises();
+                for (cIndex =0; cIndex < chassisList.length; cIndex ++)
+                {
+                    if (cIndex == 0)
+                    {
+                        cOption = "<option selected=selected>" + chassisList[cIndex].id + " (unit: " + chassisList[cIndex].unit + ")" + "</option>";
+                    } else {
+                        cOption = "<option>" + chassisList[cIndex].id + " (unit: " + chassisList[cIndex].unit + ")" + "</option>";
+                    }
+                    $("#chassises_dropbox").append(cOption);
+                }
             } else {
                 option = "<option>" + this.racks[index].location + "</option>";
             }
@@ -413,6 +465,7 @@ function showChassisStatInfo()
 {
 	var visibleSlide = anyslider.currentSlide();
 	var selectedRackLocation = $("#racks_dropbox option:selected").text();
+    var selectedChassisLocation = $("#chassises_dropbox option:selected").text();
     var rack, chassis;
     var i;
     for (i = 0; i < portal.racks.length; i++) {
