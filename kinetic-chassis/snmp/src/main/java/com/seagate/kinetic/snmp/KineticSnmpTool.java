@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 
 public class KineticSnmpTool {
     private static final String DEFAULT_AGENT_IPS = "127.0.0.1";
-    private static final String DEFAULT_AGENT_PORT = "2001";
     private static final String DEFAULT_SYS_DESC_OID = ".1.3.6.1.2.1.1.1.0";
     private static final String DEFAULT_INTERFACE_TABLE_OID = ".1.3.6.1.2.1.2.2.1";
     private static final String DEFAULT_RACK_COORDINATE = "a,b,c";
@@ -59,7 +58,7 @@ public class KineticSnmpTool {
         StringBuffer sb = new StringBuffer();
         sb.append("Usage: kSnmpTool \n");
         sb.append("kSnmpTool -h|-help\n");
-        sb.append("kSnmpTool -agentIps <agentIps> -agentPort <agentPort>] -sysDescOid <sysDescOid>] -interfaceTableOid <interfaceTableOid> -rackCoordinate <rackCoordinate> -out <hvOutputFile>\n");
+        sb.append("kSnmpTool -agentIps <agentIp:agentport,agentIp:agentport,...> -interfaceTableOid <interfaceTableOid> -rackCoordinate <rackCoordinate> -out <hvOutputFile>\n");
         System.out.println(sb.toString());
     }
 
@@ -73,11 +72,7 @@ public class KineticSnmpTool {
         String agentIps = KineticSnmpTool.getArgValue("-agentIps", args);
         agentIps = agentIps == null ? DEFAULT_AGENT_IPS : agentIps;
 
-        String agentPort = KineticSnmpTool.getArgValue("-agentPort", args);
-        agentPort = agentPort == null ? DEFAULT_AGENT_PORT : agentPort;
-
-        String SysDescOid = KineticSnmpTool.getArgValue("-sysDescOid", args);
-        SysDescOid = SysDescOid == null ? DEFAULT_SYS_DESC_OID : SysDescOid;
+        String SysDescOid = DEFAULT_SYS_DESC_OID;
 
         String interfaceTableOid = KineticSnmpTool.getArgValue(
                 "-interfaceTableOid", args);
@@ -93,7 +88,7 @@ public class KineticSnmpTool {
         out = out == null ? DEFAULT_OUT : out;
 
         SnmpHwView snmpHwView = SnmpHwView.loadFromSnmpAgents(agentIps,
-                agentPort, SysDescOid, interfaceTableOid, rackCoordinate);
+                SysDescOid, interfaceTableOid, rackCoordinate);
 
         File file = new File(out);
         if (!file.exists()) {

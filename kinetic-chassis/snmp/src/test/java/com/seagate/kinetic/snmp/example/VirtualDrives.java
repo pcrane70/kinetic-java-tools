@@ -1,18 +1,21 @@
 /**
- * Copyright 2013-2015 Seagate Technology LLC.
- *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License, v. 2.0. If a copy of the MPL was not
- * distributed with this file, You can obtain one at
- * https://mozilla.org/MP:/2.0/.
  * 
- * This program is distributed in the hope that it will be useful,
- * but is provided AS-IS, WITHOUT ANY WARRANTY; including without 
- * the implied warranty of MERCHANTABILITY, NON-INFRINGEMENT or 
- * FITNESS FOR A PARTICULAR PURPOSE. See the Mozilla Public 
- * License for more details.
+ * Copyright (C) 2014 Seagate Technology.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * See www.openkinetic.org for more project information
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
  */
 package com.seagate.kinetic.snmp.example;
 
@@ -22,25 +25,27 @@ import kinetic.simulator.KineticSimulator;
 import kinetic.simulator.SimulatorConfiguration;
 
 /**
- * Starts (by default) 1000 simulators each listens on its own ports and with its own persistent storage.
+ * Starts (by default) 84 * 5 simulators each listens on its own ports and with its
+ * own persistent storage.
  * <p>
- * You may require to configure the OS open process/file parameters to run this program.
+ * You may require to configure the OS open process/file parameters to run this
+ * program.
  * 
  * @see OpenStorageClient
  * @author chiaming
  */
 public class VirtualDrives {
-    
+
     public static final int MAX_SIMULATOR = 84;
 
     private int maxSimulator = MAX_SIMULATOR;
-    
- // base port number
+
+    // base port number
     private int port = 8123;
 
     // base ssl port
     private int sslPort = 18123;
-    
+
     public VirtualDrives(int maxSimulator, int portBase, int sslportBase) {
         this.maxSimulator = maxSimulator;
 
@@ -48,18 +53,18 @@ public class VirtualDrives {
 
         this.sslPort = sslportBase;
     }
-    
+
     public void run() {
-        
-     // simulator instances holder
+
+        // simulator instances holder
         KineticSimulator simulators[] = new KineticSimulator[maxSimulator];
 
         for (int i = 0; i < maxSimulator; i++) {
 
             // instantiate a new instance of configuration object
             SimulatorConfiguration config = new SimulatorConfiguration();
-            //config.setStartSsl(false);
-            //config.setUseMemoryStore(true);
+            // config.setStartSsl(false);
+            // config.setUseMemoryStore(true);
 
             // set service ports to the configuration
             int myport = port + i;
@@ -82,14 +87,15 @@ public class VirtualDrives {
                     + config.getPort() + ", ssl port=" + config.getSslPort()
                     + "\n");
         }
-        
+
     }
-    
-	public static void main(String[] args) throws InterruptedException {
-	    
-	    //use bdb store 
-	    //System.setProperty("kinetic.db.class", "com.seagate.kinetic.simulator.persist.bdb.BdbStore");
-        int maxSimulator = 84;
+
+    public static void main(String[] args) throws InterruptedException {
+
+        // use bdb store
+         System.setProperty("kinetic.db.class",
+         "com.seagate.kinetic.simulator.persist.bdb.BdbStore");
+        int maxSimulator = 84 * 5;
         if (args.length >= 1) {
             maxSimulator = Integer.parseInt(args[0]);
         }
@@ -103,13 +109,12 @@ public class VirtualDrives {
         if (args.length >= 3) {
             sslportBase = Integer.parseInt(args[2]);
         }
-	    
-		// max number of simulators to instantiate.
+
+        // max number of simulators to instantiate.
         VirtualDrives vdrives = new VirtualDrives(maxSimulator, portBase,
                 sslportBase);
-		//start the simulator
-		vdrives.run();
-	}
-
+        // start the simulator
+        vdrives.run();
+    }
 
 }

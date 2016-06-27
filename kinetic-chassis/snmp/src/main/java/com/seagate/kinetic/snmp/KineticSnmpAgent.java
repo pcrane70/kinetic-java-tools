@@ -15,34 +15,34 @@ import com.seagate.kinetic.snmp.core.MOScalarFactory;
 import com.seagate.kinetic.snmp.core.MOTableBuilder;
 
 public class KineticSnmpAgent {
-    private static final OID systemDescrption = new OID(
-            KineticSnmpAgentConfig.getSystemDescriptionOid());
-    private static final OID interfacesTable = new OID(
-            KineticSnmpAgentConfig.getInterfaceTableOid());
+    private KineticSnmpAgentConfig config = null;
     private Agent agent;
     private Gson gson = new Gson();
 
-    public KineticSnmpAgent(String address, List<KineticDevice> kineticDevices)
-            throws IOException {
+    public KineticSnmpAgent(KineticSnmpAgentConfig config) throws IOException {
+        this.config = config;
+        String host = config.getHost();
+        int port = config.getPort();
+        String address = host + "/" + port;
         agent = new Agent(address);
         agent.start();
+        System.out.println("started Kinetic SNMP agent, port=" + port
+                + ", host=" + host);
+
+        List<KineticDevice> kineticDevices = config.loadKineticDevices(config
+                .getMibKineticPath());
 
         setManagedObject(kineticDevices);
-        while (true) {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                System.out.println(e.getMessage());
-            }
-        }
     }
 
     private void setManagedObject(List<KineticDevice> kineticDevices) {
         agent.unregisterManagedObject(agent.getSnmpv2MIB());
-        agent.registerManagedObject(MOScalarFactory.createReadOnly(
-                systemDescrption, KineticSnmpAgentConfig.getSystemDescription()));
+        agent.registerManagedObject(MOScalarFactory.createReadOnly(new OID(
+                config.getSystemDescriptionOid()), config
+                .getSystemDescription()));
 
-        MOTableBuilder builder = new MOTableBuilder(interfacesTable);
+        MOTableBuilder builder = new MOTableBuilder(new OID(
+                config.getAgentInterfaceTableOid()));
 
         builder.addColumnType(SMIConstants.SYNTAX_OCTET_STRING,
                 MOAccessImpl.ACCESS_READ_ONLY);
@@ -55,10 +55,26 @@ public class KineticSnmpAgent {
     }
 
     public static void main(String args[]) throws IOException {
+        int maxNum = 5;
+        int portBase = 2001;
 
-        List<KineticDevice> kineticDevices = KineticSnmpAgentConfig
-                .loadKineticDevices();
-        new KineticSnmpAgent(KineticSnmpAgentConfig.getAgentAddress(),
-                kineticDevices);
+        KineticSnmpAgent agent[] = new KineticSnmpAgent[maxNum];
+        for (int i = 0; i < maxNum; i++){
+            
+            KineticSnmpAgentConfig config = new KineticSnmpAgentConfig();
+            config.setPort(portBase + i);
+            config.setMibKineticPath("conf/mibs/kinetic.mib" + (i+1) + ".json");
+            
+            agent[i] = new KineticSnmpAgent(config);
+        }
+        
+     while (true) {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+        
     }
 }

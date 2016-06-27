@@ -2,70 +2,79 @@ package com.seagate.kinetic.snmp.conf;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.seagate.kinetic.snmp.KineticDevice;
 
 public class KineticSnmpAgentConfig {
-    private final static String AEGNG_SYS_DESC_OID_KEY = "agent.systemdescrption.oid";
-    private final static String AEGNG_ITF_TABLE_OID_KEY = "agent.interfacestable.oid";
-    private final static String AEGNG_SYS_DESC_KEY = "agent.systemdescrption";
-    private final static String AEGNG_ADDRESS_KEY = "agent.address";
-    private final static String AEGNG_KINETIC_MIB_PATH_KEY = "agent.kinetic.mib.path";
-    private final static String AEG_CONFIG_HOME = "agent.conf.home";
 
-    private static Properties properties;
+    public static final String AEG_CONFIG_HOME = "agent.conf.home";
 
-    static {
-        properties = new Properties();
-        try {
-            String home = System.getProperty(AEG_CONFIG_HOME, ".");
-            properties.load(new FileInputStream(new File(home + File.separator
-                    + "conf/agent.config")));
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+    private String systemDescriptionOid = ".1.3.6.1.2.1.1.1.0";
+    private String agentInterfaceTableOid = ".1.3.6.1.2.1.2.2.1";
+    private String systemDescription = "Kinetic";
+    private String host = "0.0.0.0";
+    private int port = 2001;
+    private String mibKineticPath = "conf/mibs/kinetic.mib1.json";
+
+    public String getSystemDescriptionOid() {
+        return systemDescriptionOid;
     }
 
-    public static String getSystemDescriptionOid() {
-        return properties.getProperty(AEGNG_SYS_DESC_OID_KEY,
-                ".1.3.6.1.2.1.1.1.0");
+    public void setSystemDescriptionOid(String systemDescriptionOid) {
+        this.systemDescriptionOid = systemDescriptionOid;
     }
 
-    public static String getInterfaceTableOid() {
-        return properties.getProperty(AEGNG_ITF_TABLE_OID_KEY,
-                ".1.3.6.1.2.1.2.2.1");
+    public String getAgentInterfaceTableOid() {
+        return agentInterfaceTableOid;
     }
 
-    public static String getSystemDescription() {
-        return properties.getProperty(AEGNG_SYS_DESC_KEY, "Kinetic");
+    public void setAgentInterfaceTableOid(String agentInterfaceTableOid) {
+        this.agentInterfaceTableOid = agentInterfaceTableOid;
     }
 
-    public static String getAgentAddress() {
-        return properties.getProperty(AEGNG_ADDRESS_KEY, "0.0.0.0/2001");
+    public String getSystemDescription() {
+        return systemDescription;
     }
 
-    public static String getKineticMibFilePath() {
-        String mibPathKey = properties.getProperty(AEGNG_KINETIC_MIB_PATH_KEY,
-                "conf/mibs/kinetic.mib.json");
+    public void setSystemDescription(String systemDescription) {
+        this.systemDescription = systemDescription;
+    }
 
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getMibKineticPath() {
         return System.getProperty(AEG_CONFIG_HOME, ".") + File.separator
-                + mibPathKey;
+                + mibKineticPath;
     }
 
-    public static List<KineticDevice> loadKineticDevices() {
+    public void setMibKineticPath(String mibKineticPath) {
+        this.mibKineticPath = mibKineticPath;
+    }
+
+    public List<KineticDevice> loadKineticDevices(String mibKienticAbPath) {
         List<KineticDevice> kineticDevices = new ArrayList<KineticDevice>();
-        File file = new File(KineticSnmpAgentConfig.getKineticMibFilePath());
+        File file = new File(mibKienticAbPath);
         BufferedReader reader = null;
         StringBuffer sb = new StringBuffer();
         try {
@@ -75,8 +84,10 @@ public class KineticSnmpAgentConfig {
                 sb.append(line);
             }
             reader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Mib.kinetic file isn't found");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Reading Mib.kinetic file throws IOException!");
         } finally {
             if (reader != null) {
                 try {

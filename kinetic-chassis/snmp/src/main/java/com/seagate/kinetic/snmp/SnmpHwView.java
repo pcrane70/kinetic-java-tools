@@ -7,7 +7,7 @@ public class SnmpHwView {
     public List<SnmpHwViewRack> racks;
 
     public static SnmpHwView loadFromSnmpAgents(String agentIps,
-            String agentPort, String SysDescOid, String interfaceTableOid,
+            String SysDescOid, String interfaceTableOid,
             String rackCoordinate) {
         SnmpHwView snmpHwView = new SnmpHwView();
         KineticSnmpClient kineticSnmpClient = null;
@@ -29,7 +29,9 @@ public class SnmpHwView {
         SnmpHwViewChassis snmpHwViewChassis = null;
         String agentIpList[] = agentIps.split(",");
         int i = 0;
-        for (String agentIp : agentIpList) {
+        for (String ipAndPorts : agentIpList) {
+            String agentIp = ipAndPorts.split(":")[0];
+            String agentPort = ipAndPorts.split(":")[1];
             agentAddress = "udp:" + agentIp + "/" + agentPort;
             kineticSnmpClient = new KineticSnmpClient(agentAddress, SysDescOid,
                     interfaceTableOid);
