@@ -95,7 +95,7 @@ public class VirtualDrives {
         // use bdb store
          System.setProperty("kinetic.db.class",
          "com.seagate.kinetic.simulator.persist.bdb.BdbStore");
-        int maxSimulator = 84 * 5;
+        int maxSimulator = 84;
         if (args.length >= 1) {
             maxSimulator = Integer.parseInt(args[0]);
         }

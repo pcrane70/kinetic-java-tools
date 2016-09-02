@@ -1,108 +1,49 @@
 package com.seagate.kinetic.snmp.conf;
 
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.seagate.kinetic.snmp.KineticDevice;
+import java.util.Properties;
 
 public class KineticSnmpAgentConfig {
+    private final static String AEGNG_ADDRESS_KEY = "agent.address";
+    private final static String AEG_CONFIG_HOME = "agent.conf.home";
+    private final static String PLANE_A_PREFIX = "mo.plane.a.value.1.3.6.1.4.1.3581.12.7.2.1.1.10";
+    private final static String PLANE_B_PREFIX = "mo.plane.b.value.1.3.6.1.4.1.3581.12.7.2.1.1.11";
+    private final static String MO_IP_OID_ROOT = "mo.ip.oid.root";
 
-    public static final String AEG_CONFIG_HOME = "agent.conf.home";
+    private static Properties properties;
 
-    private String systemDescriptionOid = ".1.3.6.1.2.1.1.1.0";
-    private String agentInterfaceTableOid = ".1.3.6.1.2.1.2.2.1";
-    private String systemDescription = "Kinetic";
-    private String host = "0.0.0.0";
-    private int port = 2001;
-    private String mibKineticPath = "conf/mibs/kinetic.mib1.json";
-
-    public String getSystemDescriptionOid() {
-        return systemDescriptionOid;
-    }
-
-    public void setSystemDescriptionOid(String systemDescriptionOid) {
-        this.systemDescriptionOid = systemDescriptionOid;
-    }
-
-    public String getAgentInterfaceTableOid() {
-        return agentInterfaceTableOid;
-    }
-
-    public void setAgentInterfaceTableOid(String agentInterfaceTableOid) {
-        this.agentInterfaceTableOid = agentInterfaceTableOid;
-    }
-
-    public String getSystemDescription() {
-        return systemDescription;
-    }
-
-    public void setSystemDescription(String systemDescription) {
-        this.systemDescription = systemDescription;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getMibKineticPath() {
-        return System.getProperty(AEG_CONFIG_HOME, ".") + File.separator
-                + mibKineticPath;
-    }
-
-    public void setMibKineticPath(String mibKineticPath) {
-        this.mibKineticPath = mibKineticPath;
-    }
-
-    public List<KineticDevice> loadKineticDevices(String mibKienticAbPath) {
-        List<KineticDevice> kineticDevices = new ArrayList<KineticDevice>();
-        File file = new File(mibKienticAbPath);
-        BufferedReader reader = null;
-        StringBuffer sb = new StringBuffer();
+    static {
+        properties = new Properties();
         try {
-            reader = new BufferedReader(new FileReader(file));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            reader.close();
+            String home = System.getProperty(AEG_CONFIG_HOME, ".");
+            properties.load(new FileInputStream(new File(home + File.separator
+                    + "conf/agent.config")));
         } catch (FileNotFoundException e) {
-            System.out.println("Mib.kinetic file isn't found");
+            System.out.println(e.getMessage());
         } catch (IOException e) {
-            System.out.println("Reading Mib.kinetic file throws IOException!");
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
-            }
+            System.out.println(e.getMessage());
         }
+    }
 
-        String content = sb.toString();
-        if (!content.isEmpty()) {
-            kineticDevices = new Gson().fromJson(content,
-                    new TypeToken<List<KineticDevice>>() {
-                    }.getType());
-        }
-        return kineticDevices;
+    public static String getIpOidRoot() {
+        return properties.getProperty(MO_IP_OID_ROOT,
+                "1.3.6.1.4.1.3581.12.7.2.1.1");
+    }
+
+    public static String getIpOfPlaneA(int postfix) {
+        return properties
+                .getProperty(PLANE_A_PREFIX + "." + postfix, "unknown");
+    }
+
+    public static String getIpOfPlaneB(int postfix) {
+        return properties
+                .getProperty(PLANE_B_PREFIX + "." + postfix, "unknown");
+    }
+
+    public static String getAgentAddress() {
+        return properties.getProperty(AEGNG_ADDRESS_KEY, "0.0.0.0/2001");
     }
 }

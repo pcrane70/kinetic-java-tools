@@ -3,15 +3,16 @@ package com.seagate.kinetic.snmp.core;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.log4j.BasicConfigurator;
 import org.snmp4j.TransportMapping;
 import org.snmp4j.agent.BaseAgent;
 import org.snmp4j.agent.CommandProcessor;
 import org.snmp4j.agent.DuplicateRegistrationException;
 import org.snmp4j.agent.MOGroup;
 import org.snmp4j.agent.ManagedObject;
-import org.snmp4j.agent.mo.MOTableRow;
 import org.snmp4j.agent.mo.snmp.RowStatus;
 import org.snmp4j.agent.mo.snmp.SnmpCommunityMIB;
+import org.snmp4j.agent.mo.snmp.SnmpCommunityMIB.SnmpCommunityEntryRow;
 import org.snmp4j.agent.mo.snmp.SnmpNotificationMIB;
 import org.snmp4j.agent.mo.snmp.SnmpTargetMIB;
 import org.snmp4j.agent.mo.snmp.StorageType;
@@ -19,10 +20,12 @@ import org.snmp4j.agent.mo.snmp.VacmMIB;
 import org.snmp4j.agent.security.MutableVACM;
 import org.snmp4j.log.Log4jLogFactory;
 import org.snmp4j.log.LogFactory;
-import org.snmp4j.mp.MPv3;
+import org.snmp4j.log.LogLevel;
+import org.snmp4j.security.AuthMD5;
 import org.snmp4j.security.SecurityLevel;
 import org.snmp4j.security.SecurityModel;
 import org.snmp4j.security.USM;
+import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.Address;
 import org.snmp4j.smi.GenericAddress;
 import org.snmp4j.smi.Integer32;
@@ -31,22 +34,26 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.Variable;
 import org.snmp4j.transport.TransportMappings;
 
-public class Agent extends BaseAgent {
+public class SnmpV3Agent extends BaseAgent {
+    private final static boolean DEBUG_FLAG = Boolean.parseBoolean(System
+            .getProperty("DEBUG", "false"));
 
     // not needed but very useful of course
     static {
-        LogFactory.setLogFactory(new Log4jLogFactory());
+        if (DEBUG_FLAG) {
+            LogFactory.setLogFactory(new Log4jLogFactory());
+            BasicConfigurator.configure();
+            LogFactory.getLogFactory().getRootLogger()
+                    .setLogLevel(LogLevel.ALL);
+        }
     }
 
     private String address;
 
-    public Agent(String address) throws IOException {
-
-        // These files does not exist and are not used but has to be specified
-        // Read snmp4j docs for more info
-        super(new File("conf.agent"), new File("bootCounter.agent"),
-                new CommandProcessor(
-                        new OctetString(MPv3.createLocalEngineID())));
+    public SnmpV3Agent(String address) throws IOException {
+        super(new File("bootCounter.agent"), new File(
+                "/Users/Emma/agentConfig.properties"), new CommandProcessor(
+                new OctetString("mytestagent".getBytes())));
         this.address = address;
     }
 
@@ -88,19 +95,25 @@ public class Agent extends BaseAgent {
      */
     @Override
     protected void addViews(VacmMIB vacm) {
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString(
+                "snmp"), new OctetString("v3group"), StorageType.nonVolatile);
 
-        vacm.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(
-                "cpublic"), new OctetString("v1v2group"),
-                StorageType.nonVolatile);
-
-        vacm.addAccess(new OctetString("v1v2group"), new OctetString("public"),
-                SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV,
+        vacmMIB.addAccess(new OctetString("v3group"), new OctetString(),
+                SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_NOPRIV,
                 MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"),
                 new OctetString("fullWriteView"), new OctetString(
                         "fullNotifyView"), StorageType.nonVolatile);
 
-        vacm.addViewTreeFamily(new OctetString("fullReadView"), new OID("1.3"),
-                new OctetString(), VacmMIB.vacmViewIncluded,
+        vacmMIB.addViewTreeFamily(new OctetString("fullReadView"), new OID(
+                "1.3"), new OctetString(), VacmMIB.vacmViewIncluded,
+                StorageType.nonVolatile);
+
+        vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID(
+                "1.3"), new OctetString(), VacmMIB.vacmViewIncluded,
+                StorageType.nonVolatile);
+
+        vacmMIB.addViewTreeFamily(new OctetString("fullNotifyView"), new OID(
+                "1.3"), new OctetString(), VacmMIB.vacmViewIncluded,
                 StorageType.nonVolatile);
     }
 
@@ -109,14 +122,21 @@ public class Agent extends BaseAgent {
      * 
      */
     protected void addUsmUser(USM usm) {
+        UsmUser user = new UsmUser(new OctetString("snmp"), // 账户名
+                AuthMD5.ID, // encrypt protocol
+                new OctetString("password"), // password
+                null, // private protocol
+                null // private password
+        );
+        usm.addUser(user.getSecurityName(), null, user);
     }
 
+    @SuppressWarnings("unchecked")
     protected void initTransportMappings() throws IOException {
         transportMappings = new TransportMapping[1];
         Address addr = GenericAddress.parse(address);
-        TransportMapping tm = TransportMappings.getInstance()
+        transportMappings[0] = TransportMappings.getInstance()
                 .createTransportMapping(addr);
-        transportMappings[0] = tm;
     }
 
     /**
@@ -128,9 +148,6 @@ public class Agent extends BaseAgent {
     public void start() throws IOException {
 
         init();
-        // This method reads some old config from a file and causes
-        // unexpected behavior.
-        // loadConfig(ImportModes.REPLACE_CREATE);
         addShutdownHook();
         getServer().addContext(new OctetString("public"));
         finishInit();
@@ -149,8 +166,7 @@ public class Agent extends BaseAgent {
      * We only configure one, "public".
      */
     protected void addCommunities(SnmpCommunityMIB communityMIB) {
-        Variable[] com2sec = new Variable[] { new OctetString("public"), // community
-                                                                         // name
+        Variable[] com2sec = new Variable[] { new OctetString("public"),
                 new OctetString("cpublic"), // security name
                 getAgent().getContextEngineID(), // local engine ID
                 new OctetString("public"), // default context name
@@ -158,17 +174,17 @@ public class Agent extends BaseAgent {
                 new Integer32(StorageType.nonVolatile), // storage type
                 new Integer32(RowStatus.active) // row status
         };
-        MOTableRow row = communityMIB.getSnmpCommunityEntry().createRow(
-                new OctetString("public2public").toSubIndex(true), com2sec);
-        communityMIB.getSnmpCommunityEntry().addRow((MOTableRow) row);
+        SnmpCommunityEntryRow row = communityMIB.getSnmpCommunityEntry()
+                .createRow(new OctetString("public2public").toSubIndex(true),
+                        com2sec);
+        communityMIB.getSnmpCommunityEntry().addRow(row);
     }
 
     public static void main(String[] args) throws IOException,
             InterruptedException {
-        Agent agent = new Agent("0.0.0.0/2001");
+        SnmpV3Agent agent = new SnmpV3Agent("0.0.0.0/2001");
         agent.start();
         while (true) {
-            System.out.println("Agent running...");
             Thread.sleep(5000);
         }
     }

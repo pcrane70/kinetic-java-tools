@@ -15,6 +15,7 @@ import org.snmp4j.smi.OID;
 import org.snmp4j.smi.SMIConstants;
 import org.snmp4j.smi.Variable;
 
+@SuppressWarnings("rawtypes")
 public class MOTableBuilder {
 
     private MOTableSubIndex[] subIndexes = new MOTableSubIndex[] { new MOTableSubIndex(
@@ -65,6 +66,7 @@ public class MOTableBuilder {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public MOTable build() {
         DefaultMOTable ifTable = new DefaultMOTable(tableRootOid, indexDef,
                 columns.toArray(new MOColumn[0]));

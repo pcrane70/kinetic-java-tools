@@ -26,5 +26,6 @@ done
 
 #echo "CLASSPATH=$CLASSPATH"
 
-exec "$JAVA" -DDEBUG=false -Dagent.conf.home=$BASE_DIR -classpath "$CLASSPATH" com.seagate.kinetic.snmp.KineticV3Agent "$@"
+exec "$JAVA" -classpath "$CLASSPATH" com.seagate.kinetic.snmp.CombineRacks "$@"
 
+exit 0

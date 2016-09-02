@@ -4,14 +4,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
+import org.snmp4j.ScopedPDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.Target;
 import org.snmp4j.TransportMapping;
+import org.snmp4j.UserTarget;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.event.ResponseListener;
+import org.snmp4j.mp.MPv3;
 import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.AuthMD5;
+import org.snmp4j.security.SecurityLevel;
+import org.snmp4j.security.SecurityModels;
+import org.snmp4j.security.SecurityProtocols;
+import org.snmp4j.security.USM;
+import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.Address;
 import org.snmp4j.smi.GenericAddress;
 import org.snmp4j.smi.OID;
@@ -38,17 +46,41 @@ public class SimpleSnmpClient {
         }
     }
 
+    public SimpleSnmpClient(String address, String user, String password) {
+        super();
+        this.address = address;
+        try {
+            start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        addAuth(user, password);
+    }
+
     // Since snmp4j relies on asynch req/resp we need a listener
     // for responses which should be closed
     public void stop() throws IOException {
         snmp.close();
     }
 
+    @SuppressWarnings("unchecked")
     private void start() throws IOException {
+        @SuppressWarnings("rawtypes")
         TransportMapping transport = new DefaultUdpTransportMapping();
         snmp = new Snmp(transport);
+        USM usm = new USM(SecurityProtocols.getInstance(), new OctetString(
+                MPv3.createLocalEngineID()), 0);
+        SecurityModels.getInstance().addSecurityModel(usm);
         // Do not forget this line!
         transport.listen();
+    }
+
+    public void addAuth(String user, String password) {
+        snmp.getUSM().addUser(
+                new OctetString(user),
+                new UsmUser(new OctetString(user), AuthMD5.ID, new OctetString(
+                        password), null, null));
     }
 
     public String getAsString(OID oid) throws IOException {
@@ -65,7 +97,7 @@ public class SimpleSnmpClient {
     }
 
     private PDU getPDU(OID oids[]) {
-        PDU pdu = new PDU();
+        PDU pdu = new ScopedPDU();
         for (OID oid : oids) {
             pdu.add(new VariableBinding(oid));
         }
@@ -84,12 +116,13 @@ public class SimpleSnmpClient {
 
     private Target getTarget() {
         Address targetAddress = GenericAddress.parse(address);
-        CommunityTarget target = new CommunityTarget();
-        target.setCommunity(new OctetString("public"));
+        UserTarget target = new UserTarget();
         target.setAddress(targetAddress);
-        target.setRetries(2);
-        target.setTimeout(1500);
-        target.setVersion(SnmpConstants.version2c);
+        target.setRetries(1);
+        target.setTimeout(5000);
+        target.setVersion(SnmpConstants.version3);
+        target.setSecurityLevel(SecurityLevel.AUTH_NOPRIV);
+        target.setSecurityName(new OctetString("snmp"));
         return target;
     }
 
@@ -99,7 +132,6 @@ public class SimpleSnmpClient {
     public List<List<String>> getTableAsStrings(OID[] oids) {
         TableUtils tUtils = new TableUtils(snmp, new DefaultPDUFactory());
 
-        @SuppressWarnings("unchecked")
         List<TableEvent> events = tUtils
                 .getTable(getTarget(), oids, null, null);
 
