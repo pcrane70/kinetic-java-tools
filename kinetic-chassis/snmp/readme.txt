@@ -1,16 +1,14 @@
-How to run snmp demo
+How to run snmp tool
 ==============================
 1. git clone https://github.com/Seagate/kinetic-java-tools.git
 2. cd <kinetic-java-tools-folder>/kinetic-chassis/snmp
 3. mvn clean package
 4. cd <kinetic-java-tools-folder>/kinetic-chassis/snmp/bin
-5. ./startVirtualDrives.sh
-6. ./startSnmpAgent.sh
-7. ./startSnmpUtil.sh -file snmpTool.conf
-   hwview_chassis_"chassisId".json will be generated under current work directory by default.
-8. ./generateRackJsonFromChassisJson.sh -files <chassisJsonFileA, chassisJsonFileB, ...> [-rackId <rackId> -rackCoordinate <rackCoordinate> -out <hvOutputFile>]
+5. ./startSnmpUtil.sh -file snmpTool.conf
+   hwview_chassis_"chassis.id".json will be generated under current work directory by default.
+6. ./generateRackJsonFromChassisJson.sh -files <chassisJsonFileA, chassisJsonFileB, ...> [-rackId <rackId> -rackCoordinate <rackCoordinate> -out <hvOutputFile>]
    hwview_rack_"rackId".json will be generated under current work directory by default.
-9. ./generateHwviewFromRackJson.sh -files <rackJsonFileA, rackJsonFileB, ...>
+7. ./generateHwviewFromRackJson.sh -files <rackJsonFileA, rackJsonFileB, ...>
    hwview.json will be generated under current work directory by default.
 
 More information
