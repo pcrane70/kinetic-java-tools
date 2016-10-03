@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>kinetic-console</artifactId>
-	<name>Kinetic Console</name>
+	<name>kinetic-console</name>
 
 	<packaging>jar</packaging>
 	<url>http://maven.apache.org</url>

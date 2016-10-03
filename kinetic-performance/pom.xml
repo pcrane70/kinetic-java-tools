@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>kinetic-performance</artifactId>
-	<name>Kinetic/Performance</name>
+	<name>kinetic-performance</name>
 	<packaging>jar</packaging>
 	<description>YCSB benchmark to test Kinetic drive</description>
 	<build>
@@ -16,6 +16,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.12</version>
 				<executions>
 					<execution>
 						<phase>generate-sources</phase>

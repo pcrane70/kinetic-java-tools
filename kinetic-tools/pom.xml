@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>kinetic-tools</artifactId>
-	<name>Kinetic/Tools</name>
+	<name>kinetic-tools</name>
 
 	<packaging>jar</packaging>
 	<url>http://maven.apache.org</url>

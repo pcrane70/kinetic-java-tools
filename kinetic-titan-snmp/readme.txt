@@ -1,9 +1,9 @@
 How to run snmp tool
 ==============================
 1. git clone https://github.com/Seagate/kinetic-java-tools.git
-2. cd <kinetic-java-tools-folder>/kinetic-chassis/snmp
+2. cd <kinetic-java-tools-folder>/kinetic-titan-snmp
 3. mvn clean package
-4. cd <kinetic-java-tools-folder>/kinetic-chassis/snmp/bin
+4. cd <kinetic-java-tools-folder>/kinetic-titan-snmp/bin
 5. ./startSnmpUtil.sh -file snmpTool.conf
    hwview_chassis_"chassis.id".json will be generated under current work directory by default.
 6. ./generateRackJsonFromChassisJson.sh -files <chassisJsonFileA, chassisJsonFileB, ...> [-rackId <rackId> -rackCoordinate <rackCoordinate> -out <hvOutputFile>]
@@ -16,7 +16,7 @@ More information
 1. "./startSnmpUtil.sh -help" to see more options.
 2. "./generateRackJsonFromChassisJson.sh -help" to see more options.
 3. "./generateHwviewFromRackJson.sh -help" to see more options.
-4. <kinetic-java-tools-folder>/kinetic-chassis/snmp/conf/agent.config configures snmp agent ip/port and OIDs.
+4. <kinetic-java-tools-folder>/kinetic-titan-snmp/conf/agent.config configures snmp agent ip/port and OIDs.
 
 snmpTool.conf content instruction
 ===============================
