@@ -26,13 +26,19 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.servlet.http.HttpServletResponse;
+
 import kinetic.admin.AdminClientConfiguration;
 import kinetic.admin.KineticAdminClient;
 import kinetic.admin.KineticAdminClientFactory;
 import kinetic.client.KineticException;
 
+import com.google.gson.Gson;
+import com.seagate.kinetic.proto.Kinetic;
 import com.seagate.kinetic.tools.management.common.KineticToolsException;
 import com.seagate.kinetic.tools.management.rest.message.DeviceId;
+import com.seagate.kinetic.tools.management.rest.message.DeviceStatus;
+import com.seagate.kinetic.tools.management.rest.message.RestResponseWithStatus;
 
 abstract class AbstractCommand implements Command {
     private static final String UNKNOWN = "unknown";
@@ -289,6 +295,49 @@ abstract class AbstractCommand implements Command {
         }
 
         abstract void runTask() throws KineticToolsException;
+    }
+
+    protected Kinetic.Command.Priority getPriority(String priority) {
+        Kinetic.Command.Priority p = null;
+        if (priority.equalsIgnoreCase("normal")) {
+            p = Kinetic.Command.Priority.NORMAL;
+        } else if (priority.equalsIgnoreCase("lower")) {
+            p = Kinetic.Command.Priority.LOWER;
+        } else if (priority.equalsIgnoreCase("lowest")) {
+            p = Kinetic.Command.Priority.LOWEST;
+        } else if (priority.equalsIgnoreCase("higher")) {
+            p = Kinetic.Command.Priority.HIGHER;
+        } else if (priority.equalsIgnoreCase("highest")) {
+            p = Kinetic.Command.Priority.HIGHEST;
+        } else {
+            throw new IllegalArgumentException(
+                    "Priority should be normal/lower/lowest/higher/highest.");
+        }
+        return p;
+    }
+
+    protected void setRestResponse(RestResponseWithStatus response,
+            List<DeviceStatus> deviceStatusList) {
+        DeviceStatus deviceStatus;
+        Gson gson = new Gson();
+        for (KineticDevice kineticDevice : report.getSucceedDevices()) {
+            deviceStatus = new DeviceStatus();
+            deviceStatus.setMessage(gson.toJson(report
+                    .getAdditionMessage(kineticDevice)));
+            deviceStatus.setDevice(toDeviceId(kineticDevice));
+            response.getDevices().add(deviceStatus);
+            deviceStatusList.add(deviceStatus);
+        }
+
+        for (KineticDevice kineticDevice : report.getFailedDevices()) {
+            deviceStatus = new DeviceStatus();
+            deviceStatus.setMessage(gson.toJson(report
+                    .getAdditionMessage(kineticDevice)));
+            deviceStatus.setDevice(toDeviceId(kineticDevice));
+            deviceStatus.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            response.getDevices().add(deviceStatus);
+            deviceStatusList.add(deviceStatus);
+        }
     }
 
     @Override

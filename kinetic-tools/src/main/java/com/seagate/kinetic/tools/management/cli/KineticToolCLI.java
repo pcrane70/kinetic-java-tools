@@ -38,6 +38,8 @@ import com.seagate.kinetic.tools.management.cli.impl.GetVendorSpecificDeviceLog;
 import com.seagate.kinetic.tools.management.cli.impl.InstantErase;
 import com.seagate.kinetic.tools.management.cli.impl.Invoker;
 import com.seagate.kinetic.tools.management.cli.impl.LockDevice;
+import com.seagate.kinetic.tools.management.cli.impl.MediaOptimize;
+import com.seagate.kinetic.tools.management.cli.impl.MediaScan;
 import com.seagate.kinetic.tools.management.cli.impl.PerfRunner;
 import com.seagate.kinetic.tools.management.cli.impl.PingReachableDrive;
 import com.seagate.kinetic.tools.management.cli.impl.SecureErase;
@@ -200,6 +202,25 @@ public class KineticToolCLI {
         subArgs.add("-format");
         legalArguments.put(rootArg, subArgs);
 
+        rootArg = "-mediascan";
+        subArgs = initSubArgs();
+        subArgs.add("-in");
+        subArgs.add("-startkey");
+        subArgs.add("-endkey");
+        subArgs.add("-startkeyinclusive");
+        subArgs.add("-endkeyinclusive");
+        subArgs.add("-maxkeys");
+        subArgs.add("-priority");
+        legalArguments.put(rootArg, subArgs);
+
+        rootArg = "-mediaoptimize";
+        subArgs = initSubArgs();
+        subArgs.add("-in");
+        subArgs.add("-startkey");
+        subArgs.add("-endkey");
+        subArgs.add("-priority");
+        legalArguments.put(rootArg, subArgs);
+
         rootArg = "-runsmoketest";
         subArgs = initSubArgs();
         subArgs.add("-in");
@@ -239,6 +260,8 @@ public class KineticToolCLI {
         sb.append("ktool -getvendorspecificdevicelog <-name <vendorspecificname>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-out <logOutputFile>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -lockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -unlockdevice <-pin <lockPinInString>> <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -mediascan <-startkey <startKeyInString>> <-endkey <endKeyInString>> <-startkeyinclusive <true|false>> <-endkeyinclusive <true|false>> <-maxkeys <returnedMaxKeys>> <-priority <normal|lowest|lower|higher|highest>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
+        sb.append("ktool -mediaoptimize <-startkey <startKeyInString>> <-endkey <endKeyInString>> <-priority <normal|lowest|lower|higher|highest>> <-in <driveListInputFile>> [-usessl <true|false>] [-clversion <clusterVersion>] [-identity <identity>] [-key <key>] [-reqtimeout <requestTimeoutInSecond>]\n");
         sb.append("ktool -runsmoketest <-in <driveListInputFile>> [-format <chassisjson|racksjson>]\n");
         sb.append("ktool -perf <-in <driveListInputFile>> [-format <chassisjson|racksjson>] [-valuesize <valueSizeInByte>] [-recordcount <recordCountForPrepare>] [-operationcount <realOperationCount>] [-connectionperdrive <connectionPerDrive>] [-readproportion <readProportion>] [-insertproportion <insertProportion>] [-distribution <distribution>] [-threads <threads_number>]\n");
         System.out.println(sb.toString());
@@ -644,6 +667,39 @@ public class KineticToolCLI {
 
                 invoker.execute(new UnLockDevice(driveListInputFile, unLockPin,
                         useSsl, clusterVersion, identity, key, requestTimeout));
+            } else if (args[0].equalsIgnoreCase("-mediascan")) {
+                String startKey = kineticToolCLI.getArgValue("-startkey", args);
+                String endKey = kineticToolCLI.getArgValue("-endkey", args);
+                boolean startKeyInclusive = Boolean.parseBoolean(kineticToolCLI
+                        .getArgValue("-startkeyinclusive", args));
+                boolean endKeyInclusive = Boolean.parseBoolean(kineticToolCLI
+                        .getArgValue("-endkeyinclusive", args));
+                int maxKeys = Integer.parseInt(kineticToolCLI.getArgValue(
+                        "-maxkeys", args));
+                String priority = kineticToolCLI.getArgValue("-priority", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+                invoker.execute(new MediaScan(startKey, endKey,
+                        startKeyInclusive, endKeyInclusive, maxKeys, priority,
+                        useSsl, clusterVersion, identity, key, requestTimeout,
+                        driveListInputFile));
+
+            } else if (args[0].equalsIgnoreCase("-mediaoptimize")) {
+                String startKey = kineticToolCLI.getArgValue("-startkey", args);
+                String endKey = kineticToolCLI.getArgValue("-endkey", args);
+                String priority = kineticToolCLI.getArgValue("-priority", args);
+                String driveListInputFile = kineticToolCLI.getArgValue("-in",
+                        args);
+
+                driveListInputFile = kineticToolCLI.checkInputfileFormat(args,
+                        driveListInputFile);
+                invoker.execute(new MediaOptimize(startKey, endKey, priority,
+                        useSsl, clusterVersion, identity, key, requestTimeout,
+                        driveListInputFile));
+
             } else if (args[0].equalsIgnoreCase("-runsmoketest")) {
                 String driveListInputFile = kineticToolCLI.getArgValue("-in",
                         args);
